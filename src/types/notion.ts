@@ -1,4 +1,4 @@
-export interface NotionPage {
+export interface NotionPost {
   id: string
   title: string
   url_path: string
@@ -7,8 +7,21 @@ export interface NotionPage {
   published: boolean
 }
 
-// export interface NotionBlock {
-//   id: string
-//   type: string
-//   [key: string]: any
-// }
+export interface NotionBlock {
+  id: string
+  type: string
+  [key: string]: unknown
+}
+
+export interface PersonalInfo {
+  name: string
+  bio: string
+  avatar?: string
+  socialLinks: SocialLink[]
+}
+
+export interface SocialLink {
+  platform: string
+  url: string
+  icon?: string
+}
