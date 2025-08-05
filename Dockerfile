@@ -1,8 +1,8 @@
-# Boiler Plate Next.js Application Dockerfile
+# Blog(new) Next.js Application Dockerfile
 
 # --- Builder Stage ---
 FROM node:20-alpine AS builder
-LABEL maintainer="example@example.com"
+LABEL maintainer="ajy720@gmail.com"
 
 WORKDIR /app
 

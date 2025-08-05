@@ -32,7 +32,7 @@ export const Logo: React.FC<LogoProps> = ({
       {/* Logo Icon from SVG file */}
       <Image
         src="/logo.svg"
-        alt="Boiler Plate Logo"
+        alt="Blog Logo"
         width={logoSize}
         height={logoSize}
         className="rounded-sm shadow-sm"
@@ -42,7 +42,7 @@ export const Logo: React.FC<LogoProps> = ({
       {/* Logo Text */}
       {showText && (
         <span className={`font-bold ${textSizeClasses[size]} tracking-tight`}>
-          Boiler Plate
+          Blog
         </span>
       )}
     </div>

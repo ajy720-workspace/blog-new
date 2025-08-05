@@ -1,8 +1,8 @@
 # Docker Compose for Test Environment
 services:
-  {PROJECT}-test:
-    image: ${IMAGE_NAME_WITH_TAG:-ghcr.io/{USERNAME}/{PROJECT}:test-latest}
-    container_name: {PROJECT}-test
+  blog-test:
+    image: ${IMAGE_NAME_WITH_TAG:-ghcr.io/ajy720-workspace/blog:test-latest}
+    container_name: blog-test
     ports:
       - '5001:3000'
     env_file:
@@ -10,4 +10,4 @@ services:
     restart: unless-stopped
     labels:
       - 'environment=test'
-      - 'app={PROJECT}'
+      - 'app=blog'

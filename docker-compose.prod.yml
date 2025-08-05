@@ -1,8 +1,8 @@
 # Docker Compose for Production Environment
 services:
-  {PROJECT}-prod:
-    image: ${IMAGE_NAME_WITH_TAG:-ghcr.io/{USERNAME}/{PROJECT}:prod-latest}
-    container_name: {PROJECT}-prod
+  blog-prod:
+    image: ${IMAGE_NAME_WITH_TAG:-ghcr.io/ajy720-workspace/blog:prod-latest}
+    container_name: blog-prod
     ports:
       - '5000:3000'
     env_file:
@@ -10,4 +10,4 @@ services:
     restart: unless-stopped
     labels:
       - 'environment=production'
-      - 'app={PROJECT}'
+      - 'app=blog'
