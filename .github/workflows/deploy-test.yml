@@ -1,0 +1,158 @@
+name: Deploy to Test Environment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
+
+jobs:
+  # Job 1: Build and Push (only if labeled or manual)
+  build-and-push:
+    name: Build and Push to GHCR
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'deploy:test') || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.meta.outputs.digest }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=test-
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # Job 2: Deploy to Test Environment
+  deploy-test:
+    name: Deploy to Test Server
+    runs-on: self-hosted
+    needs: build-and-push
+    if: contains(github.event.pull_request.labels.*.name, 'deploy:test') || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      packages: read
+      issues: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Create .env.test file from secrets
+        run: |
+          cat > .env.test << EOF
+          NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SESSION_SECRET=${{ secrets.SESSION_SECRET }}
+          NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
+          NOTION_DATABASE_ID=${{ secrets.NOTION_DATABASE_ID }}
+          EOF
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy with Docker Compose
+        run: |
+          # Extract the first tag (test-*) from the multi-line tags output
+          IMAGE_TAG=$(echo "${{ needs.build-and-push.outputs.image-tag }}" | head -n1)
+          echo "Using image tag: $IMAGE_TAG"
+
+          # Stop existing containers
+          docker compose -f ${{ github.workspace }}/docker-compose.test.yml down || true
+
+          # Start new containers with updated image
+          IMAGE_NAME_WITH_TAG="$IMAGE_TAG" docker compose -f ${{ github.workspace }}/docker-compose.test.yml up -d
+
+      - name: Clean up old test images
+        run: |
+          # Remove unused images to free up disk space
+          docker image prune -af
+
+      - name: Comment PR with deployment info
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_PAT }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 **Test Deployment Successful**
+              
+              Your changes have been deployed to the test environment:
+              **URL:** https://your.test.domain
+              
+              **Branch:** \`${{ github.head_ref }}\`
+              **Commit:** \`${{ github.sha }}\`
+              **Docker Image:** \`${{ needs.build-and-push.outputs.image-tag }}\`
+              **Label:** \`deploy:test\`
+              
+              The deployment will be available in a few minutes.
+              
+              💡 **Tip:** Remove the \`deploy:test\` label to stop automatic deployments for this PR.`
+            })
+
+  notify-label-removed:
+    runs-on: self-hosted
+    if: github.event.action == 'unlabeled' && github.event.label.name == 'deploy:test'
+    permissions:
+      issues: write
+
+    steps:
+      - name: Comment PR about deployment stopping
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{secrets.GH_PAT}}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `⏹️ **Test Deployment Stopped**
+              
+              The \`deploy:test\` label has been removed from this PR.
+              
+              **Current Status:**
+              - Automatic deployments are now **disabled** for this PR
+              - The last deployment at https://your.test.domain will remain active
+              - Add the \`deploy:test\` label back to resume automatic deployments
+              
+              **Branch:** \`${{ github.head_ref }}\`
+              **Action:** Label removed`
+            })

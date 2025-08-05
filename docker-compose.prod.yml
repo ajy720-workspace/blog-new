@@ -1,0 +1,13 @@
+# Docker Compose for Production Environment
+services:
+  {PROJECT}-prod:
+    image: ${IMAGE_NAME_WITH_TAG:-ghcr.io/{USERNAME}/{PROJECT}:prod-latest}
+    container_name: {PROJECT}-prod
+    ports:
+      - '5000:3000'
+    env_file:
+      - .env.prod
+    restart: unless-stopped
+    labels:
+      - 'environment=production'
+      - 'app={PROJECT}'

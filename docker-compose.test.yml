@@ -1,0 +1,13 @@
+# Docker Compose for Test Environment
+services:
+  {PROJECT}-test:
+    image: ${IMAGE_NAME_WITH_TAG:-ghcr.io/{USERNAME}/{PROJECT}:test-latest}
+    container_name: {PROJECT}-test
+    ports:
+      - '5001:3000'
+    env_file:
+      - .env.test
+    restart: unless-stopped
+    labels:
+      - 'environment=test'
+      - 'app={PROJECT}'
