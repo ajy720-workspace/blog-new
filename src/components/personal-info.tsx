@@ -1,4 +1,11 @@
-import { Github, Twitter, Linkedin, Mail, ExternalLink, Instagram } from 'lucide-react'
+import {
+  Github,
+  Twitter,
+  Linkedin,
+  Mail,
+  ExternalLink,
+  Instagram,
+} from 'lucide-react'
 import Image from 'next/image'
 import { PersonalInfo } from '@/types/notion'
 

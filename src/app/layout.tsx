@@ -9,7 +9,7 @@ const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
   display: 'swap',
   variable: '--font-pretendard',
-  weight: '100 900',
+  weight: '45 920',
   fallback: ['var(--font-sans)'],
 })
 

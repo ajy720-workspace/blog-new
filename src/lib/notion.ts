@@ -1,4 +1,11 @@
 import { Client } from '@notionhq/client'
+import { NotionAPI } from 'notion-client'
+
+// you can optionally pass an authToken to access private notion resources
+const api = new NotionAPI({
+  authToken: process.env.NOTION_AUTH_TOKEN,
+  activeUser: process.env.NOTION_ACTIVE_USER,
+})
 
 export const notion = new Client({
   auth: process.env.NOTION_API_KEY,
@@ -21,19 +28,22 @@ export async function getPosts(): Promise<NotionPost[]> {
   const response = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID,
     filter: {
-      property: 'Published',
-      checkbox: {
-        equals: true,
+      // property: 'Published',
+      // checkbox: {
+      //   equals: true,
+      // },
+      property: 'Status',
+      status: {
+        equals: 'Completed',
       },
     },
     sorts: [
       {
-        property: 'Created',
+        property: 'PublishedAt',
         direction: 'descending',
       },
     ],
   })
-
 
   return response.results.map((page: unknown) => {
     const pageData = page as Record<string, unknown>
@@ -42,7 +52,8 @@ export async function getPosts(): Promise<NotionPost[]> {
     const urlPathProp = properties.URLPath as {
       rich_text?: { plain_text?: string }[]
     }
-    const createdProp = properties.Created as { created_time?: string }
+
+    const createdProp = properties.PublishedAt as { date?: { start: string } }
     const tagsProp = properties.Tags as { multi_select?: { name: string }[] }
     const publishedProp = properties.Published as { checkbox?: boolean }
 
@@ -52,7 +63,7 @@ export async function getPosts(): Promise<NotionPost[]> {
       url_path:
         urlPathProp?.rich_text?.[0]?.plain_text || (pageData.id as string),
       created_time:
-        createdProp?.created_time || (pageData.created_time as string),
+        createdProp?.date?.start || (pageData.created_time as string),
       tags: tagsProp?.multi_select?.map(tag => tag.name) || [],
       published: publishedProp?.checkbox || false,
     }
@@ -94,7 +105,7 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
   const urlPathProp = properties.URLPath as {
     rich_text?: { plain_text?: string }[]
   }
-  const createdProp = properties.Created as { created_time?: string }
+  const createdProp = properties.PublishedAt as { date?: { start: string } }
   const tagsProp = properties.Tags as { multi_select?: { name: string }[] }
   const publishedProp = properties.Published as { checkbox?: boolean }
 
@@ -103,17 +114,19 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
     title: titleProp?.title?.[0]?.plain_text || 'Untitled',
     url_path:
       urlPathProp?.rich_text?.[0]?.plain_text || (pageData.id as string),
-    created_time:
-      createdProp?.created_time || (pageData.created_time as string),
+    created_time: createdProp?.date?.start || (pageData.created_time as string),
     tags: tagsProp?.multi_select?.map(tag => tag.name) || [],
     published: publishedProp?.checkbox || false,
   }
 }
 
 export async function getPageContent(pageId: string) {
+  /* 
   const response = await notion.blocks.children.list({
     block_id: pageId,
-  })
+    }) 
+  */
+  const response = await api.getPage(pageId)
 
-  return response.results
+  return response
 }

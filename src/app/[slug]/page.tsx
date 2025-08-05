@@ -96,8 +96,10 @@ function PostSkeleton() {
   )
 }
 
-export async function generateMetadata(props: PostPageProps): Promise<Metadata> {
-  const params = await props.params;
+export async function generateMetadata(
+  props: PostPageProps
+): Promise<Metadata> {
+  const params = await props.params
   const post = await getPostBySlug(params.slug)
 
   if (!post) {
@@ -113,7 +115,7 @@ export async function generateMetadata(props: PostPageProps): Promise<Metadata> 
 }
 
 export default async function PostPage(props: PostPageProps) {
-  const params = await props.params;
+  const params = await props.params
   return (
     <main className="container mx-auto px-4 py-8">
       <Suspense fallback={<PostSkeleton />}>
