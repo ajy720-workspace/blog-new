@@ -7,6 +7,7 @@ import {
 } from '@/lib/notion'
 import { PostCard } from '@/components/post-card'
 import { PostCardWithHero } from '@/components/PostCardWithHero'
+import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
 import { Folder, Calendar, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
@@ -146,27 +147,16 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
           {/* Remaining posts */}
           {postsWithExcerpts.length > 1 && (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {postsWithExcerpts
-                .slice(1)
-                .map(({ post, excerpt }) =>
-                  post.coverImage ? (
-                    <PostCardWithHero
-                      key={post.id}
-                      post={post}
-                      excerpt={excerpt}
-                      variant="default"
-                    />
-                  ) : (
-                    <PostCard
-                      key={post.id}
-                      post={post}
-                      excerpt={excerpt}
-                      variant="default"
-                    />
-                  )
-                )}
-            </div>
+            <OptimizedPostGrid
+              posts={postsWithExcerpts.slice(1).map(({ post, excerpt }) => ({ ...post, excerpt }))}
+              layout="grid"
+              columns={3}
+              animate={true}
+              showExcerpts={true}
+              showTags={true}
+              showCategories={true}
+              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+            />
           )}
         </div>
 

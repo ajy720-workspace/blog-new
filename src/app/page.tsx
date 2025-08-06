@@ -6,6 +6,7 @@ import {
   DEFAULT_PERSONAL_INFO,
 } from '@/components/personal-info'
 import { PostCard } from '@/components/shared/PostCard'
+import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
 import { StaggeredList } from '@/components/animations/StaggeredList'
 import { TagCloud } from '@/components/TagCloud'
 import { FadeIn } from '@/components/animations/FadeIn'
@@ -60,20 +61,15 @@ async function HomeContent() {
               <h2 className="text-2xl font-bold mb-6">Recent Posts</h2>
             </FadeIn>
 
-            <StaggeredList
-              staggerDelay={100}
-              initialDelay={300}
+            <OptimizedPostGrid
+              posts={otherPosts}
+              layout="list"
+              animate={true}
+              showExcerpts={true}
+              showTags={true}
+              showCategories={true}
               className="space-y-6"
-            >
-              {otherPosts.map(post => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  excerpt={post.excerpt}
-                  variant="default"
-                />
-              ))}
-            </StaggeredList>
+            />
           </section>
 
           {/* Sidebar */}
