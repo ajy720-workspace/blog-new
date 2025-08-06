@@ -5,7 +5,7 @@ import { Code } from 'react-notion-x/build/third-party/code'
 import { Equation } from 'react-notion-x/build/third-party/equation'
 import { Modal } from 'react-notion-x/build/third-party/modal'
 import { Pdf } from 'react-notion-x/build/third-party/pdf'
-import { useTheme } from '@/contexts/theme-context'
+import { useTheme } from 'next-themes'
 import { ExtendedRecordMap } from 'notion-types'
 
 interface PostRendererProps {

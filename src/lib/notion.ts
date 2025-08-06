@@ -130,3 +130,69 @@ export async function getPageContent(pageId: string) {
 
   return response
 }
+
+interface RichText {
+  plain_text?: string
+}
+
+interface BlockContent {
+  rich_text?: RichText[]
+}
+
+interface NotionBlock {
+  type: string
+  paragraph?: BlockContent
+  heading_1?: BlockContent
+  heading_2?: BlockContent
+  heading_3?: BlockContent
+  bulleted_list_item?: BlockContent
+  numbered_list_item?: BlockContent
+  quote?: BlockContent
+  code?: BlockContent
+}
+
+function extractTextFromBlock(block: NotionBlock): string {
+  if (!block) return ''
+  
+  let text = ''
+  
+  // Extract text based on block type
+  if (block.type === 'paragraph' && block.paragraph?.rich_text) {
+    text += block.paragraph.rich_text.map((rt) => rt.plain_text || '').join('')
+  } else if (block.type === 'heading_1' && block.heading_1?.rich_text) {
+    text += block.heading_1.rich_text.map((rt) => rt.plain_text || '').join('')
+  } else if (block.type === 'heading_2' && block.heading_2?.rich_text) {
+    text += block.heading_2.rich_text.map((rt) => rt.plain_text || '').join('')
+  } else if (block.type === 'heading_3' && block.heading_3?.rich_text) {
+    text += block.heading_3.rich_text.map((rt) => rt.plain_text || '').join('')
+  } else if (block.type === 'bulleted_list_item' && block.bulleted_list_item?.rich_text) {
+    text += block.bulleted_list_item.rich_text.map((rt) => rt.plain_text || '').join('')
+  } else if (block.type === 'numbered_list_item' && block.numbered_list_item?.rich_text) {
+    text += block.numbered_list_item.rich_text.map((rt) => rt.plain_text || '').join('')
+  } else if (block.type === 'quote' && block.quote?.rich_text) {
+    text += block.quote.rich_text.map((rt) => rt.plain_text || '').join('')
+  } else if (block.type === 'code' && block.code?.rich_text) {
+    text += block.code.rich_text.map((rt) => rt.plain_text || '').join('')
+  }
+  
+  return text
+}
+
+export async function getPageTextContent(pageId: string): Promise<string> {
+  try {
+    const response = await notion.blocks.children.list({
+      block_id: pageId,
+    })
+    
+    let textContent = ''
+    
+    for (const block of response.results) {
+      textContent += extractTextFromBlock(block as NotionBlock) + ' '
+    }
+    
+    return textContent.trim()
+  } catch (error) {
+    console.error('Error extracting text content:', error)
+    return ''
+  }
+}

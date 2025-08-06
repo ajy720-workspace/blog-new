@@ -3,8 +3,18 @@ import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { Calendar, Tag, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { getPostBySlug, getPageContent } from '@/lib/notion'
+import { getPostBySlug, getPageContent, getPageTextContent } from '@/lib/notion'
 import { PostRenderer } from '@/components/post-renderer'
+import { 
+  generatePostSchema, 
+  generateBreadcrumbSchema, 
+  generateMetaDescription, 
+  optimizeTitle,
+  getCanonicalUrl,
+  generateOpenGraphTags
+} from '@/lib/seo'
+import { StructuredData } from '@/components/SEO/StructuredData'
+import { SocialShare } from '@/components/SEO/SocialShare'
 
 interface PostPageProps {
   params: Promise<{
@@ -20,6 +30,7 @@ async function PostContent({ slug }: { slug: string }) {
   }
 
   const blocks = await getPageContent(post.id)
+  const textContent = await getPageTextContent(post.id)
 
   const formattedDate = new Date(post.created_time).toLocaleDateString(
     'en-US',
@@ -30,49 +41,68 @@ async function PostContent({ slug }: { slug: string }) {
     }
   )
 
+  const postSchema = generatePostSchema(post, textContent)
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: post.title, url: `/${post.url_path}` },
+  ])
+
   return (
-    <article className="max-w-4xl mx-auto">
-      <header className="mb-8 pb-8 border-b">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to posts
-        </Link>
+    <>
+      <StructuredData data={[postSchema, breadcrumbSchema]} />
+      <article className="max-w-4xl mx-auto">
+        <header className="mb-8 pb-8 border-b">
+          <nav aria-label="Breadcrumb">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to posts
+            </Link>
+          </nav>
 
-        <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
-          {post.title}
-        </h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
+            {post.title}
+          </h1>
 
-        <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            <time dateTime={post.created_time}>{formattedDate}</time>
-          </div>
-
-          {post.tags.length > 0 && (
-            <div className="flex items-center gap-2">
-              <Tag className="w-4 h-4" />
-              <div className="flex flex-wrap gap-2">
-                {post.tags.map(tag => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground"
-                  >
-                    {tag}
-                  </span>
-                ))}
+          <div className="flex flex-wrap items-center justify-between gap-6">
+            <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                <time dateTime={post.created_time}>{formattedDate}</time>
               </div>
-            </div>
-          )}
-        </div>
-      </header>
 
-      <div className="prose prose-lg max-w-none dark:prose-invert">
-        <PostRenderer blocks={blocks} />
-      </div>
-    </article>
+              {post.tags.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <Tag className="w-4 h-4" />
+                  <div className="flex flex-wrap gap-2">
+                    {post.tags.map(tag => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <SocialShare 
+              title={post.title}
+              url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'}/${post.url_path}`}
+              description={textContent ? generateMetaDescription(textContent) : post.title}
+            />
+          </div>
+        </header>
+
+        <div className="prose prose-lg max-w-none dark:prose-invert">
+          <PostRenderer blocks={blocks} />
+        </div>
+      </article>
+    </>
   )
 }
 
@@ -105,12 +135,52 @@ export async function generateMetadata(
   if (!post) {
     return {
       title: 'Post Not Found',
+      description: 'The requested blog post could not be found.',
     }
   }
 
+  const textContent = await getPageTextContent(post.id)
+  const description = textContent 
+    ? generateMetaDescription(textContent)
+    : `${post.title} - Posted on ${new Date(post.created_time).toLocaleDateString()}`
+  
+  const optimizedTitle = optimizeTitle(post.title)
+  const canonicalUrl = getCanonicalUrl(`/${post.url_path}`)
+  
+  const openGraphData = {
+    title: optimizedTitle,
+    description,
+    url: canonicalUrl,
+    type: 'article' as const,
+    siteName: 'Blog',
+  }
+
   return {
-    title: post.title,
-    description: `Posted on ${new Date(post.created_time).toLocaleDateString()}`,
+    title: optimizedTitle,
+    description,
+    keywords: post.tags.length > 0 ? post.tags.join(', ') : undefined,
+    authors: [{ name: 'Blog Author' }],
+    creator: 'Blog Author',
+    publisher: 'Blog',
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      ...generateOpenGraphTags(openGraphData),
+      type: 'article',
+      publishedTime: post.created_time,
+      authors: ['Blog Author'],
+      tags: post.tags,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: optimizedTitle,
+      description,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
   }
 }
 
