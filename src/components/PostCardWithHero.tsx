@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { Calendar, ArrowRight } from 'lucide-react'
 import { NotionPost } from '@/types/notion'
-import { CompactHeroImage } from './HeroImage'
+import { OptimizedImage } from './OptimizedImage'
 import { cn } from '@/lib/utils'
 
 interface PostCardWithHeroProps {
@@ -60,14 +60,25 @@ export function PostCardWithHero({
       )}>
         {/* Hero Image */}
         <div className={cn('relative overflow-hidden', imageClasses[variant])}>
-          <CompactHeroImage
-            coverImage={post.coverImage}
-            title={post.title}
-            postId={post.id}
-            category={post.category}
-            aspectRatio={variant === 'compact' ? 'wide' : 'video'}
-            className="h-full"
-          />
+          {post.coverImage ? (
+            <OptimizedImage
+              src={post.coverImage}
+              alt={`Cover image for ${post.title}`}
+              className="w-full h-full object-cover"
+              priority={variant === 'featured'}
+              sizes={
+                variant === 'featured' 
+                  ? '(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw'
+                  : '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+              }
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
+              <span className="text-muted-foreground text-sm font-medium">
+                {post.title}
+              </span>
+            </div>
+          )}
 
           {/* Category Badge */}
           {post.category && (
