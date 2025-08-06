@@ -8,7 +8,7 @@ import {
 import { PostCard } from '@/components/shared/PostCard'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
 import { StaggeredList } from '@/components/animations/StaggeredList'
-import { TagCloud } from '@/components/TagCloud'
+import { LazyTagCloud } from '@/components/LazyComponents'
 import { FadeIn } from '@/components/animations/FadeIn'
 
 async function HomeContent() {
@@ -76,12 +76,23 @@ async function HomeContent() {
           <aside className="space-y-8">
             {/* Popular Tags */}
             <FadeIn delay={400}>
-              <TagCloud
-                tags={tags.slice(0, 15)}
-                maxTags={15}
-                variant="colorful"
-                className="bg-card border rounded-lg p-6"
-              />
+              <Suspense fallback={
+                <div className="bg-card border rounded-lg p-6 animate-pulse">
+                  <div className="h-6 bg-muted rounded w-32 mb-4"></div>
+                  <div className="flex flex-wrap gap-2">
+                    {[...Array(8)].map((_, i) => (
+                      <div key={i} className="h-8 bg-muted rounded w-16"></div>
+                    ))}
+                  </div>
+                </div>
+              }>
+                <LazyTagCloud
+                  tags={tags.slice(0, 15)}
+                  maxTags={15}
+                  variant="colorful"
+                  className="bg-card border rounded-lg p-6"
+                />
+              </Suspense>
             </FadeIn>
 
             {/* Categories Quick Links */}

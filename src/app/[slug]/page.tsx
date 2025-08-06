@@ -4,7 +4,7 @@ import { Metadata } from 'next'
 import { Calendar, Tag, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { getPostBySlug, getPageContent, getPageTextContent } from '@/lib/notion'
-import { PostRenderer } from '@/components/post-renderer'
+import { LazyPostRenderer, LazySocialShare, LazyComments } from '@/components/LazyComponents'
 import {
   generatePostSchema,
   generateBreadcrumbSchema,
@@ -14,8 +14,7 @@ import {
   generateOpenGraphTags,
 } from '@/lib/seo'
 import { StructuredData } from '@/components/SEO/StructuredData'
-import { SocialShare } from '@/components/SEO/SocialShare'
-import { Comments, CommentCount } from '@/components/Comments'
+import { CommentCount } from '@/components/Comments'
 import { getComments, getCommentCount } from '@/lib/supabase/comments'
 
 interface PostPageProps {
@@ -98,23 +97,44 @@ async function PostContent({ slug }: { slug: string }) {
               )}
             </div>
 
-            <SocialShare
-              title={post.title}
-              url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'}/${post.url_path}`}
-              description={
-                textContent ? generateMetaDescription(textContent) : post.title
-              }
-            />
+            <Suspense fallback={<div className="w-32 h-8 bg-muted rounded animate-pulse"></div>}>
+              <LazySocialShare
+                title={post.title}
+                url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'}/${post.url_path}`}
+                description={
+                  textContent ? generateMetaDescription(textContent) : post.title
+                }
+              />
+            </Suspense>
           </div>
         </header>
 
         <div className="prose prose-lg max-w-none dark:prose-invert">
-          <PostRenderer blocks={blocks} />
+          <Suspense fallback={
+            <div className="space-y-4">
+              <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
+              <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
+              <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
+              <div className="h-32 bg-muted rounded w-full animate-pulse"></div>
+            </div>
+          }>
+            <LazyPostRenderer blocks={blocks} />
+          </Suspense>
         </div>
       </article>
 
       <section className="max-w-4xl mx-auto mt-16">
-        <Comments notionPageId={post.id} initialComments={comments} />
+        <Suspense fallback={
+          <div className="space-y-4">
+            <div className="h-8 bg-muted rounded w-48 animate-pulse"></div>
+            <div className="space-y-2">
+              <div className="h-16 bg-muted rounded w-full animate-pulse"></div>
+              <div className="h-16 bg-muted rounded w-full animate-pulse"></div>
+            </div>
+          </div>
+        }>
+          <LazyComments notionPageId={post.id} initialComments={comments} />
+        </Suspense>
       </section>
     </>
   )
