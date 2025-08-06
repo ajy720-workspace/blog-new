@@ -5,6 +5,7 @@ import { PostCard } from '@/components/post-card'
 import { PostCardWithHero } from '@/components/PostCardWithHero'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
 import { PostErrorBoundary } from '@/components/ErrorBoundary'
+import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { Tag, Calendar, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
@@ -99,13 +100,14 @@ export default async function TagPage({ params }: TagPageProps) {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <Link
-            href="/tags"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to all tags
-          </Link>
+          <BreadcrumbNav 
+            items={[
+              { name: 'Home', url: '/' },
+              { name: 'Tags', url: '/tags' },
+              { name: `#${tag.name}`, url: `/tag/${tag.slug}` }
+            ]} 
+            className="mb-6" 
+          />
 
           <div className="flex items-center gap-4 mb-4">
             <div className="p-3 bg-primary/10 rounded-full">

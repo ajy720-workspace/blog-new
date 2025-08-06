@@ -9,6 +9,7 @@ import { PostCard } from '@/components/post-card'
 import { PostCardWithHero } from '@/components/PostCardWithHero'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
 import { PostErrorBoundary } from '@/components/ErrorBoundary'
+import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { Folder, Calendar, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
@@ -103,13 +104,14 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <Link
-            href="/categories"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to all categories
-          </Link>
+          <BreadcrumbNav 
+            items={[
+              { name: 'Home', url: '/' },
+              { name: 'Categories', url: '/categories' },
+              { name: category.name, url: `/category/${category.slug}` }
+            ]} 
+            className="mb-6" 
+          />
 
           <div className="flex items-center gap-4 mb-4">
             <div className="p-3 bg-primary/10 rounded-full">

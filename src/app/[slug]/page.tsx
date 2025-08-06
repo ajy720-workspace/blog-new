@@ -14,6 +14,7 @@ import {
   generateOpenGraphTags,
 } from '@/lib/seo'
 import { StructuredData } from '@/components/SEO/StructuredData'
+import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { CommentCount } from '@/components/Comments'
 import { CommentErrorBoundary } from '@/components/ErrorBoundary'
 import { getComments, getCommentCount } from '@/lib/supabase/comments'
@@ -48,25 +49,17 @@ async function PostContent({ slug }: { slug: string }) {
   )
 
   const postSchema = generatePostSchema(post, textContent)
-  const breadcrumbSchema = generateBreadcrumbSchema([
+  const breadcrumbItems = [
     { name: 'Home', url: '/' },
     { name: post.title, url: `/${post.url_path}` },
-  ])
+  ]
 
   return (
     <>
-      <StructuredData data={[postSchema, breadcrumbSchema]} />
+      <StructuredData data={postSchema} />
       <article className="max-w-4xl mx-auto">
         <header className="mb-8 pb-8 border-b">
-          <nav aria-label="Breadcrumb">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to posts
-            </Link>
-          </nav>
+          <BreadcrumbNav items={breadcrumbItems} className="mb-6" />
 
           <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
             {post.title}
