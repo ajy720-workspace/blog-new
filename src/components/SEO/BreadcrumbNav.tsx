@@ -10,31 +10,24 @@ interface BreadcrumbNavProps {
 
 export function BreadcrumbNav({ items, className = '' }: BreadcrumbNavProps) {
   const breadcrumbSchema = generateBreadcrumbSchema(items)
-  
+
   return (
     <>
       <StructuredData data={breadcrumbSchema} />
-      <nav 
-        aria-label="Breadcrumb" 
+      <nav
+        aria-label="Breadcrumb"
         className={`flex items-center space-x-2 text-sm text-muted-foreground ${className}`}
       >
         {items.map((item, index) => (
           <div key={item.url} className="flex items-center">
-            {index > 0 && (
-              <ChevronRight className="w-4 h-4 mx-2" />
-            )}
-            {index === 0 && (
-              <Home className="w-4 h-4 mr-2" />
-            )}
+            {index > 0 && <ChevronRight className="w-4 h-4 mx-2" />}
+            {index === 0 && <Home className="w-4 h-4 mr-2" />}
             {index === items.length - 1 ? (
-              <span 
-                className="font-medium text-foreground"
-                aria-current="page"
-              >
+              <span className="font-medium text-foreground" aria-current="page">
                 {item.name}
               </span>
             ) : (
-              <Link 
+              <Link
                 href={item.url}
                 className="hover:text-foreground transition-colors"
               >

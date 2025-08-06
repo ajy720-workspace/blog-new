@@ -14,11 +14,11 @@ export function extractExcerpt(content: string, length: number = 160): string {
     .replace(/<[^>]*>/g, '')
     .replace(/\n+/g, ' ')
     .trim()
-  
+
   if (plainText.length <= length) {
     return plainText
   }
-  
+
   return plainText.substring(0, length - 3).trim() + '...'
 }
 
@@ -30,7 +30,7 @@ export function optimizeTitle(title: string, maxLength: number = 60): string {
   if (title.length <= maxLength) {
     return title
   }
-  
+
   return title.substring(0, maxLength - 3).trim() + '...'
 }
 
@@ -54,12 +54,14 @@ export function generateBreadcrumbSchema(items: BreadcrumbItem[]) {
 
 export function generatePostSchema(post: NotionPost, content?: string) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'
-  
+
   return {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.title,
-    description: content ? generateMetaDescription(content) : `Posted on ${new Date(post.created_time).toLocaleDateString()}`,
+    description: content
+      ? generateMetaDescription(content)
+      : `Posted on ${new Date(post.created_time).toLocaleDateString()}`,
     author: {
       '@type': 'Person',
       name: 'Blog Author',
@@ -83,7 +85,7 @@ export function generatePostSchema(post: NotionPost, content?: string) {
 
 export function generateOrganizationSchema() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'
-  
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -98,7 +100,7 @@ export function generateOrganizationSchema() {
 
 export function generateWebSiteSchema() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'
-  
+
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',

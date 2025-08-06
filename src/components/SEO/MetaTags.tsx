@@ -1,4 +1,8 @@
-import { OpenGraphData, generateOpenGraphTags, generateTwitterCardTags } from '@/lib/seo'
+import {
+  OpenGraphData,
+  generateOpenGraphTags,
+  generateTwitterCardTags,
+} from '@/lib/seo'
 
 interface MetaTagsProps {
   title: string
@@ -24,10 +28,10 @@ export function MetaTags({
     type: 'website',
     ...openGraph,
   }
-  
+
   const ogTags = generateOpenGraphTags(ogData)
   const twitterTags = generateTwitterCardTags(ogData)
-  
+
   return (
     <>
       <title>{title}</title>
@@ -36,13 +40,13 @@ export function MetaTags({
         <meta name="keywords" content={keywords.join(', ')} />
       )}
       <link rel="canonical" href={canonicalUrl} />
-      
+
       {noIndex && <meta name="robots" content="noindex,nofollow" />}
-      
+
       {Object.entries(ogTags).map(([property, content]) => (
         <meta key={property} property={property} content={content} />
       ))}
-      
+
       {Object.entries(twitterTags).map(([name, content]) => (
         <meta key={name} name={name} content={content} />
       ))}

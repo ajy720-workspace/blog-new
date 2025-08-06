@@ -5,16 +5,18 @@ import { Calendar, Tag, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { getPostBySlug, getPageContent, getPageTextContent } from '@/lib/notion'
 import { PostRenderer } from '@/components/post-renderer'
-import { 
-  generatePostSchema, 
-  generateBreadcrumbSchema, 
-  generateMetaDescription, 
+import {
+  generatePostSchema,
+  generateBreadcrumbSchema,
+  generateMetaDescription,
   optimizeTitle,
   getCanonicalUrl,
-  generateOpenGraphTags
+  generateOpenGraphTags,
 } from '@/lib/seo'
 import { StructuredData } from '@/components/SEO/StructuredData'
 import { SocialShare } from '@/components/SEO/SocialShare'
+import { Comments, CommentCount } from '@/components/Comments'
+import { getComments, getCommentCount } from '@/lib/supabase/comments'
 
 interface PostPageProps {
   params: Promise<{
@@ -29,8 +31,12 @@ async function PostContent({ slug }: { slug: string }) {
     notFound()
   }
 
-  const blocks = await getPageContent(post.id)
-  const textContent = await getPageTextContent(post.id)
+  const [blocks, textContent, comments, commentCount] = await Promise.all([
+    getPageContent(post.id),
+    getPageTextContent(post.id),
+    getComments(post.id),
+    getCommentCount(post.id),
+  ])
 
   const formattedDate = new Date(post.created_time).toLocaleDateString(
     'en-US',
@@ -73,6 +79,8 @@ async function PostContent({ slug }: { slug: string }) {
                 <time dateTime={post.created_time}>{formattedDate}</time>
               </div>
 
+              <CommentCount count={commentCount} />
+
               {post.tags.length > 0 && (
                 <div className="flex items-center gap-2">
                   <Tag className="w-4 h-4" />
@@ -89,11 +97,13 @@ async function PostContent({ slug }: { slug: string }) {
                 </div>
               )}
             </div>
-            
-            <SocialShare 
+
+            <SocialShare
               title={post.title}
               url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'}/${post.url_path}`}
-              description={textContent ? generateMetaDescription(textContent) : post.title}
+              description={
+                textContent ? generateMetaDescription(textContent) : post.title
+              }
             />
           </div>
         </header>
@@ -102,6 +112,10 @@ async function PostContent({ slug }: { slug: string }) {
           <PostRenderer blocks={blocks} />
         </div>
       </article>
+
+      <section className="max-w-4xl mx-auto mt-16">
+        <Comments notionPageId={post.id} initialComments={comments} />
+      </section>
     </>
   )
 }
@@ -140,13 +154,13 @@ export async function generateMetadata(
   }
 
   const textContent = await getPageTextContent(post.id)
-  const description = textContent 
+  const description = textContent
     ? generateMetaDescription(textContent)
     : `${post.title} - Posted on ${new Date(post.created_time).toLocaleDateString()}`
-  
+
   const optimizedTitle = optimizeTitle(post.title)
   const canonicalUrl = getCanonicalUrl(`/${post.url_path}`)
-  
+
   const openGraphData = {
     title: optimizedTitle,
     description,

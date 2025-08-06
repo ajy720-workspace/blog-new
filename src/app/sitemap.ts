@@ -3,10 +3,10 @@ import { getPosts } from '@/lib/notion'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'
-  
+
   const posts = await getPosts()
-  
-  const postSitemapEntries: MetadataRoute.Sitemap = posts.map((post) => ({
+
+  const postSitemapEntries: MetadataRoute.Sitemap = posts.map(post => ({
     url: `${baseUrl}/${post.url_path}`,
     lastModified: new Date(post.created_time),
     changeFrequency: 'monthly',

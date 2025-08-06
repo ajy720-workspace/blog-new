@@ -5,7 +5,11 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { WebVitals } from '@/components/WebVitals'
-import { generateWebSiteSchema, generateOrganizationSchema, getCanonicalUrl } from '@/lib/seo'
+import {
+  generateWebSiteSchema,
+  generateOrganizationSchema,
+  getCanonicalUrl,
+} from '@/lib/seo'
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
@@ -28,8 +32,16 @@ export const metadata: Metadata = {
     default: 'Blog - Personal Tech Blog',
     template: '%s | Blog',
   },
-  description: 'Personal blog about technology, programming, and web development. Built with Next.js and Notion.',
-  keywords: ['blog', 'technology', 'programming', 'web development', 'Next.js', 'React'],
+  description:
+    'Personal blog about technology, programming, and web development. Built with Next.js and Notion.',
+  keywords: [
+    'blog',
+    'technology',
+    'programming',
+    'web development',
+    'Next.js',
+    'React',
+  ],
   authors: [{ name: 'Blog Author' }],
   creator: 'Blog Author',
   publisher: 'Blog',
@@ -38,7 +50,9 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'
+  ),
   alternates: {
     canonical: '/',
   },
@@ -47,13 +61,15 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: getCanonicalUrl('/'),
     title: 'Blog - Personal Tech Blog',
-    description: 'Personal blog about technology, programming, and web development. Built with Next.js and Notion.',
+    description:
+      'Personal blog about technology, programming, and web development. Built with Next.js and Notion.',
     siteName: 'Blog',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Blog - Personal Tech Blog',
-    description: 'Personal blog about technology, programming, and web development. Built with Next.js and Notion.',
+    description:
+      'Personal blog about technology, programming, and web development. Built with Next.js and Notion.',
     creator: '@yourusername',
   },
   robots: {
