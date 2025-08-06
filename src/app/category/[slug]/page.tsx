@@ -8,6 +8,7 @@ import {
 import { PostCard } from '@/components/post-card'
 import { PostCardWithHero } from '@/components/PostCardWithHero'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
+import { PostErrorBoundary } from '@/components/ErrorBoundary'
 import { Folder, Calendar, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
@@ -129,34 +130,38 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           {/* Featured post */}
           {postsWithExcerpts.length > 0 && (
             <div className="mb-12">
-              {postsWithExcerpts[0].post.coverImage ? (
-                <PostCardWithHero
-                  post={postsWithExcerpts[0].post}
-                  excerpt={postsWithExcerpts[0].excerpt}
-                  variant="featured"
-                />
-              ) : (
-                <PostCard
-                  post={postsWithExcerpts[0].post}
-                  excerpt={postsWithExcerpts[0].excerpt}
-                  variant="featured"
-                />
-              )}
+              <PostErrorBoundary>
+                {postsWithExcerpts[0].post.coverImage ? (
+                  <PostCardWithHero
+                    post={postsWithExcerpts[0].post}
+                    excerpt={postsWithExcerpts[0].excerpt}
+                    variant="featured"
+                  />
+                ) : (
+                  <PostCard
+                    post={postsWithExcerpts[0].post}
+                    excerpt={postsWithExcerpts[0].excerpt}
+                    variant="featured"
+                  />
+                )}
+              </PostErrorBoundary>
             </div>
           )}
 
           {/* Remaining posts */}
           {postsWithExcerpts.length > 1 && (
-            <OptimizedPostGrid
-              posts={postsWithExcerpts.slice(1).map(({ post, excerpt }) => ({ ...post, excerpt }))}
-              layout="grid"
-              columns={3}
-              animate={true}
-              showExcerpts={true}
-              showTags={true}
-              showCategories={true}
-              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-            />
+            <PostErrorBoundary>
+              <OptimizedPostGrid
+                posts={postsWithExcerpts.slice(1).map(({ post, excerpt }) => ({ ...post, excerpt }))}
+                layout="grid"
+                columns={3}
+                animate={true}
+                showExcerpts={true}
+                showTags={true}
+                showCategories={true}
+                className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+              />
+            </PostErrorBoundary>
           )}
         </div>
 

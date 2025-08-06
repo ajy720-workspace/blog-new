@@ -10,6 +10,7 @@ import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
 import { StaggeredList } from '@/components/animations/StaggeredList'
 import { LazyTagCloud } from '@/components/LazyComponents'
 import { FadeIn } from '@/components/animations/FadeIn'
+import { PostErrorBoundary, TagCloudErrorBoundary } from '@/components/ErrorBoundary'
 
 async function HomeContent() {
   try {
@@ -44,12 +45,14 @@ async function HomeContent() {
           <section>
             <FadeIn>
               <h2 className="text-2xl font-bold mb-6">Featured Post</h2>
-              <PostCard
-                post={featuredPost}
-                excerpt={featuredPost.excerpt}
-                variant="featured"
-                priority
-              />
+              <PostErrorBoundary>
+                <PostCard
+                  post={featuredPost}
+                  excerpt={featuredPost.excerpt}
+                  variant="featured"
+                  priority
+                />
+              </PostErrorBoundary>
             </FadeIn>
           </section>
         )}
@@ -61,15 +64,17 @@ async function HomeContent() {
               <h2 className="text-2xl font-bold mb-6">Recent Posts</h2>
             </FadeIn>
 
-            <OptimizedPostGrid
-              posts={otherPosts}
-              layout="list"
-              animate={true}
-              showExcerpts={true}
-              showTags={true}
-              showCategories={true}
-              className="space-y-6"
-            />
+            <PostErrorBoundary>
+              <OptimizedPostGrid
+                posts={otherPosts}
+                layout="list"
+                animate={true}
+                showExcerpts={true}
+                showTags={true}
+                showCategories={true}
+                className="space-y-6"
+              />
+            </PostErrorBoundary>
           </section>
 
           {/* Sidebar */}
@@ -86,12 +91,14 @@ async function HomeContent() {
                   </div>
                 </div>
               }>
-                <LazyTagCloud
-                  tags={tags.slice(0, 15)}
-                  maxTags={15}
-                  variant="colorful"
-                  className="bg-card border rounded-lg p-6"
-                />
+                <TagCloudErrorBoundary>
+                  <LazyTagCloud
+                    tags={tags.slice(0, 15)}
+                    maxTags={15}
+                    variant="colorful"
+                    className="bg-card border rounded-lg p-6"
+                  />
+                </TagCloudErrorBoundary>
               </Suspense>
             </FadeIn>
 
