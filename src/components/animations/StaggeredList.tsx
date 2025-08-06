@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
 
 interface StaggeredListProps {
   children: React.ReactNode[]
@@ -28,40 +28,13 @@ export function StaggeredList({
   triggerOnce = true,
   threshold = 0.1,
 }: StaggeredListProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
-  const [hasTriggered, setHasTriggered] = useState(false)
+  const { ref: containerRef, isVisible } = useIntersectionObserver({
+    threshold,
+    triggerOnce,
+  })
 
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && (!triggerOnce || !hasTriggered)) {
-          setIsVisible(true)
-          if (triggerOnce) {
-            setHasTriggered(true)
-          }
-        } else if (!triggerOnce && !entry.isIntersecting) {
-          setIsVisible(false)
-        }
-      },
-      {
-        threshold,
-        rootMargin: '50px',
-      }
-    )
-
-    observer.observe(container)
-
-    return () => {
-      observer.unobserve(container)
-    }
-  }, [triggerOnce, hasTriggered, threshold])
-
-  const getTransform = () => {
-    if (isVisible) return 'translate3d(0, 0, 0)'
+  const getTransform = (index: number, visible: boolean) => {
+    if (visible) return 'translate3d(0, 0, 0)'
 
     switch (direction) {
       case 'up':
@@ -85,8 +58,10 @@ export function StaggeredList({
           className={cn('transition-all ease-out', childClassName)}
           style={{
             opacity: isVisible ? 1 : 0,
-            transform: getTransform(),
-            transitionDelay: `${initialDelay + index * staggerDelay}ms`,
+            transform: getTransform(index, isVisible),
+            transitionDelay: `${
+              initialDelay + (isVisible ? index * staggerDelay : 0)
+            }ms`,
             transitionDuration: `${duration}ms`,
           }}
         >
@@ -97,121 +72,35 @@ export function StaggeredList({
   )
 }
 
-// Staggered grid animation for cards
+// Specialized staggered grid component for posts
 export function StaggeredGrid({
   children,
-  staggerDelay = 150,
-  initialDelay = 0,
-  duration = 700,
+  staggerDelay = 50,
+  initialDelay = 200,
+  duration = 800,
   className = '',
   childClassName = '',
-  triggerOnce = true,
-  threshold = 0.1,
-  scale = 0.95,
-}: Omit<StaggeredListProps, 'direction' | 'distance'> & { scale?: number }) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
-  const [hasTriggered, setHasTriggered] = useState(false)
-
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && (!triggerOnce || !hasTriggered)) {
-          setIsVisible(true)
-          if (triggerOnce) {
-            setHasTriggered(true)
-          }
-        } else if (!triggerOnce && !entry.isIntersecting) {
-          setIsVisible(false)
-        }
-      },
-      {
-        threshold,
-        rootMargin: '50px',
-      }
-    )
-
-    observer.observe(container)
-
-    return () => {
-      observer.unobserve(container)
-    }
-  }, [triggerOnce, hasTriggered, threshold])
-
-  return (
-    <div ref={containerRef} className={cn(className)}>
-      {children.map((child, index) => (
-        <div
-          key={index}
-          className={cn('transition-all ease-out', childClassName)}
-          style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible
-              ? 'scale(1) translateY(0)'
-              : `scale(${scale}) translateY(20px)`,
-            transitionDelay: `${initialDelay + index * staggerDelay}ms`,
-            transitionDuration: `${duration}ms`,
-          }}
-        >
-          {child}
-        </div>
-      ))}
-    </div>
-  )
-}
-
-// Wave animation for list items
-export function StaggeredWave({
-  children,
-  waveDelay = 80,
-  initialDelay = 0,
-  duration = 400,
-  amplitude = 20,
-  className = '',
-  childClassName = '',
-  triggerOnce = true,
-  threshold = 0.1,
-}: Omit<StaggeredListProps, 'direction' | 'distance' | 'staggerDelay'> & {
-  waveDelay?: number
-  amplitude?: number
+  cols = 'auto',
+  gap = 6,
+}: Omit<StaggeredListProps, 'direction' | 'distance'> & {
+  cols?: 'auto' | 1 | 2 | 3 | 4
+  gap?: number
 }) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
-  const [hasTriggered, setHasTriggered] = useState(false)
+  const { ref: containerRef, isVisible } = useIntersectionObserver({
+    threshold: 0.1,
+    triggerOnce: true,
+  })
 
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && (!triggerOnce || !hasTriggered)) {
-          setIsVisible(true)
-          if (triggerOnce) {
-            setHasTriggered(true)
-          }
-        } else if (!triggerOnce && !entry.isIntersecting) {
-          setIsVisible(false)
-        }
-      },
-      {
-        threshold,
-        rootMargin: '50px',
-      }
-    )
-
-    observer.observe(container)
-
-    return () => {
-      observer.unobserve(container)
-    }
-  }, [triggerOnce, hasTriggered, threshold])
+  const getGridCols = () => {
+    if (cols === 'auto') return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+    return `grid-cols-${cols}`
+  }
 
   return (
-    <div ref={containerRef} className={cn(className)}>
+    <div
+      ref={containerRef}
+      className={cn('grid', getGridCols(), `gap-${gap}`, className)}
+    >
       {children.map((child, index) => (
         <div
           key={index}
@@ -219,9 +108,11 @@ export function StaggeredWave({
           style={{
             opacity: isVisible ? 1 : 0,
             transform: isVisible
-              ? 'translateY(0)'
-              : `translateY(${Math.sin(index * 0.5) * amplitude + amplitude}px)`,
-            transitionDelay: `${initialDelay + index * waveDelay}ms`,
+              ? 'translate3d(0, 0, 0) scale(1)'
+              : 'translate3d(0, 20px, 0) scale(0.95)',
+            transitionDelay: `${
+              initialDelay + (isVisible ? index * staggerDelay : 0)
+            }ms`,
             transitionDuration: `${duration}ms`,
           }}
         >

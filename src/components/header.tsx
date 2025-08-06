@@ -25,6 +25,18 @@ export function Header() {
               Posts
             </Link>
             <Link
+              href="/tags"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Tags
+            </Link>
+            <Link
+              href="/categories"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Categories
+            </Link>
+            <Link
               href="/about"
               className="transition-colors hover:text-foreground/80 text-foreground/60"
             >

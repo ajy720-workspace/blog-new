@@ -54,7 +54,10 @@ export function PostCardWithHero({
         className
       )}
     >
-      <Link href={`/${post.url_path}`} className="flex flex-col h-full">
+      <Link href={`/${post.url_path}`} className={cn(
+        "flex flex-col h-full",
+        variant === 'featured' ? 'md:flex-row' : ''
+      )}>
         {/* Hero Image */}
         <div className={cn('relative overflow-hidden', imageClasses[variant])}>
           <CompactHeroImage

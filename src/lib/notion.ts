@@ -1,5 +1,6 @@
 import { Client } from '@notionhq/client'
 import { NotionAPI } from 'notion-client'
+import { slugify } from './slug-utils'
 
 // you can optionally pass an authToken to access private notion resources
 const api = new NotionAPI({
@@ -22,7 +23,21 @@ export interface NotionPost {
   category?: string
 }
 
-export async function getPosts(): Promise<NotionPost[]> {
+// Cache for posts data to avoid multiple API calls
+let postsCache: NotionPost[] | null = null
+let cacheTimestamp = 0
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes in milliseconds
+
+function isCacheValid(): boolean {
+  return postsCache !== null && Date.now() - cacheTimestamp < CACHE_DURATION
+}
+
+export async function getPosts(forceRefresh = false): Promise<NotionPost[]> {
+  // Return cached data if valid and not forcing refresh
+  if (!forceRefresh && isCacheValid()) {
+    return postsCache!
+  }
+
   if (!process.env.NOTION_DATABASE_ID) {
     throw new Error('NOTION_DATABASE_ID is not defined')
   }
@@ -47,7 +62,7 @@ export async function getPosts(): Promise<NotionPost[]> {
     ],
   })
 
-  return response.results.map((page: unknown) => {
+  const posts = response.results.map((page: unknown) => {
     const pageData = page as Record<string, unknown>
     const properties = (pageData.properties as Record<string, unknown>) || {}
     const titleProp = properties.Title as { title?: { plain_text?: string }[] }
@@ -71,6 +86,8 @@ export async function getPosts(): Promise<NotionPost[]> {
     const categoryProp = properties.Category as { select?: { name: string } }
     const category = categoryProp?.select?.name || undefined
 
+    //console.log(properties.Category)
+
     return {
       id: pageData.id as string,
       title: titleProp?.title?.[0]?.plain_text || 'Untitled',
@@ -84,6 +101,12 @@ export async function getPosts(): Promise<NotionPost[]> {
       category,
     }
   })
+
+  // Cache the results
+  postsCache = posts
+  cacheTimestamp = Date.now()
+
+  return posts
 }
 
 export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
@@ -283,14 +306,9 @@ export interface CategoryWithCount {
   count: number
 }
 
-export function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-}
+// slugify function imported from slug-utils
 
+// Optimized functions that reuse cached data
 export async function getAllTags(): Promise<TagWithCount[]> {
   const posts = await getPosts()
   const tagCounts = new Map<string, number>()
@@ -346,4 +364,50 @@ export async function getPostsByCategory(
   return posts.filter(
     post => post.category && slugify(post.category) === slugify(categoryName)
   )
+}
+
+// Optimized function to get posts with metadata in a single call
+export async function getPostsWithMetadata(): Promise<{
+  posts: NotionPost[]
+  tags: TagWithCount[]
+  categories: CategoryWithCount[]
+}> {
+  const posts = await getPosts()
+
+  // Calculate tags and categories from the same posts array
+  const tagCounts = new Map<string, number>()
+  const categoryCounts = new Map<string, number>()
+
+  posts.forEach(post => {
+    // Process tags
+    post.tags.forEach(tag => {
+      tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1)
+    })
+
+    // Process categories
+    if (post.category) {
+      categoryCounts.set(
+        post.category,
+        (categoryCounts.get(post.category) || 0) + 1
+      )
+    }
+  })
+
+  const tags = Array.from(tagCounts.entries())
+    .map(([name, count]) => ({
+      name,
+      slug: slugify(name),
+      count,
+    }))
+    .sort((a, b) => b.count - a.count)
+
+  const categories = Array.from(categoryCounts.entries())
+    .map(([name, count]) => ({
+      name,
+      slug: slugify(name),
+      count,
+    }))
+    .sort((a, b) => b.count - a.count)
+
+  return { posts, tags, categories }
 }

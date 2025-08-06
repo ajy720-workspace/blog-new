@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
 
 interface FadeInProps {
   children: React.ReactNode
@@ -24,37 +24,10 @@ export function FadeIn({
   triggerOnce = true,
   threshold = 0.1,
 }: FadeInProps) {
-  const elementRef = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
-  const [hasTriggered, setHasTriggered] = useState(false)
-
-  useEffect(() => {
-    const element = elementRef.current
-    if (!element) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && (!triggerOnce || !hasTriggered)) {
-          setIsVisible(true)
-          if (triggerOnce) {
-            setHasTriggered(true)
-          }
-        } else if (!triggerOnce && !entry.isIntersecting) {
-          setIsVisible(false)
-        }
-      },
-      {
-        threshold,
-        rootMargin: '50px',
-      }
-    )
-
-    observer.observe(element)
-
-    return () => {
-      observer.unobserve(element)
-    }
-  }, [triggerOnce, hasTriggered, threshold])
+  const { ref: elementRef, isVisible } = useIntersectionObserver({
+    threshold,
+    triggerOnce,
+  })
 
   const getTransform = () => {
     if (isVisible) return 'translate3d(0, 0, 0)'
@@ -99,37 +72,10 @@ export function FadeInScale({
   triggerOnce = true,
   threshold = 0.1,
 }: Omit<FadeInProps, 'direction' | 'distance'> & { scale?: number }) {
-  const elementRef = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
-  const [hasTriggered, setHasTriggered] = useState(false)
-
-  useEffect(() => {
-    const element = elementRef.current
-    if (!element) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && (!triggerOnce || !hasTriggered)) {
-          setIsVisible(true)
-          if (triggerOnce) {
-            setHasTriggered(true)
-          }
-        } else if (!triggerOnce && !entry.isIntersecting) {
-          setIsVisible(false)
-        }
-      },
-      {
-        threshold,
-        rootMargin: '50px',
-      }
-    )
-
-    observer.observe(element)
-
-    return () => {
-      observer.unobserve(element)
-    }
-  }, [triggerOnce, hasTriggered, threshold])
+  const { ref: elementRef, isVisible } = useIntersectionObserver({
+    threshold,
+    triggerOnce,
+  })
 
   return (
     <div

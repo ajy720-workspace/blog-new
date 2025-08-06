@@ -1,10 +1,6 @@
-'use client'
-
-import { NotionPost } from '@/types/notion'
-import { PostCard } from '@/components/post-card'
-import { PostCardWithHero } from '@/components/PostCardWithHero'
-import { StaggeredGrid } from '@/components/animations/StaggeredList'
-import { cn } from '@/lib/utils'
+// Legacy component - use OptimizedPostGrid instead
+import { OptimizedPostGrid, FeaturedPostGrid } from './OptimizedPostGrid'
+import type { NotionPost } from '@/types/notion'
 
 interface PostGridProps {
   posts: NotionPost[]
@@ -23,128 +19,24 @@ export function PostGrid({
   columns = 3,
   className = '',
   animate = true,
-  featuredFirst = true,
 }: PostGridProps) {
-  if (posts.length === 0) {
-    return (
-      <div className="text-center py-16">
-        <div className="max-w-md mx-auto space-y-4">
-          <div className="w-16 h-16 mx-auto bg-secondary rounded-full flex items-center justify-center">
-            <div className="w-8 h-8 bg-muted rounded" />
-          </div>
-          <h3 className="text-lg font-semibold">No posts found</h3>
-          <p className="text-muted-foreground">
-            There are no posts to display at the moment.
-          </p>
-        </div>
-      </div>
-    )
-  }
+  // Convert old layout to new layout
+  const mappedLayout = layout === 'masonry' ? 'grid' : layout
 
-  const getGridClasses = () => {
-    const baseClass = 'grid gap-6'
-
-    switch (layout) {
-      case 'list':
-        return `${baseClass} grid-cols-1`
-      case 'masonry':
-        return `${baseClass} columns-1 md:columns-2 lg:columns-${columns} space-y-6`
-      case 'featured':
-        return `${baseClass} grid-cols-1 lg:grid-cols-4 lg:grid-rows-3`
-      default:
-        return `${baseClass} grid-cols-1 md:grid-cols-2 lg:grid-cols-${columns}`
-    }
-  }
-
-  const renderPost = (post: NotionPost, index: number) => {
-    const excerpt = excerpts[post.id]
-    const hasCoverImage = !!post.coverImage
-
-    // Featured layout logic
-    if (layout === 'featured' && index === 0 && featuredFirst) {
-      return hasCoverImage ? (
-        <PostCardWithHero
-          key={post.id}
-          post={post}
-          excerpt={excerpt}
-          variant="featured"
-          className="lg:col-span-2 lg:row-span-2"
-        />
-      ) : (
-        <PostCard
-          key={post.id}
-          post={post}
-          excerpt={excerpt}
-          variant="featured"
-          className="lg:col-span-2 lg:row-span-2"
-        />
-      )
-    }
-
-    // List layout
-    if (layout === 'list') {
-      return hasCoverImage ? (
-        <PostCardWithHero
-          key={post.id}
-          post={post}
-          excerpt={excerpt}
-          variant="default"
-        />
-      ) : (
-        <PostCard
-          key={post.id}
-          post={post}
-          excerpt={excerpt}
-          variant="default"
-        />
-      )
-    }
-
-    // Masonry layout
-    if (layout === 'masonry') {
-      return (
-        <div key={post.id} className="break-inside-avoid mb-6">
-          {hasCoverImage ? (
-            <PostCardWithHero post={post} excerpt={excerpt} variant="compact" />
-          ) : (
-            <PostCard post={post} excerpt={excerpt} variant="default" />
-          )}
-        </div>
-      )
-    }
-
-    // Default grid layout
-    return hasCoverImage ? (
-      <PostCardWithHero
-        key={post.id}
-        post={post}
-        excerpt={excerpt}
-        variant="default"
-      />
-    ) : (
-      <PostCard key={post.id} post={post} excerpt={excerpt} variant="default" />
-    )
-  }
-
-  const postElements = posts.map((post, index) => renderPost(post, index))
-
-  if (!animate) {
-    return <div className={cn(getGridClasses(), className)}>{postElements}</div>
-  }
-
-  if (layout === 'masonry') {
-    return <div className={cn(getGridClasses(), className)}>{postElements}</div>
-  }
+  // Add excerpts to posts
+  const postsWithExcerpts = posts.map(post => ({
+    ...post,
+    excerpt: excerpts?.[post.id],
+  }))
 
   return (
-    <StaggeredGrid
-      className={cn(getGridClasses(), className)}
-      staggerDelay={100}
-      duration={600}
-      triggerOnce={true}
-    >
-      {postElements}
-    </StaggeredGrid>
+    <OptimizedPostGrid
+      posts={postsWithExcerpts}
+      layout={mappedLayout}
+      columns={columns}
+      className={className}
+      animate={animate}
+    />
   )
 }
 
@@ -155,15 +47,26 @@ export function ResponsivePostGrid({
   className = '',
   animate = true,
 }: Omit<PostGridProps, 'layout' | 'columns'>) {
+  const postsWithExcerpts = posts.map(post => ({
+    ...post,
+    excerpt: excerpts?.[post.id],
+  }))
+
   if (posts.length === 0) {
-    return <PostGrid posts={posts} excerpts={excerpts} className={className} />
+    return (
+      <OptimizedPostGrid
+        posts={postsWithExcerpts}
+        layout="grid"
+        className={className}
+        animate={animate}
+      />
+    )
   }
 
   if (posts.length === 1) {
     return (
-      <PostGrid
-        posts={posts}
-        excerpts={excerpts}
+      <OptimizedPostGrid
+        posts={postsWithExcerpts}
         layout="list"
         className={className}
         animate={animate}
@@ -173,9 +76,8 @@ export function ResponsivePostGrid({
 
   if (posts.length <= 4) {
     return (
-      <PostGrid
-        posts={posts}
-        excerpts={excerpts}
+      <OptimizedPostGrid
+        posts={postsWithExcerpts}
         layout="grid"
         columns={2}
         className={className}
@@ -185,10 +87,8 @@ export function ResponsivePostGrid({
   }
 
   return (
-    <PostGrid
-      posts={posts}
-      excerpts={excerpts}
-      layout="featured"
+    <FeaturedPostGrid
+      posts={postsWithExcerpts}
       className={className}
       animate={animate}
     />
@@ -211,9 +111,9 @@ export function CategoryShowcaseGrid({
   const showcasePosts = posts.slice(0, maxPosts)
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={className}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">{categoryName}</h2>
         <a
           href={viewAllUrl}
@@ -228,6 +128,7 @@ export function CategoryShowcaseGrid({
         posts={showcasePosts}
         excerpts={excerpts}
         animate={true}
+        className=""
       />
     </div>
   )
