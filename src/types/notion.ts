@@ -5,6 +5,8 @@ export interface NotionPost {
   created_time: string
   tags: string[]
   published: boolean
+  coverImage?: string
+  category?: string
 }
 
 export interface NotionBlock {

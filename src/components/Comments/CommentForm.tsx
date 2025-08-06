@@ -6,13 +6,20 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
-import { initAnonymousSession } from '@/lib/supabase/auth'
+import {
+  initAnonymousSession,
+  getUserProfile,
+  isAnonymousUser,
+  type UserProfile,
+} from '@/lib/supabase/auth'
+import { OAuthModal, useOAuthModal } from '@/components/auth/OAuthModal'
 import {
   validateCommentForm,
   sanitizeCommentFormData,
 } from '@/lib/supabase/validation'
 import type { CommentFormProps, CommentFormState } from '@/types/comments'
 import { submitComment } from '@/app/actions/comments'
+import { User, CheckCircle } from 'lucide-react'
 
 export default function CommentForm({
   notionPageId,
@@ -28,16 +35,35 @@ export default function CommentForm({
   })
   const [isSessionReady, setIsSessionReady] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [isAnonymous, setIsAnonymous] = useState(true)
+  const oauthModal = useOAuthModal()
 
-  // Initialize anonymous session on component mount
+  // Initialize session and check user authentication status
   useEffect(() => {
     const initSession = async () => {
       try {
         const result = await initAnonymousSession()
         if (result.success) {
+          // Get user profile and check if anonymous
+          const profile = await getUserProfile()
+          const anonymous = await isAnonymousUser()
+
+          setUserProfile(profile)
+          setIsAnonymous(anonymous)
+
+          // Pre-fill form if user is authenticated
+          if (profile && !anonymous) {
+            setFormState(prev => ({
+              ...prev,
+              authorName: profile.name || profile.email || '',
+              authorEmail: profile.email || '',
+            }))
+          }
+
           setIsSessionReady(true)
         } else {
-          console.error('Failed to initialize anonymous session:', result.error)
+          console.error('Failed to initialize session:', result.error)
         }
       } catch (error) {
         console.error('Session initialization error:', error)
@@ -94,9 +120,13 @@ export default function CommentForm({
       if (result.success && result.comment) {
         // Success: reset form and show success message
         setFormState({
-          authorName: '',
+          authorName:
+            userProfile && !isAnonymous
+              ? userProfile.name || userProfile.email || ''
+              : '',
           content: '',
-          authorEmail: '',
+          authorEmail:
+            userProfile && !isAnonymous ? userProfile.email || '' : '',
           errors: [],
           isSubmitting: false,
         })
@@ -104,6 +134,16 @@ export default function CommentForm({
 
         // Notify parent component
         onCommentSubmitted(result.comment)
+
+        // Show OAuth modal for anonymous users after successful comment
+        if (isAnonymous) {
+          setTimeout(() => {
+            oauthModal.openModal({
+              trigger: 'comment',
+              redirectTo: window.location.pathname,
+            })
+          }, 1000) // Delay to let user see success message
+        }
 
         // Refresh the page to show new comment
         router.refresh()
@@ -147,11 +187,48 @@ export default function CommentForm({
 
   return (
     <div className="mt-8 border-t pt-8">
-      <h3 className="text-lg font-semibold mb-4">Leave a Comment</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">Leave a Comment</h3>
+
+        {/* User Status */}
+        {userProfile && (
+          <div className="flex items-center gap-2 text-sm">
+            {isAnonymous ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <User className="w-4 h-4" />
+                <span>Anonymous</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => oauthModal.openModal({ trigger: 'general' })}
+                  className="text-primary hover:text-primary/80 p-0 h-auto"
+                >
+                  Sign in
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-green-600">
+                <CheckCircle className="w-4 h-4" />
+                <span>
+                  Signed in as {userProfile.name || userProfile.email}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {submitSuccess && (
         <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300">
-          Thank you! Your comment has been submitted successfully.
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4" />
+            Thank you! Your comment has been submitted successfully.
+          </div>
+          {isAnonymous && (
+            <p className="text-sm mt-2 opacity-80">
+              💡 Sign in to claim your comment and get notified of replies.
+            </p>
+          )}
         </div>
       )}
 
@@ -168,7 +245,9 @@ export default function CommentForm({
               onChange={e => handleInputChange('authorName', e.target.value)}
               placeholder="Your name"
               maxLength={100}
-              disabled={formState.isSubmitting}
+              disabled={
+                formState.isSubmitting || (!isAnonymous && !!userProfile)
+              }
               className={getFieldError('authorName') ? 'border-red-500' : ''}
             />
             {getFieldError('authorName') && (
@@ -187,7 +266,9 @@ export default function CommentForm({
               onChange={e => handleInputChange('authorEmail', e.target.value)}
               placeholder="your@email.com"
               maxLength={255}
-              disabled={formState.isSubmitting}
+              disabled={
+                formState.isSubmitting || (!isAnonymous && !!userProfile)
+              }
               className={getFieldError('authorEmail') ? 'border-red-500' : ''}
             />
             {getFieldError('authorEmail') && (
@@ -245,6 +326,14 @@ export default function CommentForm({
           )}
         </Button>
       </form>
+
+      {/* OAuth Modal */}
+      <OAuthModal
+        isOpen={oauthModal.isOpen}
+        onClose={oauthModal.closeModal}
+        trigger={oauthModal.trigger}
+        redirectTo={oauthModal.redirectTo}
+      />
     </div>
   )
 }

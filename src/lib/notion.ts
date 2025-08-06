@@ -18,6 +18,8 @@ export interface NotionPost {
   created_time: string
   tags: string[]
   published: boolean
+  coverImage?: string
+  category?: string
 }
 
 export async function getPosts(): Promise<NotionPost[]> {
@@ -57,6 +59,18 @@ export async function getPosts(): Promise<NotionPost[]> {
     const tagsProp = properties.Tags as { multi_select?: { name: string }[] }
     const publishedProp = properties.Published as { checkbox?: boolean }
 
+    // Extract cover image from page cover or properties
+    const cover = pageData.cover as {
+      type?: string
+      external?: { url: string }
+      file?: { url: string }
+    } | null
+    const coverImage = cover?.external?.url || cover?.file?.url || undefined
+
+    // Extract category from properties (assuming a Category select property)
+    const categoryProp = properties.Category as { select?: { name: string } }
+    const category = categoryProp?.select?.name || undefined
+
     return {
       id: pageData.id as string,
       title: titleProp?.title?.[0]?.plain_text || 'Untitled',
@@ -66,6 +80,8 @@ export async function getPosts(): Promise<NotionPost[]> {
         createdProp?.date?.start || (pageData.created_time as string),
       tags: tagsProp?.multi_select?.map(tag => tag.name) || [],
       published: publishedProp?.checkbox || false,
+      coverImage,
+      category,
     }
   })
 }
@@ -109,6 +125,18 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
   const tagsProp = properties.Tags as { multi_select?: { name: string }[] }
   const publishedProp = properties.Published as { checkbox?: boolean }
 
+  // Extract cover image from page cover or properties
+  const cover = pageData.cover as {
+    type?: string
+    external?: { url: string }
+    file?: { url: string }
+  } | null
+  const coverImage = cover?.external?.url || cover?.file?.url || undefined
+
+  // Extract category from properties (assuming a Category select property)
+  const categoryProp = properties.Category as { select?: { name: string } }
+  const category = categoryProp?.select?.name || undefined
+
   return {
     id: pageData.id as string,
     title: titleProp?.title?.[0]?.plain_text || 'Untitled',
@@ -117,6 +145,8 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
     created_time: createdProp?.date?.start || (pageData.created_time as string),
     tags: tagsProp?.multi_select?.map(tag => tag.name) || [],
     published: publishedProp?.checkbox || false,
+    coverImage,
+    category,
   }
 }
 
@@ -205,4 +235,115 @@ export async function getPageTextContent(pageId: string): Promise<string> {
     console.error('Error extracting text content:', error)
     return ''
   }
+}
+
+export async function generateExcerpt(
+  pageId: string,
+  maxLength: number = 200
+): Promise<string> {
+  try {
+    const textContent = await getPageTextContent(pageId)
+
+    if (textContent.length <= maxLength) {
+      return textContent
+    }
+
+    // Find the last complete sentence within the limit
+    const truncated = textContent.substring(0, maxLength)
+    const lastSentenceEnd = Math.max(
+      truncated.lastIndexOf('.'),
+      truncated.lastIndexOf('!'),
+      truncated.lastIndexOf('?')
+    )
+
+    if (lastSentenceEnd > maxLength * 0.5) {
+      return truncated.substring(0, lastSentenceEnd + 1).trim()
+    }
+
+    // If no sentence end found, just truncate at word boundary
+    const lastSpace = truncated.lastIndexOf(' ')
+    return lastSpace > 0
+      ? truncated.substring(0, lastSpace).trim() + '...'
+      : truncated.trim() + '...'
+  } catch (error) {
+    console.error('Error generating excerpt:', error)
+    return ''
+  }
+}
+
+export interface TagWithCount {
+  name: string
+  slug: string
+  count: number
+}
+
+export interface CategoryWithCount {
+  name: string
+  slug: string
+  count: number
+}
+
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+export async function getAllTags(): Promise<TagWithCount[]> {
+  const posts = await getPosts()
+  const tagCounts = new Map<string, number>()
+
+  posts.forEach(post => {
+    post.tags.forEach(tag => {
+      tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1)
+    })
+  })
+
+  return Array.from(tagCounts.entries())
+    .map(([name, count]) => ({
+      name,
+      slug: slugify(name),
+      count,
+    }))
+    .sort((a, b) => b.count - a.count)
+}
+
+export async function getAllCategories(): Promise<CategoryWithCount[]> {
+  const posts = await getPosts()
+  const categoryCounts = new Map<string, number>()
+
+  posts.forEach(post => {
+    if (post.category) {
+      categoryCounts.set(
+        post.category,
+        (categoryCounts.get(post.category) || 0) + 1
+      )
+    }
+  })
+
+  return Array.from(categoryCounts.entries())
+    .map(([name, count]) => ({
+      name,
+      slug: slugify(name),
+      count,
+    }))
+    .sort((a, b) => b.count - a.count)
+}
+
+export async function getPostsByTag(tagName: string): Promise<NotionPost[]> {
+  const posts = await getPosts()
+  return posts.filter(post =>
+    post.tags.some(tag => slugify(tag) === slugify(tagName))
+  )
+}
+
+export async function getPostsByCategory(
+  categoryName: string
+): Promise<NotionPost[]> {
+  const posts = await getPosts()
+  return posts.filter(
+    post => post.category && slugify(post.category) === slugify(categoryName)
+  )
 }
