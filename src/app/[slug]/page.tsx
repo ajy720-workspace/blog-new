@@ -17,6 +17,7 @@ import { StructuredData } from '@/components/SEO/StructuredData'
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { CommentCount } from '@/components/Comments'
 import { CommentErrorBoundary } from '@/components/ErrorBoundary'
+import { CommentSkeleton } from '@/components/ui/loading-states'
 import { getComments, getCommentCount } from '@/lib/supabase/comments'
 
 interface PostPageProps {
@@ -120,12 +121,11 @@ async function PostContent({ slug }: { slug: string }) {
       <section className="max-w-4xl mx-auto mt-16">
         <CommentErrorBoundary>
           <Suspense fallback={
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="h-8 bg-muted rounded w-48 animate-pulse"></div>
-              <div className="space-y-2">
-                <div className="h-16 bg-muted rounded w-full animate-pulse"></div>
-                <div className="h-16 bg-muted rounded w-full animate-pulse"></div>
-              </div>
+              <CommentSkeleton />
+              <CommentSkeleton />
+              <CommentSkeleton />
             </div>
           }>
             <LazyComments notionPageId={post.id} initialComments={comments} />

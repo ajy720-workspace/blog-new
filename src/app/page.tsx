@@ -11,6 +11,7 @@ import { StaggeredList } from '@/components/animations/StaggeredList'
 import { LazyTagCloud } from '@/components/LazyComponents'
 import { FadeIn } from '@/components/animations/FadeIn'
 import { PostErrorBoundary, TagCloudErrorBoundary } from '@/components/ErrorBoundary'
+import { TagCloudSkeleton, CommentSkeleton } from '@/components/ui/loading-states'
 
 async function HomeContent() {
   try {
@@ -81,16 +82,7 @@ async function HomeContent() {
           <aside className="space-y-8">
             {/* Popular Tags */}
             <FadeIn delay={400}>
-              <Suspense fallback={
-                <div className="bg-card border rounded-lg p-6 animate-pulse">
-                  <div className="h-6 bg-muted rounded w-32 mb-4"></div>
-                  <div className="flex flex-wrap gap-2">
-                    {[...Array(8)].map((_, i) => (
-                      <div key={i} className="h-8 bg-muted rounded w-16"></div>
-                    ))}
-                  </div>
-                </div>
-              }>
+              <Suspense fallback={<TagCloudSkeleton maxTags={15} />}>
                 <TagCloudErrorBoundary>
                   <LazyTagCloud
                     tags={tags.slice(0, 15)}
