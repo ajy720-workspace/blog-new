@@ -1,6 +1,9 @@
 import { NotionPost } from '@/types/notion'
 import { PostCard } from '@/components/shared/PostCard'
-import { StaggeredGrid } from '@/components/animations/StaggeredList'
+import {
+  StaggeredGrid,
+  StaggeredList,
+} from '@/components/animations/StaggeredList'
 import { EmptyState, PostCardSkeleton } from '@/components/ui/loading-states'
 import { cn } from '@/lib/utils'
 import { FileText, Grid } from 'lucide-react'
@@ -126,6 +129,18 @@ export function OptimizedPostGrid({
       >
         {posts.map(renderPost)}
       </StaggeredGrid>
+    )
+  }
+
+  if (animate && layout === 'list') {
+    return (
+      <StaggeredList
+        className={cn(className)}
+        staggerDelay={75}
+        initialDelay={150}
+      >
+        {posts.map(renderPost)}
+      </StaggeredList>
     )
   }
 
