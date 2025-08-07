@@ -8,7 +8,7 @@ A modern blog built with Next.js 15, TypeScript, and Notion CMS.
 - **Language**: TypeScript with strict mode
 - **Styling**: Tailwind CSS 4 + shadcn/ui
 - **CMS**: Notion API
-- **Database**: Supabase (optional)
+- **Database**: Supabase (optional for comments)
 - **Authentication**: JWT-based sessions
 - **Fonts**: Pretendard (Korean), Roboto Mono
 
@@ -28,7 +28,8 @@ A modern blog built with Next.js 15, TypeScript, and Notion CMS.
 3. **Required environment variables**:
    - `NOTION_API_KEY`: Your Notion integration API key
    - `NOTION_DATABASE_ID`: Your Notion database ID
-   - `SESSION_SECRET`: Random secret for JWT signing
+   - `NOTION_AUTH_TOKEN` : Your Notion Auth token in cookie
+   - `NOTION_ACTIVE_USER` : Your Notion User ID in cookie
    - `NEXT_PUBLIC_SUPABASE_URL`: Supabase project URL (optional)
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anonymous key (optional)
 
@@ -78,7 +79,8 @@ Your Notion database should have these properties:
 - **URLPath** (Rich Text): URL slug for the post
 - **Published** (Checkbox): Whether the post is published
 - **Tags** (Multi-select): Post tags
-- **Created** (Created time): Post creation date
+- **Category** (Select): Post categories
+- **Published** (Created time): Post creation date
 
 ## Development Guidelines
 

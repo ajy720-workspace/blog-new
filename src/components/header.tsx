@@ -18,12 +18,12 @@ export function Header() {
             >
               Home
             </Link>
-            <Link
+            {/* <Link
               href="/posts"
               className="transition-colors hover:text-foreground/80 text-foreground/60"
             >
               Posts
-            </Link>
+            </Link> */}
             <Link
               href="/tags"
               className="transition-colors hover:text-foreground/80 text-foreground/60"
@@ -36,12 +36,12 @@ export function Header() {
             >
               Categories
             </Link>
-            <Link
+            {/* <Link
               href="/about"
               className="transition-colors hover:text-foreground/80 text-foreground/60"
             >
               About
-            </Link>
+            </Link> */}
           </nav>
           <ThemeToggle />
         </div>

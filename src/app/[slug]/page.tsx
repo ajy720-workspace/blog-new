@@ -99,7 +99,7 @@ async function PostContent({ slug }: { slug: string }) {
             >
               <LazySocialShare
                 title={post.title}
-                url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'}/${post.url_path}`}
+                url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'}/${post.url_path}`}
                 description={
                   textContent
                     ? generateMetaDescription(textContent)
@@ -181,15 +181,15 @@ export async function generateMetadata(
     description,
     url: canonicalUrl,
     type: 'article' as const,
-    siteName: 'Blog',
+    siteName: 'Blog - ajy720',
   }
 
   return {
     title: optimizedTitle,
     description,
     keywords: post.tags.length > 0 ? post.tags.join(', ') : undefined,
-    authors: [{ name: 'Blog Author' }],
-    creator: 'Blog Author',
+    authors: [{ name: 'Hyeonseok An' }],
+    creator: 'Hyeonseok An',
     publisher: 'Blog',
     alternates: {
       canonical: canonicalUrl,
@@ -198,13 +198,15 @@ export async function generateMetadata(
       ...generateOpenGraphTags(openGraphData),
       type: 'article',
       publishedTime: post.created_time,
-      authors: ['Blog Author'],
+      authors: ['Hyeonseok An'],
       tags: post.tags,
+      ...(post.coverImage && { images: [{ url: post.coverImage, alt: post.title }] }),
     },
     twitter: {
       card: 'summary_large_image',
       title: optimizedTitle,
       description,
+      ...(post.coverImage && { images: [post.coverImage] }),
     },
     robots: {
       index: true,

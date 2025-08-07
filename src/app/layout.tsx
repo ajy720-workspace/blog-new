@@ -29,11 +29,11 @@ const robotoMono = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Blog - Personal Tech Blog',
-    template: '%s | Blog',
+    default: 'Blog - ajy720',
+    template: '%s | ajy720',
   },
   description:
-    'Personal blog about technology, programming, and web development. Built with Next.js and Notion.',
+    'Personal blog about technology, programming, and web development.',
   keywords: [
     'blog',
     'technology',
@@ -42,8 +42,8 @@ export const metadata: Metadata = {
     'Next.js',
     'React',
   ],
-  authors: [{ name: 'Blog Author' }],
-  creator: 'Blog Author',
+  authors: [{ name: 'Hyeonseok An', url: "https://blog.ajy720.me"}],
+  creator: 'Hyeonseok An',
   publisher: 'Blog',
   formatDetection: {
     email: false,
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'
   ),
   alternates: {
     canonical: '/',
@@ -60,17 +60,17 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: getCanonicalUrl('/'),
-    title: 'Blog - Personal Tech Blog',
+    title: 'Blog - ajy720',
     description:
-      'Personal blog about technology, programming, and web development. Built with Next.js and Notion.',
-    siteName: 'Blog',
+      'Personal blog about technology, programming, and web development.',
+    siteName: 'Blog - ajy720',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Blog - Personal Tech Blog',
+    title: 'Blog - ajy720',
     description:
-      'Personal blog about technology, programming, and web development. Built with Next.js and Notion.',
-    creator: '@yourusername',
+      'Personal blog about technology, programming, and web development.',
+    creator: '@ajy720',
   },
   robots: {
     index: true,

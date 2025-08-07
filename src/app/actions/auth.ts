@@ -107,8 +107,8 @@ export async function initAnonymousSession(
 
 async function getBaseUrl(): Promise<string> {
   // First try environment variable
-  if (process.env.NEXT_PUBLIC_BASE_URL) {
-    return process.env.NEXT_PUBLIC_BASE_URL
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL
   }
 
   // Fallback to header origin
@@ -125,6 +125,6 @@ async function getBaseUrl(): Promise<string> {
 
   // Final fallback
   return process.env.NODE_ENV === 'production'
-    ? 'https://yourdomain.com'
+    ? 'https://blog.ajy720.me'
     : 'http://localhost:3000'
 }

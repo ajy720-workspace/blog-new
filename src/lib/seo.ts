@@ -53,7 +53,7 @@ export function generateBreadcrumbSchema(items: BreadcrumbItem[]) {
 }
 
 export function generatePostSchema(post: NotionPost, content?: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'
 
   return {
     '@context': 'https://schema.org',
@@ -64,7 +64,7 @@ export function generatePostSchema(post: NotionPost, content?: string) {
       : `Posted on ${new Date(post.created_time).toLocaleDateString()}`,
     author: {
       '@type': 'Person',
-      name: 'Blog Author',
+      name: 'Hyeonseok An',
       url: baseUrl,
     },
     publisher: {
@@ -84,7 +84,7 @@ export function generatePostSchema(post: NotionPost, content?: string) {
 }
 
 export function generateOrganizationSchema() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'
 
   return {
     '@context': 'https://schema.org',
@@ -99,7 +99,7 @@ export function generateOrganizationSchema() {
 }
 
 export function generateWebSiteSchema() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'
 
   return {
     '@context': 'https://schema.org',
@@ -132,7 +132,7 @@ export function generateOpenGraphTags(data: OpenGraphData) {
     'og:description': data.description,
     'og:url': data.url,
     'og:type': data.type || 'website',
-    'og:site_name': data.siteName || 'Blog',
+    'og:site_name': data.siteName || 'Blog - ajy720',
     ...(data.image && { 'og:image': data.image }),
   }
 }
@@ -147,6 +147,6 @@ export function generateTwitterCardTags(data: OpenGraphData) {
 }
 
 export function getCanonicalUrl(path: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'
   return `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`
 }

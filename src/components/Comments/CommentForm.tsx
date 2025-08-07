@@ -235,7 +235,7 @@ export default function CommentForm({
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="authorName">
+            <Label htmlFor="authorName" className="mb-2">
               Name <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -258,7 +258,9 @@ export default function CommentForm({
           </div>
 
           <div>
-            <Label htmlFor="authorEmail">Email (optional)</Label>
+            <Label htmlFor="authorEmail" className="mb-2">
+              Email (optional)
+            </Label>
             <Input
               id="authorEmail"
               type="email"
@@ -280,7 +282,7 @@ export default function CommentForm({
         </div>
 
         <div>
-          <Label htmlFor="content">
+          <Label htmlFor="content" className="mb-2">
             Comment <span className="text-red-500">*</span>
           </Label>
           <textarea

@@ -74,9 +74,10 @@ jobs:
           cat > .env.test << EOF
           NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SESSION_SECRET=${{ secrets.SESSION_SECRET }}
           NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
           NOTION_DATABASE_ID=${{ secrets.NOTION_DATABASE_ID }}
+          NOTION_AUTH_TOKEN=${{ secrets.NOTION_AUTH_TOKEN }}
+          NOTION_ACTIVE_USER=${{ secrets.NOTION_ACTIVE_USER }}
           EOF
 
       - name: Log in to GitHub Container Registry

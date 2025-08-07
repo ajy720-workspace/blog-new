@@ -48,14 +48,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `src/types/` - TypeScript type definitions
 - `supabase/migrations/` - Database schema migrations
 
-### Authentication System
-
-**Session Management (`src/lib/session.ts`):**
-
-- JWT-based sessions with 1-day expiration
-- Server-only session handling using Next.js cookies
-- Uses SESSION_SECRET environment variable
-
 ### Database Integration
 
 **Supabase Setup:**
@@ -76,7 +68,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Environment Variables Required
 
-- `SESSION_SECRET` - JWT signing secret
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
 - `NOTION_API_KEY` - Notion API key

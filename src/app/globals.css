@@ -139,7 +139,12 @@ body {
   @apply text-foreground;
 }
 
+.notion-inline-code {
+  font-family: var(--font-roboto-mono), var(--font-mono);
+}
+
 .notion-code {
+  font-family: var(--font-roboto-mono), var(--font-mono);
   @apply bg-muted text-muted-foreground;
 }
 
