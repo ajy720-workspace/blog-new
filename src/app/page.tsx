@@ -223,7 +223,7 @@ export default function Home() {
         </div>
 
         {/* Show More Link - static content, no need for Suspense */}
-        <section className="text-center">
+        {/* <section className="text-center">
           <FadeIn delay={600}>
             <Link
               href="/posts"
@@ -233,7 +233,7 @@ export default function Home() {
               <span>→</span>
             </Link>
           </FadeIn>
-        </section>
+        </section> */}
       </div>
     </main>
   )

@@ -42,9 +42,9 @@ export const metadata: Metadata = {
     'Next.js',
     'React',
   ],
-  authors: [{ name: 'Hyeonseok An', url: "https://blog.ajy720.me"}],
+  authors: [{ name: 'Hyeonseok An', url: 'https://blog.ajy720.me' }],
   creator: 'Hyeonseok An',
-  publisher: 'Blog',
+  publisher: "ajy720's Blog",
   formatDetection: {
     email: false,
     address: false,

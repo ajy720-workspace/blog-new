@@ -190,7 +190,7 @@ export async function generateMetadata(
     keywords: post.tags.length > 0 ? post.tags.join(', ') : undefined,
     authors: [{ name: 'Hyeonseok An' }],
     creator: 'Hyeonseok An',
-    publisher: 'Blog',
+    publisher: "ajy720's Blog",
     alternates: {
       canonical: canonicalUrl,
     },
@@ -200,7 +200,9 @@ export async function generateMetadata(
       publishedTime: post.created_time,
       authors: ['Hyeonseok An'],
       tags: post.tags,
-      ...(post.coverImage && { images: [{ url: post.coverImage, alt: post.title }] }),
+      ...(post.coverImage && {
+        images: [{ url: post.coverImage, alt: post.title }],
+      }),
     },
     twitter: {
       card: 'summary_large_image',

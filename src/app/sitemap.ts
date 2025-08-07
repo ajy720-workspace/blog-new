@@ -1,10 +1,14 @@
 import { MetadataRoute } from 'next'
-import { getPosts } from '@/lib/notion'
+import { getPosts, getAllTags, getAllCategories } from '@/lib/notion'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'
 
-  const posts = await getPosts()
+  const [posts, tags, categories] = await Promise.all([
+    getPosts(),
+    getAllTags(),
+    getAllCategories(),
+  ])
 
   const postSitemapEntries: MetadataRoute.Sitemap = posts.map(post => ({
     url: `${baseUrl}/${post.url_path}`,
@@ -13,6 +17,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }))
 
+  const tagSitemapEntries: MetadataRoute.Sitemap = tags.map(tag => ({
+    url: `${baseUrl}/tag/${tag.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly',
+    priority: 0.6,
+  }))
+
+  const categorySitemapEntries: MetadataRoute.Sitemap = categories.map(
+    category => ({
+      url: `${baseUrl}/category/${category.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    })
+  )
+
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -20,7 +40,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 1.0,
     },
+    {
+      url: `${baseUrl}/tags`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/categories`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
   ]
 
-  return [...staticPages, ...postSitemapEntries]
+  return [
+    ...staticPages,
+    ...postSitemapEntries,
+    ...tagSitemapEntries,
+    ...categorySitemapEntries,
+  ]
 }

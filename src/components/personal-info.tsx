@@ -75,7 +75,7 @@ export function PersonalInfoSection({ info }: PersonalInfoProps) {
 }
 
 export const DEFAULT_PERSONAL_INFO: PersonalInfo = {
-  name: 'Your Name',
+  name: 'Hyeonseok An',
   bio: 'Welcome to my personal blog where I share thoughts on technology, development, and life. Feel free to explore my posts and connect with me through the links below.',
   socialLinks: [
     {

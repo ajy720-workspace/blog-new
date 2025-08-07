@@ -52,8 +52,7 @@ function parseNotionPage(pageData: Record<string, unknown>): NotionPost {
     title: titleProp?.title?.[0]?.plain_text || 'Untitled',
     url_path:
       urlPathProp?.rich_text?.[0]?.plain_text || (pageData.id as string),
-    created_time:
-      createdProp?.date?.start || (pageData.created_time as string),
+    created_time: createdProp?.date?.start || (pageData.created_time as string),
     tags: tagsProp?.multi_select?.map(tag => tag.name) || [],
     published: publishedProp?.checkbox || false,
     coverImage,

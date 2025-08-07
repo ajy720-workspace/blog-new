@@ -69,7 +69,7 @@ export function generatePostSchema(post: NotionPost, content?: string) {
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Blog',
+      name: "ajy720's Blog",
       url: baseUrl,
     },
     datePublished: post.created_time,
@@ -89,12 +89,10 @@ export function generateOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'Blog',
+    name: "ajy720's Blog",
     url: baseUrl,
     logo: `${baseUrl}/logo.png`,
-    sameAs: [
-      // Add your social media URLs here
-    ],
+    sameAs: ['https://github.com/ajy720', 'https://www.instagram.com/02.mm.dd'],
   }
 }
 
@@ -104,15 +102,14 @@ export function generateWebSiteSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Blog',
+    name: "ajy720's Blog",
     url: baseUrl,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${baseUrl}/search?q={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
+    description:
+      'Personal blog about technology, programming, and web development.',
+    author: {
+      '@type': 'Person',
+      name: 'Hyeonseok An',
+      url: baseUrl,
     },
   }
 }
