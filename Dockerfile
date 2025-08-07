@@ -28,12 +28,14 @@ ENV NODE_ENV=production
 COPY --from=builder /app/.next/standalone ./
 
 # Copy static assets
-COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/static ./.next/static
+
+# Create empty public directory (Next.js will serve from here)
+RUN mkdir -p ./public
 
 # Expose port
 EXPOSE 3000
-ENV PORT 3000
+ENV PORT=3000
 
 # Start the application
 CMD ["node", "server.js"]
