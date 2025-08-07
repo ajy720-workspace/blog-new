@@ -223,17 +223,17 @@ export default function Home() {
         </div>
 
         {/* Show More Link - static content, no need for Suspense */}
-        {/* <section className="text-center">
+        <section className="text-center">
           <FadeIn delay={600}>
             <Link
               href="/posts"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
             >
               View All Posts
               <span>→</span>
             </Link>
           </FadeIn>
-        </section> */}
+        </section>
       </div>
     </main>
   )
