@@ -1,7 +1,7 @@
 # Blog(new) Next.js Application Dockerfile
 
 # --- Builder Stage ---
-FROM node:20-alpine AS builder
+FROM node:20 AS builder
 LABEL maintainer="ajy720@gmail.com"
 
 WORKDIR /app
@@ -19,7 +19,7 @@ COPY . .
 RUN yarn build
 
 # --- Runner Stage ---
-FROM node:20-alpine AS runner
+FROM node:20 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
