@@ -37,3 +37,6 @@ next-env.d.ts
 
 # fonts
 src/app/fonts/
+
+# note
+note.md

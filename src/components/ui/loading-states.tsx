@@ -226,6 +226,58 @@ export function LoadingState({
   )
 }
 
+export function PostGridSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="space-y-8">
+      {/* Featured post skeleton */}
+      <div className="mb-12">
+        <PostCardSkeleton variant="featured" />
+      </div>
+
+      {/* Grid posts skeleton */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {[...Array(count - 1)].map((_, i) => (
+          <PostCardSkeleton key={i} variant="default" />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function RelatedItemsSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="mt-16 pt-8 border-t animate-pulse">
+      <Skeleton className="h-8 w-48 mb-6" />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[...Array(count)].map((_, i) => (
+          <div key={i} className="p-4 bg-muted rounded-lg">
+            <div className="flex items-center gap-3 mb-3">
+              <Skeleton className="w-8 h-8 rounded-lg" />
+              <Skeleton className="h-5 w-24" />
+            </div>
+            <Skeleton className="h-4 w-16" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function PageHeaderSkeleton() {
+  return (
+    <div className="mb-12 animate-pulse">
+      <Skeleton className="h-6 w-32 mb-6" />
+      <div className="flex items-center gap-4 mb-4">
+        <Skeleton className="w-12 h-12 rounded-full" />
+        <div>
+          <Skeleton className="h-10 w-64 mb-2" />
+          <Skeleton className="h-4 w-32" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function EmptyState({
   title,
   description,

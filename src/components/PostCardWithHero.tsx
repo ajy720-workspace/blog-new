@@ -54,10 +54,13 @@ export function PostCardWithHero({
         className
       )}
     >
-      <Link href={`/${post.url_path}`} className={cn(
-        "flex flex-col h-full",
-        variant === 'featured' ? 'md:flex-row' : ''
-      )}>
+      <Link
+        href={`/${post.url_path}`}
+        className={cn(
+          'flex flex-col h-full',
+          variant === 'featured' ? 'md:flex-row' : ''
+        )}
+      >
         {/* Hero Image */}
         <div className={cn('relative overflow-hidden', imageClasses[variant])}>
           {post.coverImage ? (
@@ -67,7 +70,7 @@ export function PostCardWithHero({
               className="w-full h-full object-cover"
               priority={variant === 'featured'}
               sizes={
-                variant === 'featured' 
+                variant === 'featured'
                   ? '(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw'
                   : '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
               }

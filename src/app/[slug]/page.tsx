@@ -1,13 +1,15 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
-import { Calendar, Tag, ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
+import { Calendar, Tag } from 'lucide-react'
 import { getPostBySlug, getPageContent, getPageTextContent } from '@/lib/notion'
-import { LazyPostRenderer, LazySocialShare, LazyComments } from '@/components/LazyComponents'
+import {
+  LazyPostRenderer,
+  LazySocialShare,
+  LazyComments,
+} from '@/components/LazyComponents'
 import {
   generatePostSchema,
-  generateBreadcrumbSchema,
   generateMetaDescription,
   optimizeTitle,
   getCanonicalUrl,
@@ -16,7 +18,6 @@ import {
 import { StructuredData } from '@/components/SEO/StructuredData'
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { CommentCount } from '@/components/Comments'
-import { CommentErrorBoundary } from '@/components/ErrorBoundary'
 import { CommentSkeleton } from '@/components/ui/loading-states'
 import { getComments, getCommentCount } from '@/lib/supabase/comments'
 
@@ -33,10 +34,9 @@ async function PostContent({ slug }: { slug: string }) {
     notFound()
   }
 
-  const [blocks, textContent, comments, commentCount] = await Promise.all([
+  const [blocks, textContent, commentCount] = await Promise.all([
     getPageContent(post.id),
     getPageTextContent(post.id),
-    getComments(post.id),
     getCommentCount(post.id),
   ])
 
@@ -92,48 +92,47 @@ async function PostContent({ slug }: { slug: string }) {
               )}
             </div>
 
-            <Suspense fallback={<div className="w-32 h-8 bg-muted rounded animate-pulse"></div>}>
+            <Suspense
+              fallback={
+                <div className="w-32 h-8 bg-muted rounded animate-pulse"></div>
+              }
+            >
               <LazySocialShare
                 title={post.title}
                 url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'}/${post.url_path}`}
                 description={
-                  textContent ? generateMetaDescription(textContent) : post.title
+                  textContent
+                    ? generateMetaDescription(textContent)
+                    : post.title
                 }
               />
             </Suspense>
           </div>
         </header>
 
-        <div className="prose prose-lg max-w-none dark:prose-invert">
-          <Suspense fallback={
-            <div className="space-y-4">
+        <Suspense
+          fallback={
+            <div className="prose prose-lg max-w-none space-y-4">
               <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
               <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
               <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
               <div className="h-32 bg-muted rounded w-full animate-pulse"></div>
             </div>
-          }>
+          }
+        >
+          <div className="prose prose-lg max-w-none dark:prose-invert">
             <LazyPostRenderer blocks={blocks} />
-          </Suspense>
-        </div>
+          </div>
+        </Suspense>
       </article>
-
-      <section className="max-w-4xl mx-auto mt-16">
-        <CommentErrorBoundary>
-          <Suspense fallback={
-            <div className="space-y-6">
-              <div className="h-8 bg-muted rounded w-48 animate-pulse"></div>
-              <CommentSkeleton />
-              <CommentSkeleton />
-              <CommentSkeleton />
-            </div>
-          }>
-            <LazyComments notionPageId={post.id} initialComments={comments} />
-          </Suspense>
-        </CommentErrorBoundary>
-      </section>
     </>
   )
+}
+
+async function PostComments({ postId }: { postId: string }) {
+  const comments = await getComments(postId)
+
+  return <LazyComments notionPageId={postId} initialComments={comments} />
 }
 
 function PostSkeleton() {
@@ -216,11 +215,32 @@ export async function generateMetadata(
 
 export default async function PostPage(props: PostPageProps) {
   const params = await props.params
+  const post = await getPostBySlug(params.slug)
+
+  if (!post) {
+    notFound()
+  }
+
   return (
     <main className="container mx-auto px-4 py-8">
       <Suspense fallback={<PostSkeleton />}>
         <PostContent slug={params.slug} />
       </Suspense>
+
+      <section className="max-w-4xl mx-auto mt-16">
+        <Suspense
+          fallback={
+            <div className="space-y-6">
+              <div className="h-8 bg-muted rounded w-48 animate-pulse"></div>
+              <CommentSkeleton />
+              <CommentSkeleton />
+              <CommentSkeleton />
+            </div>
+          }
+        >
+          <PostComments postId={post.id} />
+        </Suspense>
+      </section>
     </main>
   )
 }
