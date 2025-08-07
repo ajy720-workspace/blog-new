@@ -23,6 +23,44 @@ export interface NotionPost {
   category?: string
 }
 
+// Utility function to parse Notion page data into NotionPost format
+function parseNotionPage(pageData: Record<string, unknown>): NotionPost {
+  const properties = (pageData.properties as Record<string, unknown>) || {}
+  const titleProp = properties.Title as { title?: { plain_text?: string }[] }
+  const urlPathProp = properties.URLPath as {
+    rich_text?: { plain_text?: string }[]
+  }
+
+  const createdProp = properties.PublishedAt as { date?: { start: string } }
+  const tagsProp = properties.Tags as { multi_select?: { name: string }[] }
+  const publishedProp = properties.Published as { checkbox?: boolean }
+
+  // Extract cover image from page cover or properties
+  const cover = pageData.cover as {
+    type?: string
+    external?: { url: string }
+    file?: { url: string }
+  } | null
+  const coverImage = cover?.external?.url || cover?.file?.url || undefined
+
+  // Extract category from properties (assuming a Category select property)
+  const categoryProp = properties.Category as { select?: { name: string } }
+  const category = categoryProp?.select?.name || undefined
+
+  return {
+    id: pageData.id as string,
+    title: titleProp?.title?.[0]?.plain_text || 'Untitled',
+    url_path:
+      urlPathProp?.rich_text?.[0]?.plain_text || (pageData.id as string),
+    created_time:
+      createdProp?.date?.start || (pageData.created_time as string),
+    tags: tagsProp?.multi_select?.map(tag => tag.name) || [],
+    published: publishedProp?.checkbox || false,
+    coverImage,
+    category,
+  }
+}
+
 // Cache for posts data to avoid multiple API calls
 let postsCache: NotionPost[] | null = null
 let cacheTimestamp = 0
@@ -64,42 +102,7 @@ export async function getPosts(forceRefresh = false): Promise<NotionPost[]> {
 
   const posts = response.results.map((page: unknown) => {
     const pageData = page as Record<string, unknown>
-    const properties = (pageData.properties as Record<string, unknown>) || {}
-    const titleProp = properties.Title as { title?: { plain_text?: string }[] }
-    const urlPathProp = properties.URLPath as {
-      rich_text?: { plain_text?: string }[]
-    }
-
-    const createdProp = properties.PublishedAt as { date?: { start: string } }
-    const tagsProp = properties.Tags as { multi_select?: { name: string }[] }
-    const publishedProp = properties.Published as { checkbox?: boolean }
-
-    // Extract cover image from page cover or properties
-    const cover = pageData.cover as {
-      type?: string
-      external?: { url: string }
-      file?: { url: string }
-    } | null
-    const coverImage = cover?.external?.url || cover?.file?.url || undefined
-
-    // Extract category from properties (assuming a Category select property)
-    const categoryProp = properties.Category as { select?: { name: string } }
-    const category = categoryProp?.select?.name || undefined
-
-    //console.log(properties.Category)
-
-    return {
-      id: pageData.id as string,
-      title: titleProp?.title?.[0]?.plain_text || 'Untitled',
-      url_path:
-        urlPathProp?.rich_text?.[0]?.plain_text || (pageData.id as string),
-      created_time:
-        createdProp?.date?.start || (pageData.created_time as string),
-      tags: tagsProp?.multi_select?.map(tag => tag.name) || [],
-      published: publishedProp?.checkbox || false,
-      coverImage,
-      category,
-    }
+    return parseNotionPage(pageData)
   })
 
   // Cache the results
@@ -139,38 +142,7 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
   }
 
   const pageData = response.results[0] as Record<string, unknown>
-  const properties = (pageData.properties as Record<string, unknown>) || {}
-  const titleProp = properties.Title as { title?: { plain_text?: string }[] }
-  const urlPathProp = properties.URLPath as {
-    rich_text?: { plain_text?: string }[]
-  }
-  const createdProp = properties.PublishedAt as { date?: { start: string } }
-  const tagsProp = properties.Tags as { multi_select?: { name: string }[] }
-  const publishedProp = properties.Published as { checkbox?: boolean }
-
-  // Extract cover image from page cover or properties
-  const cover = pageData.cover as {
-    type?: string
-    external?: { url: string }
-    file?: { url: string }
-  } | null
-  const coverImage = cover?.external?.url || cover?.file?.url || undefined
-
-  // Extract category from properties (assuming a Category select property)
-  const categoryProp = properties.Category as { select?: { name: string } }
-  const category = categoryProp?.select?.name || undefined
-
-  return {
-    id: pageData.id as string,
-    title: titleProp?.title?.[0]?.plain_text || 'Untitled',
-    url_path:
-      urlPathProp?.rich_text?.[0]?.plain_text || (pageData.id as string),
-    created_time: createdProp?.date?.start || (pageData.created_time as string),
-    tags: tagsProp?.multi_select?.map(tag => tag.name) || [],
-    published: publishedProp?.checkbox || false,
-    coverImage,
-    category,
-  }
+  return parseNotionPage(pageData)
 }
 
 export async function getPageContent(pageId: string) {
