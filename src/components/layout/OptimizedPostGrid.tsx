@@ -123,7 +123,7 @@ export function OptimizedPostGrid({
         cols={
           columns === 1 ? 1 : columns === 2 ? 2 : columns === 4 ? 4 : 'auto'
         }
-        className={cn(className)}
+        className={cn(className, config.containerClass)}
         staggerDelay={75}
         initialDelay={150}
       >
@@ -135,7 +135,7 @@ export function OptimizedPostGrid({
   if (animate && layout === 'list') {
     return (
       <StaggeredList
-        className={cn(className)}
+        className={cn(className, config.containerClass)}
         staggerDelay={75}
         initialDelay={150}
       >

@@ -70,7 +70,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
-- `NOTION_API_KEY` - Notion API key
+- `NEXT_PUBLIC_NOTION_API_KEY` - Notion API key
 
 ### Code Quality Guidelines
 

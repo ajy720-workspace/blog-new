@@ -60,6 +60,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            NEXT_PUBLIC_NOTION_API_KEY=${{ secrets.NEXT_PUBLIC_NOTION_API_KEY }}
+            NEXT_PUBLIC_NOTION_DATABASE_ID=${{ secrets.NEXT_PUBLIC_NOTION_DATABASE_ID }}
 
   # Job 2: Deploy to Production
   deploy:
@@ -79,8 +82,8 @@ jobs:
           cat > .env.prod << EOF
           NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
-          NOTION_DATABASE_ID=${{ secrets.NOTION_DATABASE_ID }}
+          NEXT_PUBLIC_NOTION_API_KEY=${{ secrets.NEXT_PUBLIC_NOTION_API_KEY }}
+          NEXT_PUBLIC_NOTION_DATABASE_ID=${{ secrets.NEXT_PUBLIC_NOTION_DATABASE_ID }}
           NOTION_AUTH_TOKEN=${{ secrets.NOTION_AUTH_TOKEN }}
           NOTION_ACTIVE_USER=${{ secrets.NOTION_ACTIVE_USER }}
           EOF

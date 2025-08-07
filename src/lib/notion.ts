@@ -9,7 +9,7 @@ const api = new NotionAPI({
 })
 
 export const notion = new Client({
-  auth: process.env.NOTION_API_KEY,
+  auth: process.env.NEXT_PUBLIC_NOTION_API_KEY,
 })
 
 export interface NotionPost {
@@ -75,12 +75,12 @@ export async function getPosts(forceRefresh = false): Promise<NotionPost[]> {
     return postsCache!
   }
 
-  if (!process.env.NOTION_DATABASE_ID) {
-    throw new Error('NOTION_DATABASE_ID is not defined')
+  if (!process.env.NEXT_PUBLIC_NOTION_DATABASE_ID) {
+    throw new Error('NEXT_PUBLIC_NOTION_DATABASE_ID is not defined')
   }
 
   const response = await notion.databases.query({
-    database_id: process.env.NOTION_DATABASE_ID,
+    database_id: process.env.NEXT_PUBLIC_NOTION_DATABASE_ID,
     filter: {
       // property: 'Published',
       // checkbox: {
@@ -112,12 +112,12 @@ export async function getPosts(forceRefresh = false): Promise<NotionPost[]> {
 }
 
 export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
-  if (!process.env.NOTION_DATABASE_ID) {
-    throw new Error('NOTION_DATABASE_ID is not defined')
+  if (!process.env.NEXT_PUBLIC_NOTION_DATABASE_ID) {
+    throw new Error('NEXT_PUBLIC_NOTION_DATABASE_ID is not defined')
   }
 
   const response = await notion.databases.query({
-    database_id: process.env.NOTION_DATABASE_ID,
+    database_id: process.env.NEXT_PUBLIC_NOTION_DATABASE_ID,
     filter: {
       and: [
         {

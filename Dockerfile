@@ -15,6 +15,11 @@ RUN yarn install --frozen-lockfile
 # Copy source code and build the application
 COPY . .
 
+ARG NEXT_PUBLIC_NOTION_DATABASE_ID
+
+# Set environment variables for build
+ENV NEXT_PUBLIC_NOTION_DATABASE_ID=$NEXT_PUBLIC_NOTION_DATABASE_ID
+
 # Build the application
 RUN yarn build
 
