@@ -6,10 +6,10 @@ import { Equation } from 'react-notion-x/build/third-party/equation'
 import { Modal } from 'react-notion-x/build/third-party/modal'
 import { Pdf } from 'react-notion-x/build/third-party/pdf'
 import { useTheme } from 'next-themes'
-import { ExtendedRecordMap } from 'notion-types'
 
 interface PostRendererProps {
-  blocks: ExtendedRecordMap
+  // eslint-disable-next-line
+  blocks: any
 }
 
 export function PostRenderer({ blocks }: PostRendererProps) {

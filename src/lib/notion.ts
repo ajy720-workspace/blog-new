@@ -2,14 +2,8 @@ import { Client } from '@notionhq/client'
 import { NotionAPI } from 'notion-client'
 import { slugify } from './slug-utils'
 
-// you can optionally pass an authToken to access private notion resources
-const api = new NotionAPI({
-  authToken: process.env.NOTION_AUTH_TOKEN,
-  activeUser: process.env.NOTION_ACTIVE_USER,
-})
-
 export const notion = new Client({
-  auth: process.env.NEXT_PUBLIC_NOTION_API_KEY,
+  auth: process.env.NOTION_API_KEY,
 })
 
 export interface NotionPost {
@@ -75,12 +69,12 @@ export async function getPosts(forceRefresh = false): Promise<NotionPost[]> {
     return postsCache!
   }
 
-  if (!process.env.NEXT_PUBLIC_NOTION_DATABASE_ID) {
-    throw new Error('NEXT_PUBLIC_NOTION_DATABASE_ID is not defined')
+  if (!process.env.NOTION_DATABASE_ID) {
+    throw new Error('NOTION_DATABASE_ID is not defined')
   }
 
   const response = await notion.databases.query({
-    database_id: process.env.NEXT_PUBLIC_NOTION_DATABASE_ID,
+    database_id: process.env.NOTION_DATABASE_ID,
     filter: {
       // property: 'Published',
       // checkbox: {
@@ -112,12 +106,12 @@ export async function getPosts(forceRefresh = false): Promise<NotionPost[]> {
 }
 
 export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
-  if (!process.env.NEXT_PUBLIC_NOTION_DATABASE_ID) {
-    throw new Error('NEXT_PUBLIC_NOTION_DATABASE_ID is not defined')
+  if (!process.env.NOTION_DATABASE_ID) {
+    throw new Error('NOTION_DATABASE_ID is not defined')
   }
 
   const response = await notion.databases.query({
-    database_id: process.env.NEXT_PUBLIC_NOTION_DATABASE_ID,
+    database_id: process.env.NOTION_DATABASE_ID,
     filter: {
       and: [
         {
@@ -150,6 +144,8 @@ export async function getPageContent(pageId: string) {
     block_id: pageId,
     }) 
   */
+  const api = new NotionAPI()
+
   const response = await api.getPage(pageId)
 
   return response
