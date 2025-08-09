@@ -60,6 +60,7 @@ let cacheTimestamp = 0
 const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes in milliseconds
 
 function isCacheValid(): boolean {
+  return false
   return postsCache !== null && Date.now() - cacheTimestamp < CACHE_DURATION
 }
 
@@ -73,6 +74,7 @@ export async function getPosts(forceRefresh = false): Promise<NotionPost[]> {
     throw new Error('NOTION_DATABASE_ID is not defined')
   }
 
+  // 클실: Notion API 호출에 캐시 태그 추가는 어렵지만, 결과를 캐시하는 방식으로 처리
   const response = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID,
     filter: {

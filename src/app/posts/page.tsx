@@ -6,6 +6,8 @@ import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { FadeIn } from '@/components/animations/FadeIn'
 import { PostCardSkeleton } from '@/components/ui/loading-states'
 
+export const revalidate = 1800 // ISR: 30분마다 재검증 (검색 기능으로 인해 자주 업데이트)
+
 export const metadata: Metadata = {
   title: 'All Posts | Blog',
   description:
