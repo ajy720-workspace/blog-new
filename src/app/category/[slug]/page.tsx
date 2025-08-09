@@ -18,6 +18,8 @@ import {
 import { Folder, Calendar } from 'lucide-react'
 import Link from 'next/link'
 
+export const revalidate = 3600 // ISR: 1시간마다 재검증
+
 interface CategoryPageProps {
   params: Promise<{
     slug: string

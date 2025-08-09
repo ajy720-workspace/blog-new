@@ -57,6 +57,8 @@ jobs:
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            REVALIDATE_SECRET=${{ secrets.REVALIDATE_SECRET }}
+            NOTION_WEBHOOK_SECRET=${{ secrets.REVALIDATE_SECRET }}
 
   # Job 2: Deploy to Test Environment
   deploy-test:
@@ -82,6 +84,8 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
           NOTION_DATABASE_ID=${{ secrets.NOTION_DATABASE_ID }}
+          REVALIDATE_SECRET=${{ secrets.REVALIDATE_SECRET }}
+          NOTION_WEBHOOK_SECRET=${{ secrets.NOTION_WEBHOOK_SECRET }}
           EOF
 
       - name: Log in to GitHub Container Registry

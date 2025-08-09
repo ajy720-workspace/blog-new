@@ -3,6 +3,8 @@ import { getAllTags } from '@/lib/notion'
 import { Tag, Hash, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 
+export const revalidate = 3600 // ISR: 1시간마다 재검증
+
 export const metadata: Metadata = {
   title: 'All Tags',
   description: 'Browse all tags and discover content by topic',

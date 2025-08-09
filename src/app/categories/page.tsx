@@ -3,6 +3,8 @@ import { getAllCategories } from '@/lib/notion'
 import { Folder, Grid, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 
+export const revalidate = 3600 // ISR: 1시간마다 재검증
+
 export const metadata: Metadata = {
   title: 'All Categories',
   description: 'Browse all categories and discover content by topic',

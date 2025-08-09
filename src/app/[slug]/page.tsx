@@ -21,6 +21,8 @@ import { CommentCount } from '@/components/Comments'
 import { CommentSkeleton } from '@/components/ui/loading-states'
 import { getComments, getCommentCount } from '@/lib/supabase/comments'
 
+export const revalidate = 7200 // ISR: 2시간마다 재검증 (개별 포스트는 더 긴 간격)
+
 interface PostPageProps {
   params: Promise<{
     slug: string
