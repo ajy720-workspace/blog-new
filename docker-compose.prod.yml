@@ -4,7 +4,7 @@ services:
     image: ${IMAGE_NAME_WITH_TAG:-ghcr.io/ajy720-workspace/blog:prod-latest}
     container_name: blog-prod
     ports:
-      - '5000:3000'
+      - '3000:3000'
     env_file:
       - .env.prod
     restart: unless-stopped

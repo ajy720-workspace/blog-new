@@ -4,7 +4,7 @@ services:
     image: ${IMAGE_NAME_WITH_TAG:-ghcr.io/ajy720-workspace/blog:test-latest}
     container_name: blog-test
     ports:
-      - '5001:3000'
+      - '3001:3000'
     env_file:
       - .env.test
     restart: unless-stopped

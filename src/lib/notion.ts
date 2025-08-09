@@ -2,12 +2,6 @@ import { Client } from '@notionhq/client'
 import { NotionAPI } from 'notion-client'
 import { slugify } from './slug-utils'
 
-// you can optionally pass an authToken to access private notion resources
-const api = new NotionAPI({
-  authToken: process.env.NOTION_AUTH_TOKEN,
-  activeUser: process.env.NOTION_ACTIVE_USER,
-})
-
 export const notion = new Client({
   auth: process.env.NOTION_API_KEY,
 })
@@ -150,6 +144,8 @@ export async function getPageContent(pageId: string) {
     block_id: pageId,
     }) 
   */
+  const api = new NotionAPI()
+
   const response = await api.getPage(pageId)
 
   return response

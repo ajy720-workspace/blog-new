@@ -26,10 +26,8 @@ A modern blog built with Next.js 15, TypeScript, and Notion CMS.
    ```
 
 3. **Required environment variables**:
-   - `NOTION_API_KEY`: Your Notion integration API key
-   - `NOTION_DATABASE_ID`: Your Notion database ID
-   - `NOTION_AUTH_TOKEN` : Your Notion Auth token in cookie
-   - `NOTION_ACTIVE_USER` : Your Notion User ID in cookie
+   - `NEXT_PUBLIC_NOTION_API_KEY`: Your Notion integration API key
+   - `NEXT_PUBLIC_NOTION_DATABASE_ID`: Your Notion database ID
    - `NEXT_PUBLIC_SUPABASE_URL`: Supabase project URL (optional)
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anonymous key (optional)
 
