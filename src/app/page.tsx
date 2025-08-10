@@ -9,6 +9,8 @@ import { PostCard } from '@/components/shared/PostCard'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
 import { LazyTagCloud } from '@/components/LazyComponents'
 import { FadeIn } from '@/components/animations/FadeIn'
+
+export const revalidate = 3600 // ISR: 1시간마다 재검증
 import {
   TagCloudSkeleton,
   PostCardSkeleton,
