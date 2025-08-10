@@ -135,50 +135,123 @@ export const revalidate = 7200 // 2시간 (더 긴 간격)
 
 ### 2. On-Demand Revalidation API
 
+**완전한 구현된 API 시스템**:
+
 ```typescript
 // src/app/api/revalidate/route.ts
 import { revalidatePath, revalidateTag } from 'next/cache'
 
 export async function POST(request: NextRequest) {
+  // URL 파라미터에서 시크릿 키 추출
+  const { searchParams } = new URL(request.url)
+  const secret = searchParams.get('secret')
+  
+  // 보안 검증
+  if (secret !== process.env.REVALIDATE_SECRET) {
+    return NextResponse.json({ error: 'Invalid secret' }, { status: 401 })
+  }
+  
   const { type, paths, tags } = await request.json()
   
   switch (type) {
     case 'all':
-      // 모든 주요 페이지 재검증
-      ['/','/ /posts', '/tags', '/categories'].forEach(path => {
-        revalidatePath(path)
-      })
+      // 레이아웃 레벨에서 전체 재검증
+      revalidatePath('/', 'layout')
       break
       
     case 'post-related':
-      // 포스트 관련 페이지들만 재검증
+      // 포스트 관련 페이지들 + 태그 기반 재검증
+      const postRelatedPaths = ['/', '/posts', '/tags', '/categories']
+      postRelatedPaths.forEach(path => revalidatePath(path))
       revalidateTag('posts')
+      break
+      
+    case 'path':
+      // 특정 경로들 재검증
+      if (paths && Array.isArray(paths)) {
+        paths.forEach(path => revalidatePath(path))
+      }
+      break
+      
+    case 'tag':
+      // 태그 기반 재검증
+      if (tags && Array.isArray(tags)) {
+        tags.forEach(tag => revalidateTag(tag))
+      }
       break
   }
 }
+
+// GET 요청으로 API 상태 및 사용법 확인
+export async function GET() {
+  return NextResponse.json({
+    message: 'Revalidation API is running',
+    usage: {
+      'POST /api/revalidate?secret=YOUR_SECRET': {
+        'all pages': { type: 'all' },
+        'post-related': { type: 'post-related' },
+        'specific paths': { type: 'path', paths: ['/path1', '/path2'] },
+        'by tags': { type: 'tag', tags: ['tag1', 'tag2'] }
+      }
+    },
+    timestamp: new Date().toISOString()
+  })
+}
 ```
 
-**핵심 함수들**:
+**핵심 함수들과 최적화**:
 - `revalidatePath(path)`: 특정 경로 재검증
+- `revalidatePath('/', 'layout')`: 전체 사이트 레이아웃 레벨 재검증 (성능 최적화)
 - `revalidateTag(tag)`: 태그가 설정된 모든 페이지 재검증
+- **다중 모드 지원**: all, post-related, path, tag 4가지 재검증 모드
+- **상세한 응답**: 재검증된 경로/태그와 타임스탬프 포함
 
 ### 3. Notion Webhook 시스템
+
+**최종 구현된 실제 Webhook 핸들러**:
 
 ```typescript
 // src/app/api/webhook/notion/route.ts
 export async function POST(request: NextRequest) {
-  const webhookData = await request.json()
-  const { type, object } = webhookData
+  // 1. 커스텀 헤더 기반 보안 인증
+  const webhookSecret = request.headers.get('x-webhook-secret')
+  const source = request.headers.get('x-source')
   
-  if (object === 'page' && type === 'page.created') {
-    // 새 포스트 생성 시 모든 관련 페이지 재검증
-    revalidatePath('/')
-    revalidatePath('/posts')
-    revalidatePath('/tags')
-    revalidatePath('/categories')
+  if (!webhookSecret || webhookSecret !== process.env.NOTION_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  
+  // 2. 실제 Notion 웹훅 데이터 구조 처리
+  const webhookData = await request.json()
+  const { data } = webhookData  // 실제 구조: webhookData.data.object
+  const object = data?.object
+  const pageId = data?.id
+  
+  // 3. 페이지 이벤트 처리 (삭제 상태 확인)
+  if (object === 'page') {
+    const isDeleted = data?.in_trash || data?.archived
+    const eventType = isDeleted ? 'deleted' : 'created/updated'
+    
+    // 4. 포스트 관련 모든 페이지 재검증
+    const pathsToRevalidate = ['/', '/posts', '/tags', '/categories']
+    
+    for (const path of pathsToRevalidate) {
+      revalidatePath(path)
+    }
+    
+    // 5. 태그 기반 캐시 무효화
+    revalidateTag('posts')
+    revalidateTag('tags')
+    revalidateTag('categories')
   }
 }
 ```
+
+**핵심 구현 특징**:
+- **커스텀 헤더 인증**: Notion의 서명 검증 대신 x-webhook-secret 헤더 사용
+- **실제 데이터 구조**: `webhookData.data.object` 형태로 실제 Notion 웹훅과 일치
+- **이벤트 타입 추론**: `in_trash`, `archived` 필드로 삭제 여부 판단
+- **포괄적 재검증**: 페이지별 + 태그별 캐시 무효화 동시 실행
 
 ---
 
@@ -241,18 +314,30 @@ export default async function PostsPage() {
 ### 1. API 보안
 
 ```typescript
-// Revalidation API 보안
+// Revalidation API 보안 (URL 파라미터)
 const secret = searchParams.get('secret')
 if (secret !== process.env.REVALIDATE_SECRET) {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 }
 
-// Webhook 서명 검증  
-const expectedSignature = crypto
-  .createHmac('sha256', process.env.NOTION_WEBHOOK_SECRET)
-  .update(timestamp + body)
-  .digest('hex')
+// Notion Webhook 커스텀 헤더 인증 (최종 구현)
+const webhookSecret = request.headers.get('x-webhook-secret')
+const source = request.headers.get('x-source')
+
+if (!webhookSecret || webhookSecret !== process.env.NOTION_WEBHOOK_SECRET) {
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+}
+
+// 소스 검증 (추가 보안 레이어)
+if (source && source !== 'notion-blog-webhook') {
+  return NextResponse.json({ error: 'Invalid source' }, { status: 401 })
+}
 ```
+
+**보안 구현 변경사항**:
+- **HMAC 서명 검증 → 커스텀 헤더**: Notion이 서명 검증을 지원하지 않아 헤더 기반으로 변경
+- **이중 검증**: `x-webhook-secret` + `x-source` 헤더로 다층 보안
+- **Content-Type 검증**: `application/json` 확인으로 잘못된 요청 차단
 
 ### 2. 성능 최적화
 
@@ -279,6 +364,18 @@ try {
 
 ### 1. Notion에서 Webhook 생성
 
+**Notion 대시보드에서 설정** (권장):
+1. Notion 워크스페이스 → Settings & members → Integrations
+2. Create new integration → 권한 설정 (Read content)
+3. Webhooks 섹션에서 새 웹훅 생성:
+   - **Endpoint URL**: `https://yourdomain.com/api/webhook/notion`
+   - **Events**: Page created, Page updated, Page deleted
+   - **Database**: 블로그 포스트 데이터베이스 선택
+   - **Custom headers**: 
+     - `x-webhook-secret`: `your-secret-key`
+     - `x-source`: `notion-blog-webhook`
+
+**API로 생성 (고급 사용자)**:
 ```bash
 curl -X POST https://api.notion.com/v1/webhooks \
   -H "Authorization: Bearer YOUR_NOTION_API_KEY" \
@@ -287,9 +384,18 @@ curl -X POST https://api.notion.com/v1/webhooks \
     "url": "https://yourdomain.com/api/webhook/notion",
     "name": "Blog Content Updates",
     "database_ids": ["YOUR_DATABASE_ID"],
-    "events": ["page.created", "page.updated", "page.deleted"]
+    "events": ["page.created", "page.updated", "page.deleted"],
+    "headers": {
+      "x-webhook-secret": "your-secret-key",
+      "x-source": "notion-blog-webhook"
+    }
   }'
 ```
+
+**중요 사항**:
+- Notion은 HMAC 서명 검증을 지원하지 않음
+- 대신 커스텀 헤더를 통한 인증 방식 사용
+- `x-webhook-secret` 헤더는 환경변수 `NOTION_WEBHOOK_SECRET`과 일치해야 함
 
 ### 2. 환경 변수 설정
 
@@ -304,6 +410,59 @@ REVALIDATE_SECRET=your-revalidation-secret
 Repository Settings → Secrets and Variables → Actions:
 - `REVALIDATE_SECRET`
 - `NOTION_WEBHOOK_SECRET`
+
+---
+
+## 🔧 실제 구현된 시스템 세부 사항
+
+### 테스트 도구 (`scripts/test-revalidation.js`)
+
+완전한 기능의 테스트 스크립트를 구현하여 API 검증을 자동화:
+
+```javascript
+// 사용 예시
+node scripts/test-revalidation.js all                    // 모든 페이지 재검증
+node scripts/test-revalidation.js post-related           // 포스트 관련 페이지만
+node scripts/test-revalidation.js path "/,/posts"        // 특정 경로들
+node scripts/test-revalidation.js tag "posts,homepage"   // 특정 태그들
+```
+
+**기능**:
+- 환경변수 자동 로드 (`.env.local`)
+- API 상태 확인 (`GET /api/revalidate`)
+- 다양한 재검증 모드 테스트
+- 상세한 결과 출력 및 에러 핸들링
+- 도움말 및 사용법 가이드 내장
+
+### 환경 변수 관리
+
+**로컬 개발**:
+```bash
+# .env.local
+REVALIDATE_SECRET=your-revalidation-secret-key
+NOTION_WEBHOOK_SECRET=your-webhook-secret-key
+```
+
+**프로덕션 배포**:
+- GitHub Secrets에 환경변수 등록
+- Docker 컨테이너에 환경변수 주입
+- Vercel/Netlify 등 배포 플랫폼 환경변수 설정
+
+### 배포 워크플로우 통합
+
+**.github/workflows/deploy-prod.yml** 및 **deploy-test.yml** 업데이트:
+```yaml
+env:
+  REVALIDATE_SECRET: ${{ secrets.REVALIDATE_SECRET }}
+  NOTION_WEBHOOK_SECRET: ${{ secrets.NOTION_WEBHOOK_SECRET }}
+```
+
+**Dockerfile** 환경변수 처리:
+```dockerfile
+# 런타임 환경변수
+ENV REVALIDATE_SECRET=""
+ENV NOTION_WEBHOOK_SECRET=""
+```
 
 ---
 
@@ -444,14 +603,86 @@ console.log('Cache status:', {
 - **백그라운드 작업**: 사용자 경험에 영향 없는 재생성
 
 ### 3. 웹훅 시스템 설계
-- **보안 우선**: 서명 검증으로 신뢰할 수 있는 요청만 처리
-- **이벤트 기반**: 콘텐츠 변경 시점에 정확히 반응
-- **에러 내성**: 실패해도 시스템 전체에 영향 없음
+- **커스텀 헤더 보안**: Notion의 네이티브 커스텀 헤더를 활용한 안전한 인증
+- **실제 데이터 구조 대응**: `webhookData.data.object` 형태의 실제 Notion 웹훅 구조 처리
+- **이벤트 타입 추론**: 명시적 이벤트 타입 없이도 데이터 상태로 생성/수정/삭제 판단
+- **이중 캐시 무효화**: 경로 기반(`revalidatePath`) + 태그 기반(`revalidateTag`) 동시 실행
+- **에러 내성**: 실패해도 시스템 전체에 영향 없는 견고한 에러 핸들링
 
 ### 4. 성능과 사용성의 균형
 - **즉시성 vs 성능**: On-Demand로 필요시 즉시 업데이트
 - **자동화 vs 제어**: ISR로 자동화, API로 수동 제어
 - **안정성 vs 실시간성**: 캐시 우선, 백그라운드 업데이트
+
+---
+
+## 📋 최근 구현 변경사항 요약
+
+### 1. Notion Webhook 보안 방식 전환
+
+**문제**: 초기에 HMAC 서명 검증을 시도했으나 Notion이 이를 지원하지 않음
+**해결**: 커스텀 헤더 기반 인증으로 전환
+
+```typescript
+// 이전 (실패한 접근)
+const expectedSignature = crypto.createHmac('sha256', secret).digest('hex')
+
+// 현재 (성공한 접근)
+const webhookSecret = request.headers.get('x-webhook-secret')
+if (webhookSecret !== process.env.NOTION_WEBHOOK_SECRET) {
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+}
+```
+
+### 2. 실제 Webhook 데이터 구조 적용
+
+**문제**: 예상했던 `webhookData.type`, `webhookData.object` 구조가 실제와 달랐음
+**해결**: 사용자가 제공한 실제 데이터 구조 적용
+
+```typescript
+// 이전 (예상 구조)
+const { type, object } = webhookData
+
+// 현재 (실제 구조)
+const { data } = webhookData
+const object = data?.object
+const pageId = data?.id
+const isDeleted = data?.in_trash || data?.archived
+```
+
+### 3. 포괄적인 개발 환경 통합
+
+**추가된 파일들**:
+- `.env.example` - 환경변수 템플릿
+- `scripts/test-revalidation.js` - 완전한 기능의 테스트 도구
+- 업데이트된 `Dockerfile`, `docker-compose.yml` - 환경변수 처리
+- GitHub Actions workflows - 프로덕션 환경변수 주입
+
+### 4. 성능 최적화된 재검증 전략
+
+**개선사항**:
+```typescript
+// 이전: 개별 경로 재검증
+['/','/ /posts', '/tags', '/categories'].forEach(path => {
+  revalidatePath(path)
+})
+
+// 현재: 레이아웃 레벨 재검증 (더 효율적)
+revalidatePath('/', 'layout')  // 전체 사이트 재검증
+```
+
+### 5. 실제 프로덕션 준비 완료
+
+**보안 강화**:
+- 이중 헤더 검증 (`x-webhook-secret` + `x-source`)
+- Content-Type 검증
+- 상세한 에러 로깅 및 처리
+
+**모니터링 및 디버깅**:
+- 상세한 로그 출력
+- 타임스탬프 추적
+- API 상태 확인 엔드포인트
+- 테스트 도구를 통한 검증 자동화
 
 ---
 
@@ -469,6 +700,9 @@ console.log('Cache status:', {
 
 ---
 
-*작성일: 2024년 8월 9일*  
+*작성일: 2025년 8월 9일*  
+*최종 업데이트: 실제 Notion Webhook 데이터 구조 적용 및 커스텀 헤더 인증 구현*  
 *기술 스택: Next.js 15, Notion API, ISR, Webhooks*  
-*개발 환경: TypeScript, Docker, GitHub Actions*
+*개발 환경: TypeScript, Docker, GitHub Actions*  
+*보안: 커스텀 헤더 기반 인증, 이중 검증*  
+*테스트: 자동화된 API 검증 도구 포함*
