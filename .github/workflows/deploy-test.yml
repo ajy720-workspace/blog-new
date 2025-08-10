@@ -58,7 +58,7 @@ jobs:
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
             REVALIDATE_SECRET=${{ secrets.REVALIDATE_SECRET }}
-            NOTION_WEBHOOK_SECRET=${{ secrets.REVALIDATE_SECRET }}
+            NOTION_WEBHOOK_SECRET=${{ secrets.NOTION_WEBHOOK_SECRET }}
 
   # Job 2: Deploy to Test Environment
   deploy-test:
@@ -125,7 +125,7 @@ jobs:
               body: `🚀 **Test Deployment Successful**
               
               Your changes have been deployed to the test environment:
-              **URL:** https://your.test.domain
+              **URL:** https://blog-test.ajy720.me
               
               **Branch:** \`${{ github.head_ref }}\`
               **Commit:** \`${{ github.sha }}\`
@@ -159,7 +159,7 @@ jobs:
               
               **Current Status:**
               - Automatic deployments are now **disabled** for this PR
-              - The last deployment at https://your.test.domain will remain active
+              - The last deployment at https://blog-test.ajy720.me will remain active
               - Add the \`deploy:test\` label back to resume automatic deployments
               
               **Branch:** \`${{ github.head_ref }}\`
