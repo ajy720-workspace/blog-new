@@ -22,6 +22,7 @@ import {
 import { StructuredData } from '@/components/SEO/StructuredData'
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { CommentSkeleton } from '@/components/ui/loading-states'
+import { CommentCount } from '@/components/Comments'
 
 export const revalidate = 7200 // ISR: 2시간마다 재검증 (개별 포스트는 더 긴 간격)
 
@@ -91,7 +92,7 @@ async function PostContent({ post }: { post: NotionPost }) {
               </div>
 
               {/* 댓글 수는 클라이언트에서 로딩 */}
-              <span className="text-muted-foreground">Comments loading...</span>
+              <CommentCount notionPageId={post.id} />
 
               {post.tags.length > 0 && (
                 <div className="flex items-center gap-2">
