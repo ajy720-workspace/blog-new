@@ -2,12 +2,16 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { Calendar, Tag } from 'lucide-react'
-import { getPostBySlug, getPageContent, getPageTextContent } from '@/lib/notion'
+import { cache } from 'react'
 import {
-  LazyPostRenderer,
-  LazySocialShare,
-  LazyComments,
-} from '@/components/LazyComponents'
+  getPostBySlug,
+  getPageContent,
+  getPageTextContent,
+  getPostsWithMetadata,
+  NotionPost,
+} from '@/lib/notion'
+import { PostRenderer } from '@/components/post-renderer'
+import { LazySocialShare, LazyComments } from '@/components/LazyComponents'
 import {
   generatePostSchema,
   generateMetaDescription,
@@ -17,9 +21,29 @@ import {
 } from '@/lib/seo'
 import { StructuredData } from '@/components/SEO/StructuredData'
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
-import { CommentCount } from '@/components/Comments'
 import { CommentSkeleton } from '@/components/ui/loading-states'
-import { getComments, getCommentCount } from '@/lib/supabase/comments'
+import { CommentCount } from '@/components/Comments'
+
+export const revalidate = 7200 // ISR: 2시간마다 재검증 (개별 포스트는 더 긴 간격)
+
+// 캐시된 textContent 가져오기 (generateMetadata와 PostContent에서 공유)
+const getCachedPageTextContent = cache(async (postId: string) => {
+  return await getPageTextContent(postId)
+})
+
+// generateStaticParams: 빌드 타임에 모든 포스트 페이지를 미리 생성
+export async function generateStaticParams() {
+  try {
+    const { posts } = await getPostsWithMetadata()
+
+    return posts.map(post => ({
+      slug: post.url_path,
+    }))
+  } catch (error) {
+    console.error('Error generating static params:', error)
+    return [] // 에러 시 빈 배열 반환 (동적 생성으로 폴백)
+  }
+}
 
 interface PostPageProps {
   params: Promise<{
@@ -27,17 +51,10 @@ interface PostPageProps {
   }>
 }
 
-async function PostContent({ slug }: { slug: string }) {
-  const post = await getPostBySlug(slug)
-
-  if (!post) {
-    notFound()
-  }
-
-  const [blocks, textContent, commentCount] = await Promise.all([
+async function PostContent({ post }: { post: NotionPost }) {
+  const [blocks, textContent] = await Promise.all([
     getPageContent(post.id),
-    getPageTextContent(post.id),
-    getCommentCount(post.id),
+    getCachedPageTextContent(post.id), // generateMetadata에서 이미 캐시된 데이터 재사용
   ])
 
   const formattedDate = new Date(post.created_time).toLocaleDateString(
@@ -49,6 +66,7 @@ async function PostContent({ slug }: { slug: string }) {
     }
   )
 
+  // 캐시된 textContent를 사용하여 완전한 Structured Data 생성
   const postSchema = generatePostSchema(post, textContent)
   const breadcrumbItems = [
     { name: 'Home', url: '/' },
@@ -73,7 +91,8 @@ async function PostContent({ slug }: { slug: string }) {
                 <time dateTime={post.created_time}>{formattedDate}</time>
               </div>
 
-              <CommentCount count={commentCount} />
+              {/* 댓글 수는 클라이언트에서 로딩 */}
+              <CommentCount notionPageId={post.id} />
 
               {post.tags.length > 0 && (
                 <div className="flex items-center gap-2">
@@ -100,59 +119,23 @@ async function PostContent({ slug }: { slug: string }) {
               <LazySocialShare
                 title={post.title}
                 url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'}/${post.url_path}`}
-                description={
-                  textContent
-                    ? generateMetaDescription(textContent)
-                    : post.title
-                }
+                description={post.title}
               />
             </Suspense>
           </div>
         </header>
 
-        <Suspense
-          fallback={
-            <div className="prose prose-lg max-w-none space-y-4">
-              <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
-              <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
-              <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
-              <div className="h-32 bg-muted rounded w-full animate-pulse"></div>
-            </div>
-          }
-        >
-          <div className="prose prose-lg max-w-none dark:prose-invert">
-            <LazyPostRenderer blocks={blocks} />
-          </div>
-        </Suspense>
+        <div className="prose prose-lg max-w-none dark:prose-invert">
+          <PostRenderer blocks={blocks} />
+        </div>
       </article>
     </>
   )
 }
 
-async function PostComments({ postId }: { postId: string }) {
-  const comments = await getComments(postId)
-
-  return <LazyComments notionPageId={postId} initialComments={comments} />
-}
-
-function PostSkeleton() {
-  return (
-    <div className="max-w-4xl mx-auto animate-pulse">
-      <div className="mb-8 pb-8 border-b">
-        <div className="h-4 bg-muted rounded w-24 mb-6"></div>
-        <div className="h-10 bg-muted rounded w-3/4 mb-4"></div>
-        <div className="flex gap-6">
-          <div className="h-4 bg-muted rounded w-32"></div>
-          <div className="h-4 bg-muted rounded w-24"></div>
-        </div>
-      </div>
-      <div className="space-y-4">
-        <div className="h-4 bg-muted rounded w-full"></div>
-        <div className="h-4 bg-muted rounded w-full"></div>
-        <div className="h-4 bg-muted rounded w-3/4"></div>
-      </div>
-    </div>
-  )
+function PostComments({ postId }: { postId: string }) {
+  // 서버사이드 댓글 로딩 제거 - 완전히 클라이언트사이드에서 처리
+  return <LazyComments notionPageId={postId} initialComments={[]} />
 }
 
 export async function generateMetadata(
@@ -168,7 +151,7 @@ export async function generateMetadata(
     }
   }
 
-  const textContent = await getPageTextContent(post.id)
+  const textContent = await getCachedPageTextContent(post.id)
   const description = textContent
     ? generateMetaDescription(textContent)
     : `${post.title} - Posted on ${new Date(post.created_time).toLocaleDateString()}`
@@ -227,9 +210,7 @@ export default async function PostPage(props: PostPageProps) {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <Suspense fallback={<PostSkeleton />}>
-        <PostContent slug={params.slug} />
-      </Suspense>
+      <PostContent post={post} />
 
       <section className="max-w-4xl mx-auto mt-16">
         <Suspense

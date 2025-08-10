@@ -1,13 +1,22 @@
 'use server'
 
 import { headers } from 'next/headers'
-import { createComment, checkRateLimit } from '@/lib/supabase/comments'
+import {
+  createComment,
+  checkRateLimit,
+  getComments as getCommentsFromDB,
+  getCommentCount as getCommentCountFromDB,
+} from '@/lib/supabase/comments'
 import {
   validateCommentForm,
   sanitizeCommentFormData,
   extractClientInfo,
 } from '@/lib/supabase/validation'
-import type { CommentFormData, CommentSubmissionResult } from '@/types/comments'
+import type {
+  CommentFormData,
+  CommentSubmissionResult,
+  Comment,
+} from '@/types/comments'
 
 export async function submitComment(
   formData: CommentFormData,
@@ -58,5 +67,23 @@ export async function submitComment(
       success: false,
       error: 'An unexpected error occurred while submitting your comment.',
     }
+  }
+}
+
+export async function getComments(notionPageId: string): Promise<Comment[]> {
+  try {
+    return await getCommentsFromDB(notionPageId)
+  } catch (error) {
+    console.error('Error in getComments action:', error)
+    return []
+  }
+}
+
+export async function getCommentCount(notionPageId: string): Promise<number> {
+  try {
+    return await getCommentCountFromDB(notionPageId)
+  } catch (error) {
+    console.error('Error in getCommentCount action:', error)
+    return 0
   }
 }
