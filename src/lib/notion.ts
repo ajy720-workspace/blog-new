@@ -146,7 +146,10 @@ export async function getPageContent(pageId: string) {
     block_id: pageId,
     }) 
   */
-  const api = new NotionAPI()
+  const api = new NotionAPI({
+    activeUser: process.env.NOTION_ACTIVE_USER,
+    authToken: process.env.NOTION_AUTH_TOKEN,
+  })
 
   const response = await api.getPage(pageId)
 
