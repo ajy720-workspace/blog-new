@@ -1,7 +1,7 @@
 # Blog(new) Next.js Application Dockerfile
 
 # --- Builder Stage ---
-FROM node:20 AS builder
+FROM node:22 AS builder
 LABEL maintainer="ajy720@gmail.com"
 
 WORKDIR /app
@@ -36,7 +36,7 @@ ENV NOTION_WEBHOOK_SECRET=$NOTION_WEBHOOK_SECRET
 RUN yarn build
 
 # --- Runner Stage ---
-FROM node:20 AS runner
+FROM node:22 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
