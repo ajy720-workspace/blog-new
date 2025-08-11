@@ -13,13 +13,37 @@ function getPublicOrigin(request: NextRequest): string {
   const forwardedHost = request.headers.get('x-forwarded-host')
   const host = request.headers.get('host')
 
+  // Debug: Log all headers to understand proxy setup
+  console.log('Origin detection headers:', {
+    'x-forwarded-proto': forwardedProto,
+    'x-forwarded-host': forwardedHost,
+    'host': host,
+    'x-real-ip': request.headers.get('x-real-ip'),
+    'x-forwarded-for': request.headers.get('x-forwarded-for'),
+    'referer': request.headers.get('referer'),
+    'origin': request.headers.get('origin'),
+  })
+
   // Forwarded headers from reverse proxy
   if (forwardedProto && forwardedHost) {
     return `${forwardedProto}://${forwardedHost}`
   }
 
-  // Host header with protocol inference
-  if (host) {
+  // Try to detect Docker container hostname pattern and reject it
+  if (host && host.match(/^[a-f0-9]{12,}:?\d*$/)) {
+    console.warn(`Detected Docker container hostname: ${host}, trying alternative detection`)
+    
+    // Try referer as fallback (from OAuth redirect)
+    const referer = request.headers.get('referer')
+    if (referer) {
+      const refererOrigin = new URL(referer).origin
+      console.log(`Using referer origin: ${refererOrigin}`)
+      return refererOrigin
+    }
+  }
+
+  // Host header with protocol inference (only if not Docker hostname)
+  if (host && !host.match(/^[a-f0-9]{12,}:?\d*$/)) {
     const protocol =
       forwardedProto || (host.includes('localhost') ? 'http' : 'https')
     return `${protocol}://${host}`
