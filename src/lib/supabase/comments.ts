@@ -158,7 +158,9 @@ export async function softDeleteComment(
 
 export async function transferAnonymousComments(
   currentAnonymousUserId: string,
-  authenticatedUserId: string
+  authenticatedUserId: string,
+  authenticatedUserName?: string,
+  authenticatedUserEmail?: string
 ): Promise<boolean> {
   try {
     // Use admin client to bypass RLS for this administrative operation
@@ -167,7 +169,7 @@ export async function transferAnonymousComments(
     // First, check if there are any comments to transfer
     const { data: commentsToTransfer, error: selectError } = await adminSupabase
       .from('comments')
-      .select('id, author_name, content, user_id, is_anonymous')
+      .select('id, author_name, author_email, user_id, is_anonymous')
       .eq('user_id', currentAnonymousUserId)
       .eq('is_anonymous', true)
 
@@ -180,13 +182,29 @@ export async function transferAnonymousComments(
       return true
     }
 
+    // Prepare update data with author information
+    const updateData: {
+      user_id: string
+      is_anonymous: boolean
+      author_name?: string
+      author_email?: string
+    } = {
+      user_id: authenticatedUserId,
+      is_anonymous: false,
+    }
+
+    // Update author info with authenticated user profile if available
+    if (authenticatedUserName) {
+      updateData.author_name = authenticatedUserName
+    }
+    if (authenticatedUserEmail) {
+      updateData.author_email = authenticatedUserEmail
+    }
+
     // Perform the update using admin client (bypasses RLS)
     const { error: updateError } = await adminSupabase
       .from('comments')
-      .update({
-        user_id: authenticatedUserId,
-        is_anonymous: false,
-      })
+      .update(updateData)
       .eq('user_id', currentAnonymousUserId)
       .eq('is_anonymous', true)
 
