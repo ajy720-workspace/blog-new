@@ -9,7 +9,7 @@ import {
   generateWebSiteSchema,
   generateOrganizationSchema,
   getCanonicalUrl,
-} from '@/lib/seo'
+} from '@/lib/core/seo'
 import { siteConfig } from '@/config/site.config'
 import { seoConfig } from '@/config/seo.config'
 

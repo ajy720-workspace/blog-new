@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react'
 import { Search, Filter, X, Grid, List, Rows, ChevronDown } from 'lucide-react'
-import { NotionPost, TagWithCount, CategoryWithCount } from '@/lib/notion'
+import { NotionPost, TagWithCount, CategoryWithCount } from '@/lib/core/notion'
 import {
   SearchState,
   applyFilters,
@@ -12,7 +12,7 @@ import {
   viewModeOptions,
   ViewMode,
   SortOption,
-} from '@/lib/search-utils'
+} from '@/lib/utils/search-utils'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {

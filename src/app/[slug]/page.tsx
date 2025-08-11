@@ -9,7 +9,7 @@ import {
   getPageTextContent,
   getPostsWithMetadata,
   NotionPost,
-} from '@/lib/notion'
+} from '@/lib/core/notion'
 import { PostRenderer } from '@/components/post-renderer'
 import { LazySocialShare, LazyComments } from '@/components/LazyComponents'
 import {
@@ -18,7 +18,7 @@ import {
   optimizeTitle,
   getCanonicalUrl,
   generateOpenGraphTags,
-} from '@/lib/seo'
+} from '@/lib/core/seo'
 import { StructuredData } from '@/components/SEO/StructuredData'
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { CommentSkeleton } from '@/components/ui/loading-states'

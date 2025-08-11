@@ -6,7 +6,7 @@ import {
   getAllCategories,
   generateExcerpt,
   CategoryWithCount,
-} from '@/lib/notion'
+} from '@/lib/core/notion'
 import { PostCard } from '@/components/post-card'
 import { PostCardWithHero } from '@/components/PostCardWithHero'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/loading-states'
 import { Folder, Calendar } from 'lucide-react'
 import Link from 'next/link'
-import { slugify } from '@/lib/slug-utils'
+import { slugify } from '@/lib/utils/slug-utils'
 
 export const revalidate = 3600 // ISR: 1시간마다 재검증
 

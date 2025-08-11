@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { getAllTags } from '@/lib/notion'
+import { getAllTags } from '@/lib/core/notion'
 import { Tag, Hash, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 

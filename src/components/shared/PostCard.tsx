@@ -1,16 +1,16 @@
 import Link from 'next/link'
 import { Calendar, ArrowRight, BookOpen } from 'lucide-react'
 import { NotionPost } from '@/types/notion'
-import { getFallbackGradient } from '@/lib/fallback-images'
+import { getFallbackGradient } from '@/lib/ui/fallback-images'
 import { cn } from '@/lib/utils'
-import { formatPostDate } from '@/lib/date-utils'
-import { slugify } from '@/lib/slug-utils'
+import { formatPostDate } from '@/lib/utils/date-utils'
+import { slugify } from '@/lib/utils/slug-utils'
 import {
   getCardVariantClasses,
   truncateText,
   getTagClasses,
   getColorfulTagClass,
-} from '@/lib/component-utils'
+} from '@/lib/ui/component-utils'
 import { HeroImage } from '@/components/HeroImage'
 
 interface PostCardProps {

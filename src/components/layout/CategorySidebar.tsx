@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { Folder, ChevronRight, Grid, MoreHorizontal } from 'lucide-react'
-import { CategoryWithCount } from '@/lib/notion'
+import { CategoryWithCount } from '@/lib/core/notion'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { FadeIn } from '@/components/animations/FadeIn'

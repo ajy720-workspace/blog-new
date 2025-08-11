@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { getPostsWithMetadata, generateExcerpt } from '@/lib/notion'
+import { getPostsWithMetadata, generateExcerpt } from '@/lib/core/notion'
 import {
   PersonalInfoSection,
   DEFAULT_PERSONAL_INFO,
