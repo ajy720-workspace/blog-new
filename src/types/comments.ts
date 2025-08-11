@@ -1,3 +1,5 @@
+import type { Profile } from './profiles'
+
 export interface Comment {
   id: string
   notion_page_id: string
@@ -11,6 +13,8 @@ export interface Comment {
   is_deleted: boolean
   ip_address?: string
   user_agent?: string
+  // Profile information for authenticated users
+  profile?: Profile
 }
 
 export interface CommentFormData {
