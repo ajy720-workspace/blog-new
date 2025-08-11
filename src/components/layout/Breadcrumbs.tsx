@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { slugify } from '@/lib/slug-utils'
 
 interface BreadcrumbItem {
   label: string
@@ -142,7 +143,7 @@ export function PostBreadcrumbs({
   if (category) {
     items.push({
       label: category,
-      href: `/category/${category.toLowerCase().replace(/\s+/g, '-')}`,
+      href: `/category/${slugify(category)}`,
     })
   }
 

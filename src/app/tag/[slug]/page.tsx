@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getPostsByTag, getAllTags, generateExcerpt } from '@/lib/notion'
+import { getPostsByTag, getAllTags, generateExcerpt, TagWithCount } from '@/lib/notion'
 import { PostCard } from '@/components/post-card'
 import { PostCardWithHero } from '@/components/PostCardWithHero'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/loading-states'
 import { Tag, Calendar } from 'lucide-react'
 import Link from 'next/link'
+import { slugify } from '@/lib/slug-utils'
 
 export const revalidate = 3600 // ISR: 1시간마다 재검증
 
@@ -20,6 +21,33 @@ interface TagPageProps {
   params: Promise<{
     slug: string
   }>
+}
+
+// Helper function to find tag with URL decoding and fallback logic
+function findTagBySlug(tags: TagWithCount[], slug: string): TagWithCount | undefined {
+  // Try direct match first
+  let tag = tags.find(t => t.slug === slug)
+  if (tag) return tag
+
+  // Try URL decoded version
+  try {
+    const decodedSlug = decodeURIComponent(slug)
+    tag = tags.find(t => t.slug === decodedSlug)
+    if (tag) return tag
+
+    // Try slugified version of decoded slug
+    const normalizedSlug = slugify(decodedSlug)
+    tag = tags.find(t => t.slug === normalizedSlug)
+    if (tag) return tag
+  } catch {
+    // URL decoding failed, continue with other methods
+  }
+
+  // Try finding by name and then slugify
+  tag = tags.find(t => slugify(t.name) === slug)
+  if (tag) return tag
+
+  return undefined
 }
 
 export async function generateStaticParams() {
@@ -34,7 +62,7 @@ export async function generateMetadata({
 }: TagPageProps): Promise<Metadata> {
   const { slug } = await params
   const tags = await getAllTags()
-  const tag = tags.find(t => t.slug === slug)
+  const tag = findTagBySlug(tags, slug)
 
   if (!tag) {
     return {
@@ -54,7 +82,7 @@ export async function generateMetadata({
 
 async function TagHeader({ slug }: { slug: string }) {
   const tags = await getAllTags()
-  const tag = tags.find(t => t.slug === slug)
+  const tag = findTagBySlug(tags, slug)
 
   if (!tag) {
     notFound()
@@ -89,7 +117,7 @@ async function TagHeader({ slug }: { slug: string }) {
 
 async function TagPosts({ slug }: { slug: string }) {
   const tags = await getAllTags()
-  const tag = tags.find(t => t.slug === slug)
+  const tag = findTagBySlug(tags, slug)
 
   if (!tag) {
     notFound()
