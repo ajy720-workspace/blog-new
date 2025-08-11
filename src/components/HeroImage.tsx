@@ -1,7 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import { getPostImageSrc, getFallbackGradient } from '@/lib/ui/fallback-images'
+
+import { getFallbackGradient, getPostImageSrc } from '@/lib/ui/fallback-images'
 import { cn } from '@/lib/utils'
 
 export interface HeroImageProps {

@@ -1,28 +1,31 @@
 import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
-import { Metadata } from 'next'
-import { Calendar, Tag } from 'lucide-react'
 import { cache } from 'react'
+
+import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+
+import { Calendar, Tag } from 'lucide-react'
+
+import { CommentCount } from '@/components/Comments'
+import { LazyComments, LazySocialShare } from '@/components/LazyComponents'
+import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
+import { StructuredData } from '@/components/SEO/StructuredData'
+import { PostRenderer } from '@/components/post-renderer'
+import { CommentSkeleton } from '@/components/ui/loading-states'
 import {
-  getPostBySlug,
+  NotionPost,
   getPageContent,
   getPageTextContent,
+  getPostBySlug,
   getPostsWithMetadata,
-  NotionPost,
 } from '@/lib/core/notion'
-import { PostRenderer } from '@/components/post-renderer'
-import { LazySocialShare, LazyComments } from '@/components/LazyComponents'
 import {
-  generatePostSchema,
   generateMetaDescription,
-  optimizeTitle,
-  getCanonicalUrl,
   generateOpenGraphTags,
+  generatePostSchema,
+  getCanonicalUrl,
+  optimizeTitle,
 } from '@/lib/core/seo'
-import { StructuredData } from '@/components/SEO/StructuredData'
-import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
-import { CommentSkeleton } from '@/components/ui/loading-states'
-import { CommentCount } from '@/components/Comments'
 
 export const revalidate = 7200 // ISR: 2시간마다 재검증 (개별 포스트는 더 긴 간격)
 

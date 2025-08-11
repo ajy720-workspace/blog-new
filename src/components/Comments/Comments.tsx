@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+
 import { getComments } from '@/app/actions/comments'
+import type { Comment } from '@/types/comments'
+
 import CommentForm from './CommentForm'
 import CommentList from './CommentList'
-import type { Comment } from '@/types/comments'
 
 interface CommentsProps {
   notionPageId: string

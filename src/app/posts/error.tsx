@@ -1,10 +1,13 @@
 'use client'
 
 import { useEffect } from 'react'
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
+
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+
+import { AlertTriangle, Home, RefreshCw } from 'lucide-react'
+
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
+import { Button } from '@/components/ui/button'
 
 interface ErrorProps {
   error: Error & { digest?: string }

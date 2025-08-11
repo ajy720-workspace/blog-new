@@ -1,23 +1,26 @@
 import { Suspense } from 'react'
+
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import {
-  getPostsByCategory,
-  getAllCategories,
-  generateExcerpt,
-  CategoryWithCount,
-} from '@/lib/core/notion'
-import { PostCard } from '@/components/post-card'
+
+import { Calendar, Folder } from 'lucide-react'
+
 import { PostCardWithHero } from '@/components/PostCardWithHero'
-import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
+import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
+import { PostCard } from '@/components/post-card'
 import {
+  PageHeaderSkeleton,
   PostGridSkeleton,
   RelatedItemsSkeleton,
-  PageHeaderSkeleton,
 } from '@/components/ui/loading-states'
-import { Folder, Calendar } from 'lucide-react'
-import Link from 'next/link'
+import {
+  CategoryWithCount,
+  generateExcerpt,
+  getAllCategories,
+  getPostsByCategory,
+} from '@/lib/core/notion'
 import { slugify } from '@/lib/utils/slug-utils'
 
 export const revalidate = 3600 // ISR: 1시간마다 재검증

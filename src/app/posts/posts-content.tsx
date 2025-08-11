@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { NotionPost, TagWithCount, CategoryWithCount } from '@/lib/core/notion'
-import { SearchInterface } from '@/components/search/SearchInterface'
-import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
-import { FadeIn } from '@/components/animations/FadeIn'
-import { ViewMode } from '@/lib/utils/search-utils'
+import { useMemo, useState } from 'react'
+
 import { ArrowLeft, ArrowRight } from 'lucide-react'
+
+import { FadeIn } from '@/components/animations/FadeIn'
+import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
+import { SearchInterface } from '@/components/search/SearchInterface'
+import { CategoryWithCount, NotionPost, TagWithCount } from '@/lib/core/notion'
+import { ViewMode } from '@/lib/utils/search-utils'
 
 interface PostWithExcerpt extends NotionPost {
   excerpt: string

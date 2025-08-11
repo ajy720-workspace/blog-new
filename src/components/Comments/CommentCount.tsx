@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { getCommentCount } from '@/app/actions/comments'
+import { useEffect, useState } from 'react'
+
 import { MessageCircle } from 'lucide-react'
+
+import { getCommentCount } from '@/app/actions/comments'
 
 interface CommentCountProps {
   count?: number

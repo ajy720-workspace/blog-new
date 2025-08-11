@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect } from 'react'
-import { FileX, RefreshCw, ArrowLeft } from 'lucide-react'
+
 import Link from 'next/link'
+
+import { ArrowLeft, FileX, RefreshCw } from 'lucide-react'
 
 interface ErrorProps {
   error: Error & { digest?: string }

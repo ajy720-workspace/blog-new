@@ -1,7 +1,7 @@
 'use client'
 
-import { cn } from '@/lib/utils'
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
+import { cn } from '@/lib/utils'
 
 interface StaggeredListProps {
   children: React.ReactNode[]

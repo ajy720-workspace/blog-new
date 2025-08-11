@@ -1,10 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { Calendar, ArrowRight } from 'lucide-react'
-import { NotionPost } from '@/types/notion'
-import { OptimizedImage } from './OptimizedImage'
+
+import { ArrowRight, Calendar } from 'lucide-react'
+
 import { cn } from '@/lib/utils'
+import { NotionPost } from '@/types/notion'
+
+import { OptimizedImage } from './OptimizedImage'
 
 interface PostCardWithHeroProps {
   post: NotionPost
