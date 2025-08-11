@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getPublicOrigin } from '@/lib/utils/origin-detection'
+import { transferAnonymousComments } from '@/lib/supabase/comments'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -19,9 +20,40 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
 
     try {
+      // Get current anonymous user ID before exchanging session
+      const {
+        data: { user: anonymousUser },
+      } = await supabase.auth.getUser()
+      const currentAnonymousUserId = anonymousUser?.id
+
       const { error } = await supabase.auth.exchangeCodeForSession(code)
 
       if (!error) {
+        // Get the newly authenticated user
+        const {
+          data: { user: authenticatedUser },
+        } = await supabase.auth.getUser()
+
+        // Transfer anonymous comments if we have both user IDs
+        if (
+          currentAnonymousUserId &&
+          authenticatedUser?.id &&
+          currentAnonymousUserId !== authenticatedUser.id
+        ) {
+          try {
+            await transferAnonymousComments(
+              currentAnonymousUserId,
+              authenticatedUser.id
+            )
+          } catch (transferError) {
+            // Log error but don't fail the login process
+            console.error(
+              'Failed to transfer anonymous comments:',
+              transferError
+            )
+          }
+        }
+
         // Successfully authenticated, redirect to the original page or home
         const redirectTo = `${origin}${next}`
         return redirect(redirectTo)

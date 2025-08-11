@@ -1,4 +1,5 @@
 import { createClient } from './server'
+import { createAdminClient } from './server-admin'
 import type {
   Comment,
   CommentFormData,
@@ -151,6 +152,52 @@ export async function softDeleteComment(
     return true
   } catch (error) {
     console.error('Error in softDeleteComment:', error)
+    return false
+  }
+}
+
+export async function transferAnonymousComments(
+  currentAnonymousUserId: string,
+  authenticatedUserId: string
+): Promise<boolean> {
+  try {
+    // Use admin client to bypass RLS for this administrative operation
+    const adminSupabase = createAdminClient()
+
+    // First, check if there are any comments to transfer
+    const { data: commentsToTransfer, error: selectError } = await adminSupabase
+      .from('comments')
+      .select('id, author_name, content, user_id, is_anonymous')
+      .eq('user_id', currentAnonymousUserId)
+      .eq('is_anonymous', true)
+
+    if (selectError) {
+      console.error('Error querying comments to transfer:', selectError)
+      return false
+    }
+
+    if (!commentsToTransfer || commentsToTransfer.length === 0) {
+      return true
+    }
+
+    // Perform the update using admin client (bypasses RLS)
+    const { error: updateError } = await adminSupabase
+      .from('comments')
+      .update({
+        user_id: authenticatedUserId,
+        is_anonymous: false,
+      })
+      .eq('user_id', currentAnonymousUserId)
+      .eq('is_anonymous', true)
+
+    if (updateError) {
+      console.error('Error transferring anonymous comments:', updateError)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error in transferAnonymousComments:', error)
     return false
   }
 }
