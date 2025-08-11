@@ -41,9 +41,18 @@ export async function GET(request: NextRequest) {
           currentAnonymousUserId !== authenticatedUser.id
         ) {
           try {
+            // Extract authenticated user profile information
+            const authenticatedUserName =
+              authenticatedUser.user_metadata?.full_name ||
+              authenticatedUser.user_metadata?.name ||
+              authenticatedUser.user_metadata?.user_name
+            const authenticatedUserEmail = authenticatedUser.email
+
             await transferAnonymousComments(
               currentAnonymousUserId,
-              authenticatedUser.id
+              authenticatedUser.id,
+              authenticatedUserName,
+              authenticatedUserEmail
             )
           } catch (transferError) {
             // Log error but don't fail the login process
