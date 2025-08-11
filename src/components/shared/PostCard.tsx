@@ -4,6 +4,7 @@ import { NotionPost } from '@/types/notion'
 import { getFallbackGradient } from '@/lib/fallback-images'
 import { cn } from '@/lib/utils'
 import { formatPostDate } from '@/lib/date-utils'
+import { slugify } from '@/lib/slug-utils'
 import {
   getCardVariantClasses,
   truncateText,
@@ -67,7 +68,7 @@ export function PostCard({
                 {post.tags.slice(0, 2).map(tag => (
                   <Link
                     key={tag}
-                    href={`/tag/${tag}`}
+                    href={`/tag/${slugify(tag)}`}
                     className={getTagClasses('compact')}
                   >
                     {tag}
@@ -126,7 +127,7 @@ export function PostCard({
                 {post.tags.slice(0, 4).map((tag, index) => (
                   <Link
                     key={tag}
-                    href={`/tag/${tag}`}
+                    href={`/tag/${slugify(tag)}`}
                     className={cn(
                       getTagClasses('colorful'),
                       getColorfulTagClass(index)
@@ -209,7 +210,7 @@ export function PostCard({
                     {post.tags.slice(0, 2).map(tag => (
                       <Link
                         key={tag}
-                        href={`/tag/${tag}`}
+                        href={`/tag/${slugify(tag)}`}
                         className={getTagClasses('compact')}
                       >
                         {tag}
@@ -257,7 +258,7 @@ export function PostCard({
               {post.tags.slice(0, maxTags).map(tag => (
                 <Link
                   key={tag}
-                  href={`/tag/${tag}`}
+                  href={`/tag/${slugify(tag)}`}
                   className={getTagClasses('default')}
                 >
                   {tag}
