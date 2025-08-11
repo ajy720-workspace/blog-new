@@ -63,10 +63,12 @@ export async function signInWithGitHub(redirectTo?: string): Promise<{
         ? window.location.origin
         : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
+    const redirectUrl = `${baseUrl}/auth/callback${redirectTo ? `?next=${encodeURIComponent(redirectTo)}` : ''}`
+    console.log('Github Oauthsign in. redirectTo:', redirectUrl)
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: `${baseUrl}/auth/callback${redirectTo ? `?next=${encodeURIComponent(redirectTo)}` : ''}`,
+        redirectTo: redirectUrl,
       },
     })
 
