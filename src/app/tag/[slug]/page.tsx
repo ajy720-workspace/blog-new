@@ -1,7 +1,12 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getPostsByTag, getAllTags, generateExcerpt, TagWithCount } from '@/lib/notion'
+import {
+  getPostsByTag,
+  getAllTags,
+  generateExcerpt,
+  TagWithCount,
+} from '@/lib/notion'
 import { PostCard } from '@/components/post-card'
 import { PostCardWithHero } from '@/components/PostCardWithHero'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
@@ -24,7 +29,10 @@ interface TagPageProps {
 }
 
 // Helper function to find tag with URL decoding and fallback logic
-function findTagBySlug(tags: TagWithCount[], slug: string): TagWithCount | undefined {
+function findTagBySlug(
+  tags: TagWithCount[],
+  slug: string
+): TagWithCount | undefined {
   // Try direct match first
   let tag = tags.find(t => t.slug === slug)
   if (tag) return tag
