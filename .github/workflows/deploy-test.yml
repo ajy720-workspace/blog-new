@@ -14,7 +14,7 @@ jobs:
   # Job 1: Build and Push (only if labeled or manual)
   build-and-push:
     name: Build and Push to GHCR
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     if: contains(github.event.pull_request.labels.*.name, 'deploy:test') || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
@@ -54,7 +54,6 @@ jobs:
           build-args: |
             NOTION_DATABASE_ID=${{ secrets.NOTION_DATABASE_ID }}
             NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
-            NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
             REVALIDATE_SECRET=${{ secrets.REVALIDATE_SECRET }}

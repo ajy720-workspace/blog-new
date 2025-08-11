@@ -200,7 +200,12 @@ export default function CommentForm({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => oauthModal.openModal({ trigger: 'general' })}
+                  onClick={() =>
+                    oauthModal.openModal({
+                      trigger: 'general',
+                      redirectTo: window.location.pathname,
+                    })
+                  }
                   className="text-primary hover:text-primary/80 p-0 h-auto"
                 >
                   Sign in

@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { getPublicOrigin } from '@/lib/utils/origin-detection'
 
 interface AuthActionResult {
   success: boolean
@@ -19,14 +20,23 @@ export async function signInWithGitHub(
     const redirectTo = formData.get('redirectTo') as string | null
 
     // Get base URL from environment or headers
-    const baseUrl = await getBaseUrl()
+    const headersList = await headers()
+    const origin = getPublicOrigin(headersList, undefined, {
+      allowedHosts: ['*.ajy720.me', 'localhost:3000'],
+      fallbackUrl:
+        process.env.NODE_ENV === 'production'
+          ? 'https://blog.ajy720.me'
+          : 'http://localhost:3000',
+    })
+
+    const redirectUrl = `${origin}/auth/callback${
+      redirectTo ? `?next=${encodeURIComponent(redirectTo)}` : ''
+    }`
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: `${baseUrl}/auth/callback${
-          redirectTo ? `?next=${encodeURIComponent(redirectTo)}` : ''
-        }`,
+        redirectTo: redirectUrl,
       },
     })
 
@@ -36,12 +46,18 @@ export async function signInWithGitHub(
     }
 
     if (data.url) {
-      // Redirect to GitHub OAuth
+      // Redirect to GitHub OAuth - this will throw NEXT_REDIRECT internally, which is expected
       redirect(data.url)
     }
 
     return { success: false, error: 'No OAuth URL returned' }
   } catch (error) {
+    // Check if this is the expected Next.js redirect error
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      // This is expected behavior in Next.js 15 - the redirect is working correctly
+      throw error // Re-throw to let Next.js handle the redirect
+    }
+
     console.error('GitHub OAuth error:', error)
     return {
       success: false,
@@ -103,28 +119,4 @@ export async function initAnonymousSession(
       error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
-}
-
-async function getBaseUrl(): Promise<string> {
-  // First try environment variable
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL
-  }
-
-  // Fallback to header origin
-  try {
-    const headersList = await headers()
-    const origin = headersList.get('origin') || headersList.get('host')
-
-    if (origin) {
-      return origin.startsWith('http') ? origin : `https://${origin}`
-    }
-  } catch (error) {
-    console.warn('Could not get origin from headers:', error)
-  }
-
-  // Final fallback
-  return process.env.NODE_ENV === 'production'
-    ? 'https://blog.ajy720.me'
-    : 'http://localhost:3000'
 }

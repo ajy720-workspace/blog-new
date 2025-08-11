@@ -1,0 +1,24 @@
+# Docker Compose for Test Environment
+services:
+  blog-test:
+    build:
+      context: .
+      args:
+        NOTION_DATABASE_ID: ${NOTION_DATABASE_ID}
+        NOTION_API_KEY: ${NOTION_API_KEY}
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+        NOTION_WEBHOOK_SECRET: ${NOTION_WEBHOOK_SECRET}
+    # image: ${IMAGE_NAME_WITH_TAG:-ghcr.io/ajy720-workspace/blog:test-latest}
+    container_name: blog-test
+    ports:
+      - '3005:3000'
+    environment:
+      - NEXT_PUBLIC_SITE_URL=https://3000.code.ajy720.me
+    env_file:
+      - .env.test
+    restart: unless-stopped
+    labels:
+      - 'environment=development'
+      - 'app=blog'
