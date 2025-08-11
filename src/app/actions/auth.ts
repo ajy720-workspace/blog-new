@@ -36,12 +36,18 @@ export async function signInWithGitHub(
     }
 
     if (data.url) {
-      // Redirect to GitHub OAuth
+      // Redirect to GitHub OAuth - this will throw NEXT_REDIRECT internally, which is expected
       redirect(data.url)
     }
 
     return { success: false, error: 'No OAuth URL returned' }
   } catch (error) {
+    // Check if this is the expected Next.js redirect error
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      // This is expected behavior in Next.js 15 - the redirect is working correctly
+      throw error // Re-throw to let Next.js handle the redirect
+    }
+
     console.error('GitHub OAuth error:', error)
     return {
       success: false,

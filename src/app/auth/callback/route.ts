@@ -7,6 +7,9 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/'
 
+  console.log('GET /auth/callback with')
+  console.log(request.url)
+
   if (code) {
     const supabase = await createClient()
 
@@ -19,6 +22,11 @@ export async function GET(request: NextRequest) {
         return redirect(redirectTo)
       }
     } catch (error) {
+      // Check if this is the expected Next.js redirect error
+      if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+        // This is expected behavior in Next.js 15 - the redirect is working correctly
+        throw error // Re-throw to let Next.js handle the redirect
+      }
       console.error('OAuth callback error:', error)
     }
   }
