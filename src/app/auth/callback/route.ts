@@ -2,8 +2,36 @@ import { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
+function getPublicOrigin(request: NextRequest): string {
+  // 1. Environment variable takes priority (most reliable)
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL
+  }
+
+  // 2. Check standard proxy headers
+  const forwardedProto = request.headers.get('x-forwarded-proto')
+  const forwardedHost = request.headers.get('x-forwarded-host')
+  const host = request.headers.get('host')
+
+  // Forwarded headers from reverse proxy
+  if (forwardedProto && forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`
+  }
+
+  // Host header with protocol inference
+  if (host) {
+    const protocol =
+      forwardedProto || (host.includes('localhost') ? 'http' : 'https')
+    return `${protocol}://${host}`
+  }
+
+  // Final fallback (may be incorrect in proxy environments)
+  return new URL(request.url).origin
+}
+
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url)
+  const { searchParams } = new URL(request.url)
+  const origin = getPublicOrigin(request)
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/'
 

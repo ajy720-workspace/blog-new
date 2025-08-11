@@ -14,7 +14,7 @@ jobs:
   # Job 1: Build and Push (only if labeled or manual)
   build-and-push:
     name: Build and Push to GHCR
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     if: contains(github.event.pull_request.labels.*.name, 'deploy:test') || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
