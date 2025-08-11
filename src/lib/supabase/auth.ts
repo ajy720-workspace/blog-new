@@ -50,43 +50,6 @@ export async function getSession() {
   return session
 }
 
-export async function signInWithGitHub(redirectTo?: string): Promise<{
-  success: boolean
-  error?: string
-  url?: string
-}> {
-  try {
-    const supabase = createClient()
-
-    const baseUrl =
-      typeof window !== 'undefined'
-        ? window.location.origin
-        : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-
-    const redirectUrl = `${baseUrl}/auth/callback${redirectTo ? `?next=${encodeURIComponent(redirectTo)}` : ''}`
-    console.log('Github Oauthsign in. redirectTo:', redirectUrl)
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        redirectTo: redirectUrl,
-      },
-    })
-
-    if (error) {
-      console.error('GitHub OAuth sign in error:', error)
-      return { success: false, error: error.message }
-    }
-
-    return { success: true, url: data.url }
-  } catch (error) {
-    console.error('GitHub OAuth error:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    }
-  }
-}
-
 export async function signOut(): Promise<{
   success: boolean
   error?: string
