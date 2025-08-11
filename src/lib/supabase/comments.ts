@@ -1,27 +1,51 @@
 import { createClient } from './server'
+import { createAdminClient } from './server-admin'
 import type {
   Comment,
   CommentFormData,
   CommentSubmissionResult,
+  CommentWithProfileRPC,
 } from '@/types/comments'
 
 export async function getComments(notionPageId: string): Promise<Comment[]> {
   try {
     const supabase = await createClient()
 
+    // Use RPC function to get comments with profiles
     const { data, error } = await supabase
-      .from('comments')
-      .select('*')
-      .eq('notion_page_id', notionPageId)
-      .eq('is_deleted', false)
-      .order('created_at', { ascending: false })
+      .rpc('get_comments_with_profiles', { page_id: notionPageId })
 
     if (error) {
       console.error('Error fetching comments:', error)
       return []
     }
 
-    return data || []
+    // Transform RPC result to Comment format  
+    const comments: Comment[] = (data as CommentWithProfileRPC[]).map((row) => ({
+      id: row.id,
+      notion_page_id: row.notion_page_id,
+      author_name: row.author_name,
+      author_email: row.author_email,
+      content: row.content,
+      user_id: row.user_id,
+      is_anonymous: row.is_anonymous,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      is_deleted: row.is_deleted,
+      ip_address: row.ip_address,
+      user_agent: row.user_agent,
+      // Only include profile if we have complete profile data
+      profile: row.profile_id && row.profile_display_name && row.profile_provider ? {
+        id: row.profile_id,
+        display_name: row.profile_display_name,
+        avatar_url: row.profile_avatar_url || undefined,
+        provider: row.profile_provider,
+        created_at: row.profile_created_at || new Date().toISOString(),
+        updated_at: row.profile_updated_at || new Date().toISOString()
+      } : undefined
+    }))
+
+    return comments
   } catch (error) {
     console.error('Error in getComments:', error)
     return []
@@ -151,6 +175,70 @@ export async function softDeleteComment(
     return true
   } catch (error) {
     console.error('Error in softDeleteComment:', error)
+    return false
+  }
+}
+
+export async function transferAnonymousComments(
+  currentAnonymousUserId: string,
+  authenticatedUserId: string,
+  authenticatedUserName?: string,
+  authenticatedUserEmail?: string
+): Promise<boolean> {
+  try {
+    // Use admin client to bypass RLS for this administrative operation
+    const adminSupabase = createAdminClient()
+
+    // First, check if there are any comments to transfer
+    const { data: commentsToTransfer, error: selectError } = await adminSupabase
+      .from('comments')
+      .select('id, author_name, author_email, user_id, is_anonymous')
+      .eq('user_id', currentAnonymousUserId)
+      .eq('is_anonymous', true)
+
+    if (selectError) {
+      console.error('Error querying comments to transfer:', selectError)
+      return false
+    }
+
+    if (!commentsToTransfer || commentsToTransfer.length === 0) {
+      return true
+    }
+
+    // Prepare update data with author information
+    const updateData: {
+      user_id: string
+      is_anonymous: boolean
+      author_name?: string
+      author_email?: string
+    } = {
+      user_id: authenticatedUserId,
+      is_anonymous: false,
+    }
+
+    // Update author info with authenticated user profile if available
+    if (authenticatedUserName) {
+      updateData.author_name = authenticatedUserName
+    }
+    if (authenticatedUserEmail) {
+      updateData.author_email = authenticatedUserEmail
+    }
+
+    // Perform the update using admin client (bypasses RLS)
+    const { error: updateError } = await adminSupabase
+      .from('comments')
+      .update(updateData)
+      .eq('user_id', currentAnonymousUserId)
+      .eq('is_anonymous', true)
+
+    if (updateError) {
+      console.error('Error transferring anonymous comments:', updateError)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error in transferAnonymousComments:', error)
     return false
   }
 }
