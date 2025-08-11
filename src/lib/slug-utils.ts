@@ -33,8 +33,8 @@ export function createUniqueSlug(
 }
 
 export function isValidSlug(slug: string): boolean {
-  // Check if slug matches our expected format
-  const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+  // Check if slug matches our expected format (including Korean characters)
+  const slugPattern = /^[a-z0-9\uAC00-\uD7AF]+(?:-[a-z0-9\uAC00-\uD7AF]+)*$/u
   return slugPattern.test(slug) && slug.length > 0 && slug.length <= 100
 }
 

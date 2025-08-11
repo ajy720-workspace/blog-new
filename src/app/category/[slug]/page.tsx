@@ -5,6 +5,7 @@ import {
   getPostsByCategory,
   getAllCategories,
   generateExcerpt,
+  CategoryWithCount,
 } from '@/lib/notion'
 import { PostCard } from '@/components/post-card'
 import { PostCardWithHero } from '@/components/PostCardWithHero'
@@ -17,6 +18,7 @@ import {
 } from '@/components/ui/loading-states'
 import { Folder, Calendar } from 'lucide-react'
 import Link from 'next/link'
+import { slugify } from '@/lib/slug-utils'
 
 export const revalidate = 3600 // ISR: 1시간마다 재검증
 
@@ -24,6 +26,33 @@ interface CategoryPageProps {
   params: Promise<{
     slug: string
   }>
+}
+
+// Helper function to find category with URL decoding and fallback logic
+function findCategoryBySlug(categories: CategoryWithCount[], slug: string): CategoryWithCount | undefined {
+  // Try direct match first
+  let category = categories.find(c => c.slug === slug)
+  if (category) return category
+
+  // Try URL decoded version
+  try {
+    const decodedSlug = decodeURIComponent(slug)
+    category = categories.find(c => c.slug === decodedSlug)
+    if (category) return category
+
+    // Try slugified version of decoded slug
+    const normalizedSlug = slugify(decodedSlug)
+    category = categories.find(c => c.slug === normalizedSlug)
+    if (category) return category
+  } catch {
+    // URL decoding failed, continue with other methods
+  }
+
+  // Try finding by name and then slugify
+  category = categories.find(c => slugify(c.name) === slug)
+  if (category) return category
+
+  return undefined
 }
 
 export async function generateStaticParams() {
@@ -38,7 +67,7 @@ export async function generateMetadata({
 }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params
   const categories = await getAllCategories()
-  const category = categories.find(c => c.slug === slug)
+  const category = findCategoryBySlug(categories, slug)
 
   if (!category) {
     return {
@@ -58,7 +87,7 @@ export async function generateMetadata({
 
 async function CategoryHeader({ slug }: { slug: string }) {
   const categories = await getAllCategories()
-  const category = categories.find(c => c.slug === slug)
+  const category = findCategoryBySlug(categories, slug)
 
   if (!category) {
     notFound()
@@ -93,7 +122,7 @@ async function CategoryHeader({ slug }: { slug: string }) {
 
 async function CategoryPosts({ slug }: { slug: string }) {
   const categories = await getAllCategories()
-  const category = categories.find(c => c.slug === slug)
+  const category = findCategoryBySlug(categories, slug)
 
   if (!category) {
     notFound()
