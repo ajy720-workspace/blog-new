@@ -1,11 +1,12 @@
 'use server'
 
-import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
-import { createClient } from '@/lib/supabase/server'
-import { getPublicOrigin } from '@/lib/utils/origin-detection'
+import { redirect } from 'next/navigation'
+
 import { securityConfig } from '@/config/security.config'
 import { siteConfig } from '@/config/site.config'
+import { createClient } from '@/lib/supabase/server'
+import { getPublicOrigin } from '@/lib/utils/origin-detection'
 
 interface AuthActionResult {
   success: boolean
@@ -65,9 +66,7 @@ export async function signInWithGitHub(
   }
 }
 
-export async function signOut(
-  _prevState: AuthActionResult | null
-): Promise<AuthActionResult> {
+export async function signOut(): Promise<AuthActionResult> {
   try {
     const supabase = await createClient()
     const { error } = await supabase.auth.signOut()
@@ -87,9 +86,7 @@ export async function signOut(
   }
 }
 
-export async function initAnonymousSession(
-  _prevState: AuthActionResult | null
-): Promise<AuthActionResult> {
+export async function initAnonymousSession(): Promise<AuthActionResult> {
   try {
     const supabase = await createClient()
 

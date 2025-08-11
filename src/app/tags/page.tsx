@@ -1,7 +1,9 @@
 import { Metadata } from 'next'
-import { getAllTags } from '@/lib/core/notion'
-import { Tag, Hash, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
+
+import { Hash, Tag, TrendingUp } from 'lucide-react'
+
+import { getAllTags } from '@/lib/core/notion'
 
 export const revalidate = 3600 // ISR: 1시간마다 재검증
 

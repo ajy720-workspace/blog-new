@@ -1,7 +1,8 @@
 'use client'
 
-import { motion, type HTMLMotionProps } from 'framer-motion'
 import { type ReactNode } from 'react'
+
+import { type HTMLMotionProps, motion } from 'framer-motion'
 
 interface MotionWrapperProps extends Omit<HTMLMotionProps<'div'>, 'children'> {
   children: ReactNode

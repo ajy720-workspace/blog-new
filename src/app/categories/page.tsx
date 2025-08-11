@@ -1,7 +1,9 @@
 import { Metadata } from 'next'
-import { getAllCategories } from '@/lib/core/notion'
-import { Folder, Grid, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
+
+import { Folder, Grid, TrendingUp } from 'lucide-react'
+
+import { getAllCategories } from '@/lib/core/notion'
 
 export const revalidate = 3600 // ISR: 1시간마다 재검증
 

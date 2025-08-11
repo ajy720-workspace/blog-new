@@ -87,7 +87,7 @@ export function getPublicOrigin(
           }
           return refererOrigin
         }
-      } catch (error) {
+      } catch {
         console.warn('Invalid referer URL:', referer)
       }
     }

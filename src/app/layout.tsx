@@ -1,17 +1,19 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
-import './globals.css'
-import { ThemeProvider } from '@/components/theme-provider'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
+
 import { WebVitals } from '@/components/WebVitals'
+import { Footer } from '@/components/footer'
+import { Header } from '@/components/header'
+import { ThemeProvider } from '@/components/theme-provider'
+import { seoConfig } from '@/config/seo.config'
+import { siteConfig } from '@/config/site.config'
 import {
-  generateWebSiteSchema,
   generateOrganizationSchema,
+  generateWebSiteSchema,
   getCanonicalUrl,
 } from '@/lib/core/seo'
-import { siteConfig } from '@/config/site.config'
-import { seoConfig } from '@/config/seo.config'
+
+import './globals.css'
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',

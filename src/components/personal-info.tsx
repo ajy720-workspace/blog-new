@@ -1,14 +1,16 @@
+import Image from 'next/image'
+
 import {
+  ExternalLink,
   Github,
-  Twitter,
+  Instagram,
   Linkedin,
   Mail,
-  ExternalLink,
-  Instagram,
+  Twitter,
 } from 'lucide-react'
-import Image from 'next/image'
-import { PersonalInfo } from '@/types/notion'
+
 import { siteConfig } from '@/config/site.config'
+import { PersonalInfo } from '@/types/notion'
 
 const SOCIAL_ICONS = {
   github: Github,
@@ -80,7 +82,7 @@ export const DEFAULT_PERSONAL_INFO: PersonalInfo = {
   bio: siteConfig.author.bio,
   avatar: siteConfig.author.avatar,
   socialLinks: Object.entries(siteConfig.social)
-    .filter(([key, value]) => value)
+    .filter(([, value]) => value)
     .map(([platform, url]) => ({
       platform,
       url: url as string,

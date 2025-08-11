@@ -1,12 +1,13 @@
-import { createClient } from './server'
-import { createAdminClient } from './server-admin'
+import { securityConfig } from '@/config/security.config'
 import type {
   Comment,
   CommentFormData,
   CommentSubmissionResult,
   CommentWithProfileRPC,
 } from '@/types/comments'
-import { securityConfig } from '@/config/security.config'
+
+import { createClient } from './server'
+import { createAdminClient } from './server-admin'
 
 export async function getComments(notionPageId: string): Promise<Comment[]> {
   try {

@@ -1,7 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+
 import { Tag } from 'lucide-react'
+
 import { TagWithCount } from '@/lib/core/notion'
 import { cn } from '@/lib/utils'
 

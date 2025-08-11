@@ -1,5 +1,6 @@
 import { Client } from '@notionhq/client'
 import { NotionAPI } from 'notion-client'
+
 import { slugify } from '../utils/slug-utils'
 
 export const notion = new Client({

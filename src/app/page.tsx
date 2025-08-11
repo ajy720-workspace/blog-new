@@ -1,20 +1,22 @@
 import { Suspense } from 'react'
+
 import Link from 'next/link'
-import { getPostsWithMetadata, generateExcerpt } from '@/lib/core/notion'
-import {
-  PersonalInfoSection,
-  DEFAULT_PERSONAL_INFO,
-} from '@/components/personal-info'
-import { PostCard } from '@/components/shared/PostCard'
-import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
+
 import { LazyTagCloud } from '@/components/LazyComponents'
 import { FadeIn } from '@/components/animations/FadeIn'
+import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
+import {
+  DEFAULT_PERSONAL_INFO,
+  PersonalInfoSection,
+} from '@/components/personal-info'
+import { PostCard } from '@/components/shared/PostCard'
+import {
+  PostCardSkeleton,
+  TagCloudSkeleton,
+} from '@/components/ui/loading-states'
+import { generateExcerpt, getPostsWithMetadata } from '@/lib/core/notion'
 
 export const revalidate = 3600 // ISR: 1시간마다 재검증
-import {
-  TagCloudSkeleton,
-  PostCardSkeleton,
-} from '@/components/ui/loading-states'
 
 async function FeaturedPostSection() {
   const { posts } = await getPostsWithMetadata()
