@@ -86,6 +86,7 @@ jobs:
           cat > .env.prod << EOF
           NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
           NOTION_DATABASE_ID=${{ secrets.NOTION_DATABASE_ID }}
           REVALIDATE_SECRET=${{ secrets.REVALIDATE_SECRET }}

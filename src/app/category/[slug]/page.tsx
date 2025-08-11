@@ -29,7 +29,10 @@ interface CategoryPageProps {
 }
 
 // Helper function to find category with URL decoding and fallback logic
-function findCategoryBySlug(categories: CategoryWithCount[], slug: string): CategoryWithCount | undefined {
+function findCategoryBySlug(
+  categories: CategoryWithCount[],
+  slug: string
+): CategoryWithCount | undefined {
   // Try direct match first
   let category = categories.find(c => c.slug === slug)
   if (category) return category

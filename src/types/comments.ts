@@ -1,3 +1,5 @@
+import type { Profile } from './profiles'
+
 export interface Comment {
   id: string
   notion_page_id: string
@@ -11,6 +13,8 @@ export interface Comment {
   is_deleted: boolean
   ip_address?: string
   user_agent?: string
+  // Profile information for authenticated users
+  profile?: Profile
 }
 
 export interface CommentFormData {
@@ -61,4 +65,26 @@ export interface CommentFormState {
   authorEmail: string
   errors: CommentValidationError[]
   isSubmitting: boolean
+}
+
+// RPC function result type for get_comments_with_profiles
+export interface CommentWithProfileRPC {
+  id: string
+  notion_page_id: string
+  author_name: string
+  author_email?: string
+  content: string
+  user_id?: string
+  is_anonymous: boolean
+  created_at: string
+  updated_at: string
+  is_deleted: boolean
+  ip_address?: string
+  user_agent?: string
+  profile_id?: string
+  profile_display_name?: string
+  profile_avatar_url?: string
+  profile_provider?: string
+  profile_created_at?: string
+  profile_updated_at?: string
 }
