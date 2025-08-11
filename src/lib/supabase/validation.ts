@@ -22,11 +22,7 @@ export function validateCommentForm(
       field: 'authorName',
       message: 'Name cannot exceed 100 characters',
     })
-  } else if (
-    !/^[a-zA-Z0-9\s\-_\u00C0-\u017F\u4e00-\u9fa5\u3040-\u309F\u30A0-\u30FF]*$/.test(
-      authorName
-    )
-  ) {
+  } else if (hasInvalidNameCharacters(authorName)) {
     errors.push({
       field: 'authorName',
       message: 'Name contains invalid characters',
@@ -70,6 +66,19 @@ export function validateCommentForm(
   }
 
   return errors
+}
+
+function hasInvalidNameCharacters(name: string): boolean {
+  // Blacklist approach - block dangerous characters only
+  const dangerousChars = /[<>'"&]/ // HTML/JS injection risks
+  const controlChars = /[\u0000-\u001F\u007F-\u009F]/ // Control characters
+  const zeroWidthChars = /[\u200B-\u200F\u2060\uFEFF]/ // Zero-width chars
+
+  return (
+    dangerousChars.test(name) ||
+    controlChars.test(name) ||
+    zeroWidthChars.test(name)
+  )
 }
 
 export function sanitizeInput(input: string): string {
