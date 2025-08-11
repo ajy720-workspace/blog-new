@@ -1,4 +1,6 @@
 import { NotionPost } from './notion'
+import { siteConfig } from '@/config/site.config'
+import { seoConfig } from '@/config/seo.config'
 
 export function generateSlug(title: string): string {
   return title
@@ -53,8 +55,6 @@ export function generateBreadcrumbSchema(items: BreadcrumbItem[]) {
 }
 
 export function generatePostSchema(post: NotionPost, content?: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'
-
   return {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -64,52 +64,52 @@ export function generatePostSchema(post: NotionPost, content?: string) {
       : `Posted on ${new Date(post.created_time).toLocaleDateString()}`,
     author: {
       '@type': 'Person',
-      name: 'Hyeonseok An',
-      url: baseUrl,
+      name: siteConfig.author.name,
+      url: siteConfig.url,
     },
     publisher: {
       '@type': 'Organization',
-      name: "ajy720's Blog",
-      url: baseUrl,
+      name: siteConfig.name,
+      url: siteConfig.url,
     },
     datePublished: post.created_time,
     dateModified: post.created_time,
-    url: `${baseUrl}/${post.url_path}`,
+    url: `${siteConfig.url}/${post.url_path}`,
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `${baseUrl}/${post.url_path}`,
+      '@id': `${siteConfig.url}/${post.url_path}`,
     },
     keywords: post.tags.join(', '),
   }
 }
 
 export function generateOrganizationSchema() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'
-
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: "ajy720's Blog",
-    url: baseUrl,
-    logo: `${baseUrl}/logo.png`,
-    sameAs: ['https://github.com/ajy720', 'https://www.instagram.com/02.mm.dd'],
+    name: seoConfig.schema.organization.name,
+    url: siteConfig.url,
+    ...(seoConfig.schema.organization.logo && {
+      logo: `${siteConfig.url}${seoConfig.schema.organization.logo}`,
+    }),
+    sameAs: seoConfig.schema.organization.sameAs,
   }
 }
 
 export function generateWebSiteSchema() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'
-
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: "ajy720's Blog",
-    url: baseUrl,
-    description:
-      'Personal blog about technology, programming, and web development.',
+    name: seoConfig.schema.website.name,
+    ...(seoConfig.schema.website.alternateName && {
+      alternateName: seoConfig.schema.website.alternateName,
+    }),
+    url: siteConfig.url,
+    description: siteConfig.description,
     author: {
       '@type': 'Person',
-      name: 'Hyeonseok An',
-      url: baseUrl,
+      name: siteConfig.author.name,
+      url: siteConfig.url,
     },
   }
 }
@@ -129,7 +129,7 @@ export function generateOpenGraphTags(data: OpenGraphData) {
     'og:description': data.description,
     'og:url': data.url,
     'og:type': data.type || 'website',
-    'og:site_name': data.siteName || 'Blog - ajy720',
+    'og:site_name': data.siteName || seoConfig.openGraph.siteName,
     ...(data.image && { 'og:image': data.image }),
   }
 }
@@ -144,6 +144,5 @@ export function generateTwitterCardTags(data: OpenGraphData) {
 }
 
 export function getCanonicalUrl(path: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'
-  return `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`
+  return `${siteConfig.url}${path.startsWith('/') ? path : `/${path}`}`
 }

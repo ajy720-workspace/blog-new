@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { getPublicOrigin } from '@/lib/utils/origin-detection'
+import { securityConfig } from '@/config/security.config'
+import { siteConfig } from '@/config/site.config'
 
 interface AuthActionResult {
   success: boolean
@@ -22,11 +24,8 @@ export async function signInWithGitHub(
     // Get base URL from environment or headers
     const headersList = await headers()
     const origin = getPublicOrigin(headersList, undefined, {
-      allowedHosts: ['*.ajy720.me', 'localhost:3000'],
-      fallbackUrl:
-        process.env.NODE_ENV === 'production'
-          ? 'https://blog.ajy720.me'
-          : 'http://localhost:3000',
+      allowedHosts: securityConfig.allowedHosts,
+      fallbackUrl: siteConfig.url,
     })
 
     const redirectUrl = `${origin}/auth/callback${
