@@ -6,22 +6,24 @@ import type {
   CommentSubmissionResult,
   CommentWithProfileRPC,
 } from '@/types/comments'
+import { securityConfig } from '@/config/security.config'
 
 export async function getComments(notionPageId: string): Promise<Comment[]> {
   try {
     const supabase = await createClient()
 
     // Use RPC function to get comments with profiles
-    const { data, error } = await supabase
-      .rpc('get_comments_with_profiles', { page_id: notionPageId })
+    const { data, error } = await supabase.rpc('get_comments_with_profiles', {
+      page_id: notionPageId,
+    })
 
     if (error) {
       console.error('Error fetching comments:', error)
       return []
     }
 
-    // Transform RPC result to Comment format  
-    const comments: Comment[] = (data as CommentWithProfileRPC[]).map((row) => ({
+    // Transform RPC result to Comment format
+    const comments: Comment[] = (data as CommentWithProfileRPC[]).map(row => ({
       id: row.id,
       notion_page_id: row.notion_page_id,
       author_name: row.author_name,
@@ -35,14 +37,17 @@ export async function getComments(notionPageId: string): Promise<Comment[]> {
       ip_address: row.ip_address,
       user_agent: row.user_agent,
       // Only include profile if we have complete profile data
-      profile: row.profile_id && row.profile_display_name && row.profile_provider ? {
-        id: row.profile_id,
-        display_name: row.profile_display_name,
-        avatar_url: row.profile_avatar_url || undefined,
-        provider: row.profile_provider,
-        created_at: row.profile_created_at || new Date().toISOString(),
-        updated_at: row.profile_updated_at || new Date().toISOString()
-      } : undefined
+      profile:
+        row.profile_id && row.profile_display_name && row.profile_provider
+          ? {
+              id: row.profile_id,
+              display_name: row.profile_display_name,
+              avatar_url: row.profile_avatar_url || undefined,
+              provider: row.profile_provider,
+              created_at: row.profile_created_at || new Date().toISOString(),
+              updated_at: row.profile_updated_at || new Date().toISOString(),
+            }
+          : undefined,
     }))
 
     return comments
@@ -131,7 +136,9 @@ export async function checkRateLimit(ipAddress: string): Promise<boolean> {
     const supabase = await createClient()
 
     // Check comments from this IP in the last hour
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    const oneHourAgo = new Date(
+      Date.now() - securityConfig.rateLimit.comments.windowMs
+    ).toISOString()
 
     const { count, error } = await supabase
       .from('comments')
@@ -145,8 +152,8 @@ export async function checkRateLimit(ipAddress: string): Promise<boolean> {
       return true
     }
 
-    // Allow max 3 comments per hour
-    return (count || 0) < 3
+    // Allow max comments per hour based on security config
+    return (count || 0) < securityConfig.rateLimit.comments.maxPerHour
   } catch (error) {
     console.error('Error in checkRateLimit:', error)
     // Allow submission if error occurs
