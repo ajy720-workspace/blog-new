@@ -10,9 +10,20 @@ export async function getComments(notionPageId: string): Promise<Comment[]> {
   try {
     const supabase = await createClient()
 
+    // Fetch comments with profile information for authenticated users
     const { data, error } = await supabase
       .from('comments')
-      .select('*')
+      .select(
+        `
+        *,
+        profile:profiles(
+          id,
+          display_name,
+          avatar_url,
+          provider
+        )
+      `
+      )
       .eq('notion_page_id', notionPageId)
       .eq('is_deleted', false)
       .order('created_at', { ascending: false })

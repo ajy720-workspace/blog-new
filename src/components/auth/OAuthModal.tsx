@@ -9,7 +9,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Github, X, CheckCircle, AlertCircle } from 'lucide-react'
+import { Github, CheckCircle, AlertCircle } from 'lucide-react'
 import { signInWithGitHub } from '@/app/actions/auth'
 
 interface OAuthModalProps {
@@ -68,19 +68,9 @@ export function OAuthModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-bold">
-              {getTitleByTrigger()}
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="p-1 h-auto"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
+          <DialogTitle className="text-xl font-bold">
+            {getTitleByTrigger()}
+          </DialogTitle>
           <DialogDescription className="text-base">
             {getDescriptionByTrigger()}
           </DialogDescription>

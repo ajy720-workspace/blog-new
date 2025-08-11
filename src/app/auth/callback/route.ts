@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getPublicOrigin } from '@/lib/utils/origin-detection'
 import { transferAnonymousComments } from '@/lib/supabase/comments'
+import { createProfileFromUser } from '@/lib/supabase/profiles'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -33,6 +34,16 @@ export async function GET(request: NextRequest) {
         const {
           data: { user: authenticatedUser },
         } = await supabase.auth.getUser()
+
+        // Create or update user profile
+        if (authenticatedUser) {
+          try {
+            await createProfileFromUser(authenticatedUser)
+          } catch (profileError) {
+            // Log error but don't fail the login process
+            console.error('Failed to create/update profile:', profileError)
+          }
+        }
 
         // Transfer anonymous comments if we have both user IDs
         if (
