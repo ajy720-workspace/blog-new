@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { ChevronRight, Home } from 'lucide-react'
-import { generateBreadcrumbSchema, BreadcrumbItem } from '@/lib/seo'
+import { generateBreadcrumbSchema, BreadcrumbItem } from '@/lib/core/seo'
 import { StructuredData } from './StructuredData'
 
 interface BreadcrumbNavProps {

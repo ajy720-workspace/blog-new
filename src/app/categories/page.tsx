@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { getAllCategories } from '@/lib/notion'
+import { getAllCategories } from '@/lib/core/notion'
 import { Folder, Grid, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 

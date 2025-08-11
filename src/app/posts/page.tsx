@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
-import { getPostsWithMetadata, generateExcerpt } from '@/lib/notion'
+import { getPostsWithMetadata, generateExcerpt } from '@/lib/core/notion'
 import { PostsContent } from './posts-content'
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { FadeIn } from '@/components/animations/FadeIn'
