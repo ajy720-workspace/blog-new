@@ -18,8 +18,8 @@ A modern, configurable blog built with Next.js 15, TypeScript, and Notion CMS. T
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/your-username/blog-template.git
-cd blog-template
+git clone https://github.com/ajy720-workspace/blog-new.git
+cd blog-new
 yarn install
 ```
 
@@ -100,6 +100,10 @@ NEXT_PUBLIC_NOTION_DATABASE_ID=your_notion_database_id
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Optional (for webhook auto-revalidation)
+NOTION_WEBHOOK_SECRET=your-secure-random-string
+REVALIDATION_SECRET=your-revalidation-token
 ```
 
 ### 4. Notion Database Setup
@@ -110,13 +114,107 @@ Create a Notion database with these properties:
 - **Published** (Checkbox): Whether the post is published
 - **Tags** (Multi-select): Post tags
 - **Category** (Select): Post categories
-- **Created** (Created time): Post creation date
+- **PublishedAt** (Published time): Post Published date(order criteria)
 
-### 5. Font Files (Optional)
+### 5. Supabase Setup (Optional - for comments)
 
-For optimal typography, add these fonts to `src/app/fonts/`:
-- `PretendardVariable.woff2` (Korean support)
-- `RobotoMono-VariableFont_wght.ttf` (code blocks)
+If you want to enable the comment system, set up Supabase:
+
+#### Database Migration
+
+1. **Create a new Supabase project** at [supabase.com](https://supabase.com)
+
+2. **Run the database migrations** to create required tables:
+   ```bash
+   # Install Supabase CLI if you haven't already
+   npm install -g @supabase/cli
+   
+   # Login to Supabase
+   npx supabase login
+   
+   # Link your project (replace with your project ref)
+   npx supabase link --project-ref your-project-ref
+   
+   # Run migrations to create comments and profiles tables
+   npx supabase db push
+   ```
+
+3. **Set up Row Level Security (RLS)**:
+   - The migrations automatically configure RLS policies
+   - Users can only edit their own comments
+   - Anonymous users can create comments but not edit others'
+
+4. **Configure OAuth providers** (optional):
+   - Go to Authentication > Providers in your Supabase dashboard
+   - Enable GitHub, Google, or other providers you want to support
+   - Set up redirect URLs: `https://yourdomain.com/auth/callback`
+
+#### Available Tables:
+- **comments**: Blog post comments with user association
+- **profiles**: User profiles linked to Supabase Auth
+
+### 6. Notion Webhook Setup (Optional - for auto-revalidation)
+
+Set up automatic content updates when you publish posts in Notion:
+
+#### Create the Webhook
+
+1. **Follow the official guide**: [Webhook actions](https://www.notion.com/help/webhook-actions#send-webhook)
+2. **Set up the webhook endpoint**: `https://yourdomain.com/api/webhook/notion`
+
+#### Configure Custom Headers for Security
+
+This webhook uses custom header authentication. Configure your webhook sender with these headers:
+
+**Required Headers:**
+- `x-webhook-secret`: `your-secure-random-string`
+- `x-source`: `notion-blog-webhook`
+
+**Environment Variables:**
+```bash
+# Required - matches the x-webhook-secret header
+NOTION_WEBHOOK_SECRET=your-secure-random-string
+
+# Optional - for additional webhook validation
+REVALIDATION_SECRET=your-revalidation-token
+```
+
+#### Configure Webhook Content
+
+To enable intelligent page revalidation, ensure your webhook sends these properties:
+- **URLPath**: Post URL slug (required for individual post updates)
+- **Tags**: Post tags (required for tag page updates) 
+- **Category**: Post category (required for category page updates)
+
+#### How it Works
+
+- **Automatic Updates**: When you publish/update posts in Notion, your blog automatically refreshes
+- **ISR Revalidation**: Uses Next.js Incremental Static Regeneration for optimal performance
+- **Selective Updates**: Only revalidates affected pages, not the entire site
+
+#### Testing the Webhook
+
+```bash
+# Test webhook with authentication headers
+curl -X POST https://yourdomain.com/api/webhook/notion \
+  -H "Content-Type: application/json" \
+  -H "x-webhook-secret: your-secure-random-string" \
+  -H "x-source: notion-blog-webhook" \
+  -d '{
+    "data": {
+      "object": "page",
+      "id": "test-page-id",
+      "properties": {
+        "URLPath": {"rich_text": [{"plain_text": "test-post"}]},
+        "Tags": {"multi_select": [{"name": "test"}, {"name": "webhook"}]},
+        "Category": {"select": {"name": "Technology"}}
+      }
+    }
+  }'
+
+# Check webhook status
+curl https://yourdomain.com/api/webhook/notion
+```
 
 ## 🛠️ Development
 
@@ -228,6 +326,55 @@ yarn build
 - Verify your project URL and keys
 - Check that RLS policies are properly configured
 - Ensure migrations have been applied
+
+### Supabase Migration Issues
+
+**Migration failed or tables not created:**
+```bash
+# Check if you're linked to the correct project
+npx supabase status
+
+# Reset and try again
+npx supabase db reset
+npx supabase db push
+```
+
+**RLS policies not working:**
+- Ensure you're using the correct Supabase client (server vs client)
+- Check that RLS is enabled on your tables
+- Verify user authentication status in your app
+
+**Comments not showing up:**
+```bash
+# Check if the RPC function exists
+npx supabase db inspect db.functions
+
+# If missing, re-run migrations
+npx supabase db push
+```
+
+### Notion Webhook Issues
+
+**Webhook not triggering:**
+- Verify the webhook URL is publicly accessible (not localhost)
+- Check webhook secret matches your environment variable: `NOTION_WEBHOOK_SECRET`
+- Ensure your integration has access to the database
+- Verify custom headers are being sent: `x-webhook-secret`, `x-source`
+
+**Authentication errors (401 Unauthorized):**
+```bash
+# Check if your headers match the expected format
+curl -I http://localhost:3000/api/webhook/notion \
+  -H "x-webhook-secret: wrong-secret"
+
+# Should return 401 if secret is incorrect
+```
+
+**Webhook payload issues:**
+- Check the Next.js server logs for webhook errors
+- Verify the webhook endpoint is receiving POST requests
+- Ensure the request body contains valid JSON with `data.object` structure
+- Check that Notion properties match expected names: `URLPath`, `Tags`, `Category`
 
 ## 📄 License
 
