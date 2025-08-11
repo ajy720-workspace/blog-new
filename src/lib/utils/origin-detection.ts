@@ -128,21 +128,21 @@ export function getPublicOrigin(
 function isHostAllowed(hostname: string, allowedHosts: string[]): boolean {
   // Remove port from hostname for comparison
   const hostWithoutPort = hostname.split(':')[0]
-  console.log("hostWithoutPort:", hostWithoutPort)
+  console.log('hostWithoutPort:', hostWithoutPort)
   return allowedHosts.some(allowed => {
-    console.log("allowed:", allowed)
+    console.log('allowed:', allowed)
     // Remove port from allowed host for comparison
     const allowedWithoutPort = allowed.split(':')[0]
-    
+
     // Exact match
     if (hostname === allowed || hostWithoutPort === allowedWithoutPort) {
       return true
     }
-    
+
     // Wildcard match (e.g., *.ajy720.me)
     if (allowed.startsWith('*.')) {
       const domain = allowed.slice(2)
-      console.log("domain:", domain)
+      console.log('domain:', domain)
       return hostWithoutPort.endsWith(domain)
     }
 
