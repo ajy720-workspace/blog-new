@@ -1,12 +1,13 @@
-import { NotionPost } from '@/types/notion'
-import { PostCard } from '@/components/shared/PostCard'
+import { FileText, Grid } from 'lucide-react'
+
 import {
   StaggeredGrid,
   StaggeredList,
 } from '@/components/animations/StaggeredList'
+import { PostCard } from '@/components/shared/PostCard'
 import { EmptyState, PostCardSkeleton } from '@/components/ui/loading-states'
 import { cn } from '@/lib/utils'
-import { FileText, Grid } from 'lucide-react'
+import { NotionPost } from '@/types/notion'
 
 interface PostWithExcerpt extends NotionPost {
   excerpt?: string

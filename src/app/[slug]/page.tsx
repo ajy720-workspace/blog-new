@@ -1,28 +1,33 @@
 import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
-import { Metadata } from 'next'
-import { Calendar, Tag } from 'lucide-react'
 import { cache } from 'react'
+
+import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+
+import { Calendar, Tag } from 'lucide-react'
+
+import { CommentCount } from '@/components/Comments'
+import { LazyComments, LazySocialShare } from '@/components/LazyComponents'
+import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
+import { StructuredData } from '@/components/SEO/StructuredData'
+import { PostRenderer } from '@/components/post-renderer'
+import { CommentSkeleton } from '@/components/ui/loading-states'
+import { seoConfig } from '@/config/seo.config'
+import { siteConfig } from '@/config/site.config'
 import {
-  getPostBySlug,
+  NotionPost,
   getPageContent,
   getPageTextContent,
+  getPostBySlug,
   getPostsWithMetadata,
-  NotionPost,
-} from '@/lib/notion'
-import { PostRenderer } from '@/components/post-renderer'
-import { LazySocialShare, LazyComments } from '@/components/LazyComponents'
+} from '@/lib/core/notion'
 import {
-  generatePostSchema,
   generateMetaDescription,
-  optimizeTitle,
-  getCanonicalUrl,
   generateOpenGraphTags,
-} from '@/lib/seo'
-import { StructuredData } from '@/components/SEO/StructuredData'
-import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
-import { CommentSkeleton } from '@/components/ui/loading-states'
-import { CommentCount } from '@/components/Comments'
+  generatePostSchema,
+  getCanonicalUrl,
+  optimizeTitle,
+} from '@/lib/core/seo'
 
 export const revalidate = 7200 // ISR: 2시간마다 재검증 (개별 포스트는 더 긴 간격)
 
@@ -164,29 +169,23 @@ export async function generateMetadata(
     description,
     url: canonicalUrl,
     type: 'article' as const,
-    siteName: 'Blog - ajy720',
+    siteName: seoConfig.openGraph.siteName,
+    image: post.coverImage,
+    createTime: post.created_time,
+    tags: post.tags,
   }
 
   return {
     title: optimizedTitle,
     description,
     keywords: post.tags.length > 0 ? post.tags.join(', ') : undefined,
-    authors: [{ name: 'Hyeonseok An' }],
-    creator: 'Hyeonseok An',
-    publisher: "ajy720's Blog",
+    authors: [{ name: siteConfig.author.name }],
+    creator: siteConfig.author.name,
+    publisher: siteConfig.name,
     alternates: {
       canonical: canonicalUrl,
     },
-    openGraph: {
-      ...generateOpenGraphTags(openGraphData),
-      type: 'article',
-      publishedTime: post.created_time,
-      authors: ['Hyeonseok An'],
-      tags: post.tags,
-      ...(post.coverImage && {
-        images: [{ url: post.coverImage, alt: post.title }],
-      }),
-    },
+    openGraph: generateOpenGraphTags(openGraphData),
     twitter: {
       card: 'summary_large_image',
       title: optimizedTitle,

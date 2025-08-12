@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
-import { getPosts, getAllTags, getAllCategories } from '@/lib/notion'
+
+import { getAllCategories, getAllTags, getPosts } from '@/lib/core/notion'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'

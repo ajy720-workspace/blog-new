@@ -1,20 +1,19 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
-import { Search, Filter, X, Grid, List, Rows, ChevronDown } from 'lucide-react'
-import { NotionPost, TagWithCount, CategoryWithCount } from '@/lib/notion'
-import {
-  SearchState,
-  applyFilters,
-  debounce,
-  defaultSearchState,
-  sortOptions,
-  viewModeOptions,
-  ViewMode,
-  SortOption,
-} from '@/lib/search-utils'
-import { Input } from '@/components/ui/input'
+import { useCallback, useMemo, useState } from 'react'
+
+import { ChevronDown, Filter, Grid, List, Rows, Search, X } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -22,15 +21,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu'
+import { CategoryWithCount, NotionPost, TagWithCount } from '@/lib/core/notion'
 import { cn } from '@/lib/utils'
+import {
+  SearchState,
+  SortOption,
+  ViewMode,
+  applyFilters,
+  debounce,
+  defaultSearchState,
+  sortOptions,
+  viewModeOptions,
+} from '@/lib/utils/search-utils'
 
 interface SearchInterfaceProps {
   posts: NotionPost[]

@@ -1,7 +1,11 @@
 'use client'
 
-import { formatDistanceToNow } from 'date-fns'
 import { useState } from 'react'
+
+import Image from 'next/image'
+
+import { formatDistanceToNow } from 'date-fns'
+
 import type { Comment } from '@/types/comments'
 
 interface CommentItemProps {
@@ -53,7 +57,7 @@ export default function CommentItem({ comment }: CommentItemProps) {
           {/* Profile Avatar or Fallback */}
           <div className="relative">
             {displayInfo.avatarUrl && !imageError ? (
-              <img
+              <Image
                 src={displayInfo.avatarUrl}
                 alt={`${displayInfo.name}'s avatar`}
                 className="w-8 h-8 rounded-full object-cover"

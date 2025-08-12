@@ -1,17 +1,17 @@
 import Link from 'next/link'
-import { Calendar, ArrowRight, BookOpen } from 'lucide-react'
-import { NotionPost } from '@/types/notion'
-import { getFallbackGradient } from '@/lib/fallback-images'
-import { cn } from '@/lib/utils'
-import { formatPostDate } from '@/lib/date-utils'
-import { slugify } from '@/lib/slug-utils'
+
+import { ArrowRight, BookOpen, Calendar } from 'lucide-react'
+
+import { HeroImage } from '@/components/HeroImage'
 import {
   getCardVariantClasses,
-  truncateText,
-  getTagClasses,
   getColorfulTagClass,
-} from '@/lib/component-utils'
-import { HeroImage } from '@/components/HeroImage'
+  getTagClasses,
+  truncateText,
+} from '@/lib/ui/component-utils'
+import { getFallbackGradient } from '@/lib/ui/fallback-images'
+import { cn, formatPostDate, slugify } from '@/lib/utils'
+import { NotionPost } from '@/types/notion'
 
 interface PostCardProps {
   post: NotionPost

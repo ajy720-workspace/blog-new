@@ -1,18 +1,18 @@
-import { NextRequest } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getPublicOrigin } from '@/lib/utils/origin-detection'
+import { NextRequest } from 'next/server'
+
+import { securityConfig } from '@/config/security.config'
+import { siteConfig } from '@/config/site.config'
 import { transferAnonymousComments } from '@/lib/supabase/comments'
 import { createProfileFromUser } from '@/lib/supabase/profiles'
+import { createClient } from '@/lib/supabase/server'
+import { getPublicOrigin } from '@/lib/utils/origin-detection'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const origin = getPublicOrigin(request.headers, request.url, {
-    allowedHosts: ['*.ajy720.me', 'localhost:3000'],
-    fallbackUrl:
-      process.env.NODE_ENV === 'production'
-        ? 'https://blog.ajy720.me'
-        : 'http://localhost:3000',
+    allowedHosts: securityConfig.allowedHosts,
+    fallbackUrl: siteConfig.url,
   })
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/'

@@ -1,12 +1,14 @@
-import { createClient } from './server'
-import { createAdminClient } from './server-admin'
 import type { User } from '@supabase/supabase-js'
+
 import type {
+  AuthProvider,
   Profile,
   ProfileData,
   ProfileUpsertResult,
-  AuthProvider,
 } from '@/types/profiles'
+
+import { createClient } from './server'
+import { createAdminClient } from './server-admin'
 
 /**
  * Normalize user profile information from various OAuth providers

@@ -1,16 +1,18 @@
 'use client'
 
-import { useState, useActionState } from 'react'
+import { useActionState, useState } from 'react'
+
+import { AlertCircle, CheckCircle, Github } from 'lucide-react'
+
+import { signInWithGitHub } from '@/app/actions/auth'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Github, CheckCircle, AlertCircle } from 'lucide-react'
-import { signInWithGitHub } from '@/app/actions/auth'
 
 interface OAuthModalProps {
   isOpen: boolean
