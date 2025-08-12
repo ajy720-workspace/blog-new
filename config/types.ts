@@ -77,6 +77,8 @@ export interface SEOConfig {
     locale: string
     /** Default Open Graph type ('website' for main site, 'article' for posts) */
     type: string
+    /** Default Open Graph Image (e.g., '/public/default_cover.jpg') */
+    defaultCover: string
   }
   /** Structured data (schema.org) for search engines */
   schema: {

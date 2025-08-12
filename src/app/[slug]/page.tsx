@@ -12,6 +12,8 @@ import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { StructuredData } from '@/components/SEO/StructuredData'
 import { PostRenderer } from '@/components/post-renderer'
 import { CommentSkeleton } from '@/components/ui/loading-states'
+import { seoConfig } from '@/config/seo.config'
+import { siteConfig } from '@/config/site.config'
 import {
   NotionPost,
   getPageContent,
@@ -167,29 +169,23 @@ export async function generateMetadata(
     description,
     url: canonicalUrl,
     type: 'article' as const,
-    siteName: 'Blog - ajy720',
+    siteName: seoConfig.openGraph.siteName,
+    image: post.coverImage,
+    createTime: post.created_time,
+    tags: post.tags,
   }
 
   return {
     title: optimizedTitle,
     description,
     keywords: post.tags.length > 0 ? post.tags.join(', ') : undefined,
-    authors: [{ name: 'Hyeonseok An' }],
-    creator: 'Hyeonseok An',
-    publisher: "ajy720's Blog",
+    authors: [{ name: siteConfig.author.name }],
+    creator: siteConfig.author.name,
+    publisher: siteConfig.name,
     alternates: {
       canonical: canonicalUrl,
     },
-    openGraph: {
-      ...generateOpenGraphTags(openGraphData),
-      type: 'article',
-      publishedTime: post.created_time,
-      authors: ['Hyeonseok An'],
-      tags: post.tags,
-      ...(post.coverImage && {
-        images: [{ url: post.coverImage, alt: post.title }],
-      }),
-    },
+    openGraph: generateOpenGraphTags(openGraphData),
     twitter: {
       card: 'summary_large_image',
       title: optimizedTitle,

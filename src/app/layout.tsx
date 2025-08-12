@@ -57,6 +57,7 @@ export const metadata: Metadata = {
     title: seoConfig.defaultTitle,
     description: seoConfig.defaultDescription,
     siteName: seoConfig.openGraph.siteName,
+    images: [{ url: seoConfig.openGraph.defaultCover }],
   },
   twitter: {
     card: 'summary_large_image',
