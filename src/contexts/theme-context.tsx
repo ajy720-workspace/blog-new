@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext } from 'react'
+
 import type { ThemeContextType } from '@/types/theme'
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)

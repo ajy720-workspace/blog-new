@@ -1,7 +1,10 @@
 'use server'
 
-import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
+
+import { securityConfig } from '@/config/security.config'
+import { siteConfig } from '@/config/site.config'
 import { createClient } from '@/lib/supabase/server'
 import { getPublicOrigin } from '@/lib/utils/origin-detection'
 
@@ -22,11 +25,8 @@ export async function signInWithGitHub(
     // Get base URL from environment or headers
     const headersList = await headers()
     const origin = getPublicOrigin(headersList, undefined, {
-      allowedHosts: ['*.ajy720.me', 'localhost:3000'],
-      fallbackUrl:
-        process.env.NODE_ENV === 'production'
-          ? 'https://blog.ajy720.me'
-          : 'http://localhost:3000',
+      allowedHosts: securityConfig.allowedHosts,
+      fallbackUrl: siteConfig.url,
     })
 
     const redirectUrl = `${origin}/auth/callback${
@@ -66,9 +66,7 @@ export async function signInWithGitHub(
   }
 }
 
-export async function signOut(
-  _prevState: AuthActionResult | null
-): Promise<AuthActionResult> {
+export async function signOut(): Promise<AuthActionResult> {
   try {
     const supabase = await createClient()
     const { error } = await supabase.auth.signOut()
@@ -88,9 +86,7 @@ export async function signOut(
   }
 }
 
-export async function initAnonymousSession(
-  _prevState: AuthActionResult | null
-): Promise<AuthActionResult> {
+export async function initAnonymousSession(): Promise<AuthActionResult> {
   try {
     const supabase = await createClient()
 

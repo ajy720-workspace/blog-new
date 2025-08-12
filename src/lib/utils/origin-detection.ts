@@ -1,3 +1,5 @@
+import { securityConfig } from '@/config/security.config'
+
 interface OriginDetectionOptions {
   allowedHosts?: string[]
   fallbackUrl?: string
@@ -18,7 +20,7 @@ export function getPublicOrigin(
   options: OriginDetectionOptions = {}
 ): string {
   const {
-    allowedHosts = ['*.ajy720.me', 'localhost:3000'],
+    allowedHosts = securityConfig.allowedHosts,
     fallbackUrl,
     enableDebugLogging = process.env.NODE_ENV === 'development',
   } = options
@@ -85,7 +87,7 @@ export function getPublicOrigin(
           }
           return refererOrigin
         }
-      } catch (error) {
+      } catch {
         console.warn('Invalid referer URL:', referer)
       }
     }

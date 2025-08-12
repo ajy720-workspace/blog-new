@@ -1,15 +1,19 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
-import './globals.css'
-import { ThemeProvider } from '@/components/theme-provider'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
+
 import { WebVitals } from '@/components/WebVitals'
+import { Footer } from '@/components/footer'
+import { Header } from '@/components/header'
+import { ThemeProvider } from '@/components/theme-provider'
+import { seoConfig } from '@/config/seo.config'
+import { siteConfig } from '@/config/site.config'
 import {
-  generateWebSiteSchema,
   generateOrganizationSchema,
+  generateWebSiteSchema,
   getCanonicalUrl,
-} from '@/lib/seo'
+} from '@/lib/core/seo'
+
+import './globals.css'
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
@@ -29,60 +33,38 @@ const robotoMono = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Blog - ajy720',
-    template: '%s | ajy720',
+    default: seoConfig.defaultTitle,
+    template: seoConfig.titleTemplate,
   },
-  description:
-    'Personal blog about technology, programming, and web development.',
-  keywords: [
-    'blog',
-    'technology',
-    'programming',
-    'web development',
-    'Next.js',
-    'React',
-  ],
-  authors: [{ name: 'Hyeonseok An', url: 'https://blog.ajy720.me' }],
-  creator: 'Hyeonseok An',
-  publisher: "ajy720's Blog",
+  description: seoConfig.defaultDescription,
+  keywords: seoConfig.defaultKeywords,
+  authors: [{ name: siteConfig.author.name, url: siteConfig.url }],
+  creator: siteConfig.metadata.creator,
+  publisher: siteConfig.metadata.publisher,
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'
-  ),
+  metadataBase: new URL(siteConfig.url),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
+    type: seoConfig.openGraph.type as 'website',
+    locale: seoConfig.openGraph.locale,
     url: getCanonicalUrl('/'),
-    title: 'Blog - ajy720',
-    description:
-      'Personal blog about technology, programming, and web development.',
-    siteName: 'Blog - ajy720',
+    title: seoConfig.defaultTitle,
+    description: seoConfig.defaultDescription,
+    siteName: seoConfig.openGraph.siteName,
+    images: [{ url: seoConfig.openGraph.defaultCover }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Blog - ajy720',
-    description:
-      'Personal blog about technology, programming, and web development.',
-    creator: '@ajy720',
+    title: seoConfig.defaultTitle,
+    description: seoConfig.defaultDescription,
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
+  robots: seoConfig.robots,
 }
 
 export default function RootLayout({

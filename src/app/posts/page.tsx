@@ -1,10 +1,13 @@
 import { Suspense } from 'react'
+
 import { Metadata } from 'next'
-import { getPostsWithMetadata, generateExcerpt } from '@/lib/notion'
-import { PostsContent } from './posts-content'
+
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { FadeIn } from '@/components/animations/FadeIn'
 import { PostCardSkeleton } from '@/components/ui/loading-states'
+import { generateExcerpt, getPostsWithMetadata } from '@/lib/core/notion'
+
+import { PostsContent } from './posts-content'
 
 export const revalidate = 1800 // ISR: 30분마다 재검증 (검색 기능으로 인해 자주 업데이트)
 

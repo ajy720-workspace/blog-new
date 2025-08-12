@@ -1,12 +1,15 @@
+import Image from 'next/image'
+
 import {
+  ExternalLink,
   Github,
-  Twitter,
+  Instagram,
   Linkedin,
   Mail,
-  ExternalLink,
-  Instagram,
+  Twitter,
 } from 'lucide-react'
-import Image from 'next/image'
+
+import { siteConfig } from '@/config/site.config'
 import { PersonalInfo } from '@/types/notion'
 
 const SOCIAL_ICONS = {
@@ -75,20 +78,13 @@ export function PersonalInfoSection({ info }: PersonalInfoProps) {
 }
 
 export const DEFAULT_PERSONAL_INFO: PersonalInfo = {
-  name: 'Hyeonseok An',
-  bio: 'Welcome to my personal blog where I share thoughts on technology, development, and life. Feel free to explore my posts and connect with me through the links below.',
-  socialLinks: [
-    {
-      platform: 'github',
-      url: 'https://github.com/ajy720',
-    },
-    {
-      platform: 'instagram',
-      url: 'https://instagram.com/02.mm.dd',
-    },
-    {
-      platform: 'email',
-      url: 'mailto:ajy720@gmail.com',
-    },
-  ],
+  name: siteConfig.author.name,
+  bio: siteConfig.author.bio,
+  avatar: siteConfig.author.avatar,
+  socialLinks: Object.entries(siteConfig.social)
+    .filter(([, value]) => value)
+    .map(([platform, url]) => ({
+      platform,
+      url: url as string,
+    })),
 }

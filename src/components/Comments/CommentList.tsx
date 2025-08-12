@@ -1,8 +1,10 @@
 'use client'
 
 import { Suspense } from 'react'
-import CommentItem from './CommentItem'
+
 import type { Comment } from '@/types/comments'
+
+import CommentItem from './CommentItem'
 
 interface CommentListProps {
   comments: Comment[]

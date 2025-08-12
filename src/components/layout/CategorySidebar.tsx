@@ -1,12 +1,15 @@
 'use client'
 
-import Link from 'next/link'
 import { useState } from 'react'
-import { Folder, ChevronRight, Grid, MoreHorizontal } from 'lucide-react'
-import { CategoryWithCount } from '@/lib/notion'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+
+import Link from 'next/link'
+
+import { ChevronRight, Folder, Grid, MoreHorizontal } from 'lucide-react'
+
 import { FadeIn } from '@/components/animations/FadeIn'
+import { Button } from '@/components/ui/button'
+import { CategoryWithCount } from '@/lib/core/notion'
+import { cn } from '@/lib/utils'
 
 interface CategorySidebarProps {
   categories: CategoryWithCount[]

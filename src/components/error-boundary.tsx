@@ -1,7 +1,9 @@
 'use client'
 
 import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary'
+
 import { AlertTriangle, RefreshCw } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 
 interface ErrorFallbackProps {

@@ -1,21 +1,22 @@
 'use server'
 
 import { headers } from 'next/headers'
+
 import {
-  createComment,
   checkRateLimit,
-  getComments as getCommentsFromDB,
+  createComment,
   getCommentCount as getCommentCountFromDB,
+  getComments as getCommentsFromDB,
 } from '@/lib/supabase/comments'
 import {
-  validateCommentForm,
-  sanitizeCommentFormData,
   extractClientInfo,
+  sanitizeCommentFormData,
+  validateCommentForm,
 } from '@/lib/supabase/validation'
 import type {
+  Comment,
   CommentFormData,
   CommentSubmissionResult,
-  Comment,
 } from '@/types/comments'
 
 export async function submitComment(

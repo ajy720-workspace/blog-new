@@ -1,10 +1,11 @@
 'use client'
 
-import { Moon, Sun, Monitor } from 'lucide-react'
-import { useTheme } from '@/contexts/theme-context'
+import { Monitor, Moon, Sun } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
-import type { Theme } from '@/types/theme'
 import { FadeInMotion } from '@/components/ui/motion'
+import { useTheme } from '@/contexts/theme-context'
+import type { Theme } from '@/types/theme'
 
 const themeIcons = {
   light: Sun,

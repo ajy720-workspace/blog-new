@@ -1,6 +1,6 @@
-// Legacy component - use OptimizedPostGrid instead
-import { OptimizedPostGrid, FeaturedPostGrid } from './OptimizedPostGrid'
 import type { NotionPost } from '@/types/notion'
+
+import { FeaturedPostGrid, OptimizedPostGrid } from './OptimizedPostGrid'
 
 interface PostGridProps {
   posts: NotionPost[]
