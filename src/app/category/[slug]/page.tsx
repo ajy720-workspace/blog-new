@@ -88,6 +88,7 @@ export async function generateMetadata({
       title: `${category.name} Posts`,
       description: `Browse all posts in the ${category.name} category. ${category.count} posts available.`,
     },
+    keywords: [category.name],
   }
 }
 

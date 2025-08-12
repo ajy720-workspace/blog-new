@@ -4,16 +4,16 @@
  * Search engine optimization and social media sharing settings.
  * Optimize these values for better search visibility.
  */
+import { siteConfig } from './site.config'
 import type { SEOConfig } from './types'
 
 export const seoConfig: SEOConfig = {
   // 🏷️ Page Titles
-  defaultTitle: 'Blog - ajy720',
+  defaultTitle: siteConfig.title,
   titleTemplate: '%s | ajy720', // %s = page title
 
   // 📝 Meta Description
-  defaultDescription:
-    'Personal blog about technology, programming, and web development.',
+  defaultDescription: siteConfig.description,
 
   // 🏷️ Default Keywords
   defaultKeywords: [
@@ -29,15 +29,16 @@ export const seoConfig: SEOConfig = {
 
   // 📱 Social Media (Open Graph)
   openGraph: {
-    siteName: 'Blog - ajy720',
+    siteName: siteConfig.title,
     locale: 'en_US', // Change to 'ko_KR' for Korean
     type: 'website',
+    defaultCover: '/default_cover.jpg',
   },
 
   // 🔍 Structured Data (Schema.org)
   schema: {
     organization: {
-      name: "ajy720's Blog",
+      name: siteConfig.name,
       // logo: '/logo.png', // Optional logo
       sameAs: [
         'https://github.com/ajy720',
@@ -46,8 +47,8 @@ export const seoConfig: SEOConfig = {
       ],
     },
     website: {
-      name: "ajy720's Blog",
-      alternateName: 'Blog - ajy720',
+      name: siteConfig.name,
+      alternateName: siteConfig.title,
     },
   },
 

@@ -119,6 +119,8 @@ export interface OpenGraphData {
   title: string
   description: string
   url: string
+  tags: string[]
+  createTime: string
   type?: 'website' | 'article'
   image?: string
   siteName?: string
@@ -126,12 +128,15 @@ export interface OpenGraphData {
 
 export function generateOpenGraphTags(data: OpenGraphData) {
   return {
-    'og:title': data.title,
-    'og:description': data.description,
-    'og:url': data.url,
-    'og:type': data.type || 'website',
-    'og:site_name': data.siteName || seoConfig.openGraph.siteName,
-    ...(data.image && { 'og:image': data.image }),
+    title: data.title,
+    description: data.description,
+    url: data.url,
+    type: data.type || 'website',
+    site_name: data.siteName || seoConfig.openGraph.siteName,
+    images: [{ url: data.image || seoConfig.openGraph.defaultCover }],
+    authors: [siteConfig.author.name],
+    tags: data.tags,
+    publishedTime: data.createTime,
   }
 }
 
