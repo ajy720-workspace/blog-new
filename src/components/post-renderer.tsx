@@ -21,20 +21,26 @@ export function PostRenderer({ blocks }: PostRendererProps) {
 
   useEffect(() => {}, [theme])
 
+  const Collection = () => {
+    return ''
+  }
+
   return (
     <NotionRenderer
       disableHeader={true}
-      showTableOfContents={true}
-      recordMap={blocks}
       fullPage={false}
+      showTableOfContents={false}
+      recordMap={blocks}
       darkMode={theme === 'dark'}
-      previewImages={true}
-      showCollectionViewDropdown={true}
+      previewImages={false}
+      isImageZoomable={true}
+      showCollectionViewDropdown={false}
       components={{
         Code,
         Equation,
         Modal,
         Pdf,
+        Collection,
       }}
     />
   )

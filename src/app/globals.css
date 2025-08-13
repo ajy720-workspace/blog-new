@@ -79,6 +79,12 @@
 
 body {
   overflow-y: overlay; /* 반드시 overlay 처리 */
+  scrollbar-gutter: stable;
+}
+
+/* 스크롤바가 header를 침범하지 않게 하기 */
+html {
+  scrollbar-gutter: stable;
 }
 
 ::-webkit-scrollbar {
@@ -96,6 +102,14 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   border: 4px solid transparent;
   box-shadow: inset 6px 6px 0 rgba(34, 34, 34, 0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  box-shadow: inset 6px 6px 0 rgba(255, 255, 255, 0.2);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  box-shadow: inset 6px 6px 0 rgba(255, 255, 255, 0.35);
 }
 
 ::-webkit-scrollbar-track {
@@ -117,9 +131,18 @@ body {
 }
 
 .notion {
+  background-color: inherit;
   font-family: var(--font-pretendard), var(--font-sans);
   /* --font-roboto-mono: var(--font-roboto-mono), var(--font-sans); */
   @apply text-foreground;
+}
+
+.notion-aside .notion-aside-table-of-contents {
+  background-color: inherit;
+}
+
+.notion-title {
+  display: none;
 }
 
 .notion-page {
