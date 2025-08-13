@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation'
 import { Calendar, Tag } from 'lucide-react'
 
 import { CommentCount } from '@/components/Comments'
+import { HeroImage } from '@/components/HeroImage'
 import { LazyComments, LazySocialShare } from '@/components/LazyComponents'
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { StructuredData } from '@/components/SEO/StructuredData'
@@ -128,6 +129,17 @@ async function PostContent({ post }: { post: NotionPost }) {
               />
             </Suspense>
           </div>
+          {post.coverImage && (
+            <HeroImage
+              coverImage={post.coverImage}
+              title={post.title}
+              createdAt={post.created_time}
+              postId={post.id}
+              className="mt-8 h-48 md:h-64"
+              showOverlay={false}
+              priority={true}
+            />
+          )}
         </header>
 
         <div className="prose prose-lg max-w-none dark:prose-invert">

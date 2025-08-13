@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 @import 'react-notion-x/src/styles.css';
-@import 'highlight.js/styles/github-dark.css';
 @import 'katex/dist/katex.min.css';
 
 @custom-variant dark (&:is(.dark *));
@@ -80,6 +79,12 @@
 
 body {
   overflow-y: overlay; /* 반드시 overlay 처리 */
+  scrollbar-gutter: stable;
+}
+
+/* 스크롤바가 header를 침범하지 않게 하기 */
+html {
+  scrollbar-gutter: stable;
 }
 
 ::-webkit-scrollbar {
@@ -99,9 +104,21 @@ body {
   box-shadow: inset 6px 6px 0 rgba(34, 34, 34, 0.3);
 }
 
+.dark ::-webkit-scrollbar-thumb {
+  box-shadow: inset 6px 6px 0 rgba(255, 255, 255, 0.2);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  box-shadow: inset 6px 6px 0 rgba(255, 255, 255, 0.35);
+}
+
 ::-webkit-scrollbar-track {
   box-shadow: none;
   background-color: transparent;
+}
+
+::selection {
+  background: var(--select-color-1);
 }
 
 @layer base {
@@ -114,9 +131,18 @@ body {
 }
 
 .notion {
+  background-color: inherit;
   font-family: var(--font-pretendard), var(--font-sans);
   /* --font-roboto-mono: var(--font-roboto-mono), var(--font-sans); */
   @apply text-foreground;
+}
+
+.notion-aside .notion-aside-table-of-contents {
+  background-color: inherit;
+}
+
+.notion-title {
+  display: none;
 }
 
 .notion-page {
@@ -140,11 +166,12 @@ body {
 }
 
 .notion-inline-code {
-  font-family: var(--font-roboto-mono), var(--font-mono);
+  font-family: var(--font-roboto-mono);
 }
 
 .notion-code {
-  font-family: var(--font-roboto-mono), var(--font-mono);
+  border-radius: 0.5rem;
+  font-family: var(--font-roboto-mono);
   @apply bg-muted text-muted-foreground;
 }
 
