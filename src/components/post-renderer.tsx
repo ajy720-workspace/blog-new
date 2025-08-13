@@ -1,12 +1,15 @@
 'use client'
 
+import { useEffect } from 'react'
 import { NotionRenderer } from 'react-notion-x'
 import { Code } from 'react-notion-x/build/third-party/code'
 import { Equation } from 'react-notion-x/build/third-party/equation'
 import { Modal } from 'react-notion-x/build/third-party/modal'
 import { Pdf } from 'react-notion-x/build/third-party/pdf'
 
-import { useTheme } from 'next-themes'
+import { useTheme } from '@/contexts/theme-context'
+
+import './post-renderer.css'
 
 interface PostRendererProps {
   // eslint-disable-next-line
@@ -15,6 +18,8 @@ interface PostRendererProps {
 
 export function PostRenderer({ blocks }: PostRendererProps) {
   const { theme } = useTheme()
+
+  useEffect(() => {}, [theme])
 
   return (
     <NotionRenderer
