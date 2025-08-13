@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
       'www.notion.so',
       's3.us-west-2.amazonaws.com',
       'prod-files-secure.s3.us-west-2.amazonaws.com',
+      'avatars.githubusercontent.com',
     ],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 31536000, // 1 year
