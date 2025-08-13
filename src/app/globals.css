@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 @import 'react-notion-x/src/styles.css';
-@import 'highlight.js/styles/github-dark.css';
 @import 'katex/dist/katex.min.css';
 
 @custom-variant dark (&:is(.dark *));
@@ -104,6 +103,10 @@ body {
   background-color: transparent;
 }
 
+::selection {
+  background: var(--select-color-1);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -140,11 +143,12 @@ body {
 }
 
 .notion-inline-code {
-  font-family: var(--font-roboto-mono), var(--font-mono);
+  font-family: var(--font-roboto-mono);
 }
 
 .notion-code {
-  font-family: var(--font-roboto-mono), var(--font-mono);
+  border-radius: 0.5rem;
+  font-family: var(--font-roboto-mono);
   @apply bg-muted text-muted-foreground;
 }
 

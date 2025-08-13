@@ -60,6 +60,8 @@ export default function CommentItem({ comment }: CommentItemProps) {
               <Image
                 src={displayInfo.avatarUrl}
                 alt={`${displayInfo.name}'s avatar`}
+                width={64}
+                height={64}
                 className="w-8 h-8 rounded-full object-cover"
                 onError={() => setImageError(true)}
               />
