@@ -10,8 +10,9 @@ A modern, configurable blog built with Next.js 15, TypeScript, and Notion CMS. T
 - **Comments System**: Supabase-powered with rate limiting
 - **SEO Optimized**: Structured data, meta tags, and sitemap
 - **Fully Configurable**: Centralized configuration files
-- **Security**: Rate limiting, CORS protection, and secure headers
+- **Enterprise Security**: Multi-layer protection with A-grade security rating
 - **Performance**: ISR, image optimization, and caching
+- **DevSecOps**: Automated security audits and dependency management
 
 ## 🚀 Quick Start
 
@@ -228,8 +229,10 @@ yarn build
 # Start production server
 yarn start
 
-# Lint and format code
+# Code quality and security checks
 yarn lint --fix && yarn format
+yarn security:check              # Run security audit
+yarn type-check                 # TypeScript validation
 ```
 
 ## 📦 Project Structure
@@ -250,11 +253,18 @@ yarn lint --fix && yarn format
 
 ## 🔒 Security Features
 
-- **Rate Limiting**: Configurable comment rate limits
-- **CORS Protection**: Allowed hosts validation  
-- **Secure Headers**: CSP and security headers
-- **Input Validation**: Form data sanitization
-- **Environment Separation**: Development vs production configs
+This blog template implements **enterprise-grade security** measures:
+
+- **Multi-layer Protection**: CSP, HSTS, XSS prevention, and clickjacking protection
+- **Input Validation**: Zod schema-based validation with comprehensive sanitization
+- **Rate Limiting**: API protection (60 req/min) with stricter limits on sensitive endpoints
+- **Security Monitoring**: Automated logging of security events and suspicious activities
+- **Dependency Management**: Weekly vulnerability scans and automated security updates
+- **Error Handling**: Secure error responses that prevent information disclosure
+
+**Security Grade: A** - Suitable for production environments.
+
+For detailed security information, vulnerability reporting, and contribution guidelines, see our **[Security Policy](SECURITY.md)**.
 
 ## 🎨 Customization
 
@@ -302,6 +312,7 @@ The blog works on any platform supporting Next.js:
 - **TypeScript**: Use strict mode, avoid `any` types
 - **Components**: Server Components by default, `"use client"` only when needed
 - **Styling**: Use Tailwind CSS and shadcn/ui components  
+- **Security**: Run `yarn security:check` before committing to ensure no vulnerabilities
 - **Code Quality**: Run `yarn lint --fix && yarn format` before committing
 - **Commits**: Use descriptive commit messages in English
 - **Configuration**: Always use config files instead of hardcoded values
