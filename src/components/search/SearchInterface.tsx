@@ -56,6 +56,7 @@ export function SearchInterface({
   const [searchState, setSearchState] =
     useState<SearchState>(defaultSearchState)
   const [showFilters, setShowFilters] = useState(false)
+  const [tagSearchQuery, setTagSearchQuery] = useState('')
 
   // Create debounced search function
   const debouncedSearch = useMemo(() => {
@@ -143,6 +144,14 @@ export function SearchInterface({
     if (searchState.selectedTags.length > 0) count++
     return count
   }, [searchState])
+
+  // Filter tags based on search query
+  const filteredTags = useMemo(() => {
+    if (!tagSearchQuery.trim()) return tags
+    return tags.filter(tag =>
+      tag.name.toLowerCase().includes(tagSearchQuery.toLowerCase())
+    )
+  }, [tags, tagSearchQuery])
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -312,25 +321,74 @@ export function SearchInterface({
                       <ChevronDown className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="start">
+                  <DropdownMenuContent className="w-64" align="start">
                     <DropdownMenuLabel>Filter by Tags</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {tags.slice(0, 20).map(tag => (
-                      <DropdownMenuCheckboxItem
-                        key={tag.name}
-                        checked={searchState.selectedTags.includes(tag.name)}
-                        onCheckedChange={checked =>
-                          handleTagToggle(tag.name, checked)
-                        }
-                      >
-                        <span className="flex items-center justify-between w-full">
-                          <span>{tag.name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {tag.count}
-                          </span>
-                        </span>
-                      </DropdownMenuCheckboxItem>
-                    ))}
+
+                    {/* Search Input */}
+                    <div className="p-2">
+                      <div className="relative">
+                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground w-3 h-3" />
+                        <Input
+                          type="text"
+                          placeholder="Search tags..."
+                          value={tagSearchQuery}
+                          onChange={e => setTagSearchQuery(e.target.value)}
+                          className="pl-7 h-8 text-xs"
+                        />
+                        {tagSearchQuery && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setTagSearchQuery('')}
+                            className="absolute right-0 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    <DropdownMenuSeparator />
+
+                    {/* Scrollable Tags List */}
+                    <div className="max-h-48 overflow-y-auto">
+                      {filteredTags.length > 0 ? (
+                        filteredTags.map(tag => (
+                          <DropdownMenuCheckboxItem
+                            key={tag.name}
+                            checked={searchState.selectedTags.includes(
+                              tag.name
+                            )}
+                            onCheckedChange={checked =>
+                              handleTagToggle(tag.name, checked)
+                            }
+                          >
+                            <span className="flex items-center justify-between w-full">
+                              <span className="text-sm truncate">
+                                {tag.name}
+                              </span>
+                              <span className="text-xs text-muted-foreground ml-2">
+                                {tag.count}
+                              </span>
+                            </span>
+                          </DropdownMenuCheckboxItem>
+                        ))
+                      ) : (
+                        <div className="p-2 text-sm text-muted-foreground text-center">
+                          No tags found
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Results Count */}
+                    {tagSearchQuery && (
+                      <div className="p-2 border-t">
+                        <div className="text-xs text-muted-foreground">
+                          {filteredTags.length} of {tags.length} tags
+                        </div>
+                      </div>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -354,7 +412,7 @@ export function SearchInterface({
                 variant="ghost"
                 size="sm"
                 onClick={() => handleCategoryToggle(category, false)}
-                className="h-auto p-0 w-4 h-4"
+                className="p-0 w-4 h-4"
               >
                 <X className="w-3 h-3" />
               </Button>
@@ -372,7 +430,7 @@ export function SearchInterface({
                 variant="ghost"
                 size="sm"
                 onClick={() => handleTagToggle(tag, false)}
-                className="h-auto p-0 w-4 h-4"
+                className="p-0 w-4 h-4"
               >
                 <X className="w-3 h-3" />
               </Button>
