@@ -29,6 +29,7 @@ import {
   getCanonicalUrl,
   optimizeTitle,
 } from '@/lib/core/seo'
+import { slugify } from '@/lib/utils/slug-utils'
 
 export const revalidate = 7200 // ISR: 2시간마다 재검증 (개별 포스트는 더 긴 간격)
 
@@ -105,12 +106,13 @@ async function PostContent({ post }: { post: NotionPost }) {
                   <Tag className="w-4 h-4" />
                   <div className="flex flex-wrap gap-2">
                     {post.tags.map(tag => (
-                      <span
+                      <a
                         key={tag}
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground"
+                        href={`/tag/${slugify(tag)}`}
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-colors"
                       >
                         {tag}
-                      </span>
+                      </a>
                     ))}
                   </div>
                 </div>
@@ -145,6 +147,26 @@ async function PostContent({ post }: { post: NotionPost }) {
         <div className="prose prose-lg max-w-none dark:prose-invert">
           <PostRenderer blocks={blocks} />
         </div>
+
+        {/* Footer Tags */}
+        {post.tags.length > 0 && (
+          <div className="mt-8 pt-6 border-t">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-sm font-medium text-muted-foreground">
+                Tags:
+              </span>
+              {post.tags.map(tag => (
+                <a
+                  key={tag}
+                  href={`/tag/${slugify(tag)}`}
+                  className="inline-flex items-center px-3 py-1.5 text-sm bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md transition-colors"
+                >
+                  {tag}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </article>
     </>
   )
