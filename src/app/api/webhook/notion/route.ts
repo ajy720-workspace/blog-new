@@ -1,6 +1,9 @@
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 
+import { logSecurityEvent } from '@/lib/utils/error-handler'
+import { getClientIP, getUserAgent } from '@/lib/validation/validator'
+
 // Notion properties 타입 정의
 interface NotionRichText {
   plain_text?: string
@@ -71,13 +74,32 @@ export async function POST(request: NextRequest) {
 
     // 시크릿 키 검증
     if (!webhookSecret || webhookSecret !== process.env.NOTION_WEBHOOK_SECRET) {
-      console.error('Invalid webhook secret')
+      const ip = getClientIP(request)
+      const userAgent = getUserAgent(request)
+      logSecurityEvent(
+        'webhook_unauthorized_access',
+        {
+          endpoint: '/api/webhook/notion',
+          hasSecret: !!webhookSecret,
+          source,
+        },
+        ip,
+        userAgent
+      )
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // 소스 검증 (추가 보안)
     if (source && source !== 'notion-blog-webhook') {
-      console.error('Invalid webhook source')
+      const ip = getClientIP(request)
+      logSecurityEvent(
+        'webhook_invalid_source',
+        {
+          endpoint: '/api/webhook/notion',
+          source,
+        },
+        ip
+      )
       return NextResponse.json({ error: 'Invalid source' }, { status: 401 })
     }
 

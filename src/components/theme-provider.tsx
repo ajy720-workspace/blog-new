@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { ThemeContext } from '@/contexts/theme-context'
 import type { Theme, ThemeProviderProps } from '@/types/theme'
@@ -23,12 +23,15 @@ export function ThemeProvider({
   }
 
   // 실제 테마 계산
-  const calculateResolvedTheme = (currentTheme: Theme): 'light' | 'dark' => {
-    if (currentTheme === 'system') {
-      return getSystemTheme()
-    }
-    return currentTheme
-  }
+  const calculateResolvedTheme = useCallback(
+    (currentTheme: Theme): 'light' | 'dark' => {
+      if (currentTheme === 'system') {
+        return getSystemTheme()
+      }
+      return currentTheme
+    },
+    []
+  )
 
   // 로컬스토리지에서 테마 로드
   useEffect(() => {
@@ -82,7 +85,7 @@ export function ThemeProvider({
     root.classList.add(newResolvedTheme)
 
     // 컬러 테마 클래스 추가
-  }, [theme])
+  }, [theme, calculateResolvedTheme])
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme)
