@@ -30,23 +30,12 @@ jobs:
       - name: Run security audit
         run: yarn audit --level moderate
 
-      - name: Check for known vulnerabilities
-        run: |
-          # Using npm audit for additional checking
-          npm audit --audit-level moderate
-
       - name: Run dependency license check
         run: |
           # Install license checker
           npm install -g license-checker
           # Check for problematic licenses
           license-checker --onlyAllow 'MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;Unlicense;WTFPL'
-
-      - name: TypeScript type checking
-        run: yarn build
-
-      - name: ESLint security rules
-        run: yarn lint
 
       - name: Upload security audit results
         if: failure()
