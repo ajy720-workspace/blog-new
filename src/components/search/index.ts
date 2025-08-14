@@ -1,6 +1,7 @@
 export { ActiveFilters } from './ActiveFilters'
 export { CategoryFilter } from './CategoryFilter'
 export { FilterControls } from './FilterControls'
+export { FilterDropdown } from './FilterDropdown'
 export { SearchBar } from './SearchBar'
 export { SearchInterface } from './SearchInterface'
 export { TagFilter } from './TagFilter'
