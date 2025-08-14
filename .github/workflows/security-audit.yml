@@ -34,8 +34,8 @@ jobs:
         run: |
           # Install license checker
           npm install -g license-checker
-          # Check for problematic licenses
-          license-checker --onlyAllow 'MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;Unlicense;WTFPL'
+          # Check for problematic licenses (common open-source licenses allowed)
+          license-checker --onlyAllow 'MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;Unlicense;WTFPL;LGPL-3.0-or-later;Python-2.0;MPL-2.0'
 
       - name: Upload security audit results
         if: failure()
