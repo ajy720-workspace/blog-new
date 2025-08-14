@@ -223,7 +223,7 @@ export default async function PostPage(props: PostPageProps) {
     <main className="container mx-auto px-4 py-8">
       <PostContent post={post} />
 
-      <section className="max-w-4xl mx-auto mt-16">
+      <section id="comments" className="max-w-4xl mx-auto mt-16">
         <Suspense
           fallback={
             <div className="space-y-6">
