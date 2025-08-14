@@ -83,10 +83,6 @@ body {
 }
 
 /* 스크롤바가 header를 침범하지 않게 하기 */
-html {
-  scrollbar-gutter: stable;
-}
-
 ::-webkit-scrollbar {
   width: 14px;
   height: 14px;

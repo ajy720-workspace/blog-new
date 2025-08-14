@@ -8,11 +8,13 @@ import {
   getCommentCount as getCommentCountFromDB,
   getComments as getCommentsFromDB,
 } from '@/lib/supabase/comments'
+import { commentSchema } from '@/lib/validation/schemas'
 import {
-  extractClientInfo,
-  sanitizeCommentFormData,
-  validateCommentForm,
-} from '@/lib/supabase/validation'
+  getClientIP,
+  getUserAgent,
+  sanitizeInput,
+  validateSchema,
+} from '@/lib/validation/validator'
 import type {
   Comment,
   CommentFormData,
@@ -27,22 +29,29 @@ export async function submitComment(
     // Extract client information from headers
     const headersList = await headers()
     const request = new Request('http://localhost', { headers: headersList })
-    const { userAgent, ipAddress } = extractClientInfo(request)
+    const userAgent = getUserAgent(request)
+    const ipAddress = getClientIP(request)
 
     // Sanitize input data
-    const sanitizedData = sanitizeCommentFormData(formData)
+    const sanitizedData = {
+      authorName: sanitizeInput(formData.authorName),
+      authorEmail: formData.authorEmail
+        ? sanitizeInput(formData.authorEmail)
+        : '',
+      content: sanitizeInput(formData.content),
+    }
 
-    // Validate form data
-    const validationErrors = validateCommentForm(sanitizedData)
-    if (validationErrors.length > 0) {
+    // Validate form data with Zod schema
+    const validation = validateSchema(commentSchema, sanitizedData)
+    if (!validation.success) {
       return {
         success: false,
-        error: validationErrors[0].message,
+        error: validation.errors?.[0] || 'Invalid form data',
       }
     }
 
     // Check rate limiting if we have an IP address
-    if (ipAddress) {
+    if (ipAddress && ipAddress !== 'unknown') {
       const isAllowed = await checkRateLimit(ipAddress)
       if (!isAllowed) {
         return {
@@ -55,7 +64,7 @@ export async function submitComment(
 
     // Create the comment
     const result = await createComment(
-      sanitizedData,
+      validation.data!, // validation.success가 true이므로 data는 항상 존재
       notionPageId,
       userAgent,
       ipAddress
@@ -66,7 +75,7 @@ export async function submitComment(
     console.error('Error in submitComment action:', error)
     return {
       success: false,
-      error: 'An unexpected error occurred while submitting your comment.',
+      error: 'An unexpected error occurred. Please try again later.',
     }
   }
 }
