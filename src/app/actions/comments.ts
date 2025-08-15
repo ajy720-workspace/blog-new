@@ -97,3 +97,38 @@ export async function getCommentCount(notionPageId: string): Promise<number> {
     return 0
   }
 }
+
+/**
+ * Transfer anonymous comments to authenticated user (called after login)
+ */
+export async function transferUserComments(
+  currentAnonymousUserId: string
+): Promise<{ success: boolean; transferredCount: number }> {
+  try {
+    // Get user info - Server Action is responsible for authentication checks
+    const { getUserProfileServer, isAnonymousUserServer } = await import(
+      '@/lib/supabase/auth-server'
+    )
+    const userProfile = await getUserProfileServer()
+    const isAnonymous = await isAnonymousUserServer()
+
+    if (!userProfile || isAnonymous) {
+      return { success: false, transferredCount: 0 }
+    }
+
+    // Transfer comments using database layer
+    const { transferAnonymousComments } = await import(
+      '@/lib/supabase/comments'
+    )
+
+    const result = await transferAnonymousComments(
+      currentAnonymousUserId,
+      userProfile.id
+    )
+
+    return result
+  } catch (error) {
+    console.error('Error in transferUserComments action:', error)
+    return { success: false, transferredCount: 0 }
+  }
+}

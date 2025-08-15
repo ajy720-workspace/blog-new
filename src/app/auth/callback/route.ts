@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation'
 import { NextRequest } from 'next/server'
 
+import { transferUserComments } from '@/app/actions/comments'
+import { transferUserLikes } from '@/app/actions/likes'
 import { securityConfig } from '@/config/security.config'
 import { siteConfig } from '@/config/site.config'
-import { transferAnonymousComments } from '@/lib/supabase/comments'
 import { createProfileFromUser } from '@/lib/supabase/profiles'
 import { createClient } from '@/lib/supabase/server'
 import { getPublicOrigin } from '@/lib/utils/origin-detection'
@@ -45,32 +46,19 @@ export async function GET(request: NextRequest) {
           }
         }
 
-        // Transfer anonymous comments if we have both user IDs
-        if (
-          currentAnonymousUserId &&
-          authenticatedUser?.id &&
-          currentAnonymousUserId !== authenticatedUser.id
-        ) {
+        // Transfer anonymous data to authenticated user (Server Actions handle validation)
+        if (currentAnonymousUserId) {
           try {
-            // Extract authenticated user profile information
-            const authenticatedUserName =
-              authenticatedUser.user_metadata?.full_name ||
-              authenticatedUser.user_metadata?.name ||
-              authenticatedUser.user_metadata?.user_name
-            const authenticatedUserEmail = authenticatedUser.email
-
-            await transferAnonymousComments(
-              currentAnonymousUserId,
-              authenticatedUser.id,
-              authenticatedUserName,
-              authenticatedUserEmail
-            )
+            await Promise.all([
+              transferUserComments(currentAnonymousUserId),
+              transferUserLikes(
+                currentAnonymousUserId,
+                undefined // browser ID not available in server context
+              ),
+            ])
           } catch (transferError) {
             // Log error but don't fail the login process
-            console.error(
-              'Failed to transfer anonymous comments:',
-              transferError
-            )
+            console.error('Failed to transfer anonymous data:', transferError)
           }
         }
 

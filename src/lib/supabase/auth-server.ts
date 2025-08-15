@@ -26,6 +26,11 @@ export async function getSessionServer() {
   return session
 }
 
+export async function isAnonymousUserServer(): Promise<boolean> {
+  const user = await getCurrentUserServer()
+  return user?.is_anonymous || false
+}
+
 export async function getUserProfileServer(): Promise<UserProfile | null> {
   try {
     const user = await getCurrentUserServer()
