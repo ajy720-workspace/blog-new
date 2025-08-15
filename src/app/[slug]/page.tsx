@@ -12,6 +12,7 @@ import { LazyComments } from '@/components/LazyComponents'
 import { PostActions } from '@/components/Post'
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { StructuredData } from '@/components/SEO/StructuredData'
+import { LikeProvider } from '@/contexts/LikeContext'
 import { PostRenderer } from '@/components/post-renderer'
 import { CommentSkeleton } from '@/components/ui/loading-states'
 import { seoConfig } from '@/config/seo.config'
@@ -84,7 +85,8 @@ async function PostContent({ post }: { post: NotionPost }) {
   return (
     <>
       <StructuredData data={postSchema} />
-      <article className="max-w-4xl mx-auto">
+      <LikeProvider notionPageId={post.id}>
+        <article className="max-w-4xl mx-auto">
         <header className="mb-8 pb-8 border-b">
           <BreadcrumbNav items={breadcrumbItems} className="mb-6" />
 
@@ -178,6 +180,7 @@ async function PostContent({ post }: { post: NotionPost }) {
           </div>
         </div>
       </article>
+      </LikeProvider>
     </>
   )
 }

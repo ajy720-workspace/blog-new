@@ -1,6 +1,8 @@
+'use client'
+
 import { Suspense } from 'react'
 
-import { LikeButton } from '@/components/Likes'
+import { SyncedLikeButton } from '@/components/Likes'
 import { SocialShare } from '@/components/SEO/SocialShare'
 
 interface PostActionsProps {
@@ -23,7 +25,7 @@ export function PostActions({
   return (
     <div className={`flex items-center gap-4 ${className}`}>
       {/* 좋아요 버튼 */}
-      <LikeButton
+      <SyncedLikeButton
         notionPageId={notionPageId}
         showCount={showLikeCount}
         variant="outline"
