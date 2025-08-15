@@ -3,6 +3,7 @@
 import { headers } from 'next/headers'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server-admin'
 import { getClientIP, getUserAgent } from '@/lib/validation/validator'
 import type {
   Like,
@@ -380,7 +381,9 @@ export async function transferAnonymousLikes(
     // Step 6 & 7: Execute deletion and transfer in transaction-like manner
     // Delete duplicates first, then transfer - if either fails, the operation is incomplete
     if (likesToDelete.length > 0) {
-      const { error: deleteError } = await supabase
+      // Use admin client to bypass RLS for deleting anonymous likes
+      const adminClient = createAdminClient()
+      const { error: deleteError } = await adminClient
         .from('likes')
         .delete()
         .in('id', likesToDelete)
@@ -393,7 +396,9 @@ export async function transferAnonymousLikes(
 
     // Transfer non-conflicting anonymous likes only after successful duplicate cleanup
     if (transferableAnonymousLikes && transferableAnonymousLikes.length > 0) {
-      const { error: updateError } = await supabase
+      // Use admin client to bypass RLS for updating anonymous likes to authenticated
+      const adminClient = createAdminClient()
+      const { error: updateError } = await adminClient
         .from('likes')
         .update({
           user_id: userId,
