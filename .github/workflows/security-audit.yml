@@ -34,10 +34,10 @@ jobs:
         run: |
           # Install license checker
           npm install -g license-checker
-          
+
           # Generate license report
           license-checker --json --out licenses.json
-          
+
           # Check for problematic licenses by excluding known problematic ones
           # This approach is more flexible than --onlyAllow
           license-checker --failOn 'GPL-3.0;AGPL-3.0;GPL-2.0;LGPL-2.1;LGPL-2.0;GPL-1.0;AGPL-1.0;SSPL-1.0;OSL-3.0;EPL-1.0;EPL-2.0;CDDL-1.0;CDDL-1.1' || {
@@ -46,7 +46,7 @@ jobs:
             license-checker --summary
             exit 1
           }
-          
+
           echo "✅ License check passed - no problematic licenses found"
           echo "📊 License summary:"
           license-checker --summary

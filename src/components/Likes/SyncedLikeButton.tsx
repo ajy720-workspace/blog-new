@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback } from 'react'
+
+import { useRouter } from 'next/navigation'
 
 import { Heart } from 'lucide-react'
 
@@ -8,7 +9,6 @@ import { toggleLike } from '@/app/actions/likes'
 import { OAuthModal, useOAuthModal } from '@/components/auth/OAuthModal'
 import { Button } from '@/components/ui/button'
 import { useLikeContext } from '@/contexts/LikeContext'
-import { getUserProfile, isAnonymousUser } from '@/lib/supabase/auth'
 import { getAnonymousBrowserId } from '@/lib/utils/anonymous'
 
 interface SyncedLikeButtonProps {
@@ -24,69 +24,90 @@ export function SyncedLikeButton({
   showCount = true,
   variant = 'ghost',
 }: SyncedLikeButtonProps) {
-  const { likeCount, isLiked, isLoading, updateLikeState, setLoading } = useLikeContext()
-  const { openModal, closeModal, isOpen, trigger, redirectTo } = useOAuthModal()
-
-  const handleLikeClick = useCallback(async () => {
-    if (isLoading) return
-
-    try {
-      setLoading(true)
-
-      // 사용자 상태 확인
-      const [userProfile, isAnonymous] = await Promise.all([
-        getUserProfile(),
-        isAnonymousUser(),
-      ])
-
-      // 익명 사용자인 경우 OAuth 모달 표시
-      if (isAnonymous || !userProfile) {
-        openModal({
-          trigger: 'like',
-        })
-        return
-      }
-
-      // 좋아요 토글 (낙관적 업데이트)
-      const newIsLiked = !isLiked
-      const newLikeCount = newIsLiked ? likeCount + 1 : likeCount - 1
-      
-      updateLikeState(newLikeCount, newIsLiked)
-
-      // 서버에 실제 요청
-      const result = await toggleLike(
-        notionPageId,
-        undefined, // sessionId
-        getAnonymousBrowserId()
-      )
-
-      if (!result.success) {
-        // 실패 시 롤백
-        updateLikeState(likeCount, isLiked)
-        console.error('Failed to toggle like:', result.error)
-      } else {
-        // 서버 응답으로 최종 상태 동기화
-        updateLikeState(
-          result.likeCount ?? newLikeCount, 
-          result.isLiked ?? newIsLiked
-        )
-      }
-    } catch (error) {
-      // 에러 시 롤백
-      updateLikeState(likeCount, isLiked)
-      console.error('Error toggling like:', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [
+  const router = useRouter()
+  const {
     isLoading,
     likeCount,
     isLiked,
-    notionPageId,
-    openModal,
+    isAnonymous,
+    isSessionReady,
+    userProfile,
     updateLikeState,
     setLoading,
-  ])
+  } = useLikeContext()
+  const { openModal, closeModal, isOpen, trigger, redirectTo } = useOAuthModal()
+
+  const handleLikeClick = async () => {
+    if (!isSessionReady || isLoading) {
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const anonymousBrowserId = getAnonymousBrowserId()
+      const anonymousSessionId = userProfile?.id
+
+      // Optimistic update
+      const newIsLiked = !isLiked
+      const newCount = newIsLiked ? likeCount + 1 : likeCount - 1
+
+      updateLikeState(newCount, newIsLiked)
+
+      // Call server action
+      const result = await toggleLike(
+        notionPageId,
+        anonymousSessionId,
+        anonymousBrowserId
+      )
+
+      if (result.success) {
+        // Update with actual values from server
+
+        updateLikeState(
+          result.likeCount ?? newCount,
+          result.isLiked ?? newIsLiked
+        )
+
+        // Show OAuth modal for anonymous users after successful like
+        if (isAnonymous && result.isLiked) {
+          setTimeout(() => {
+            openModal({
+              trigger: 'like',
+              redirectTo: window.location.pathname,
+            })
+          }, 500) // Short delay to let user see the like animation
+        }
+
+        // Refresh to update any cached data
+        router.refresh()
+      } else {
+        // Revert optimistic update on error
+        updateLikeState(likeCount, isLiked)
+        console.error('Error toggling like:', result.error)
+      }
+    } catch (error) {
+      // Revert optimistic update on error
+      updateLikeState(likeCount, isLiked)
+      console.error('Like button error:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (!isSessionReady) {
+    return (
+      <Button
+        variant={variant}
+        size="sm"
+        disabled={true}
+        className={`flex items-center gap-2`}
+      >
+        <Heart className="w-5 h-5 transition-all duration-200 text-muted-foreground hover:text-red-400 animate-pulse" />
+        <span className="text-sm text-muted-foreground">Loading...</span>
+      </Button>
+    )
+  }
 
   return (
     <>
@@ -116,7 +137,7 @@ export function SyncedLikeButton({
       </Button>
 
       {/* OAuth Modal */}
-      <OAuthModal 
+      <OAuthModal
         isOpen={isOpen}
         onClose={closeModal}
         trigger={trigger}
