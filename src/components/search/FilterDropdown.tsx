@@ -65,7 +65,7 @@ export function FilterDropdown<T extends FilterItem>({
             <ChevronDown className="w-4 h-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-64" align="start">
+        <DropdownMenuContent className="w-64" align="start" autoFocus={false}>
           <DropdownMenuLabel>Filter by {label}</DropdownMenuLabel>
           <DropdownMenuSeparator />
 
@@ -79,13 +79,15 @@ export function FilterDropdown<T extends FilterItem>({
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 className="pl-7 h-8 text-xs"
+                autoFocus={true}
+                onKeyDown={e => e.stopPropagation()}
               />
               {searchQuery && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-0 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
                 >
                   <X className="w-3 h-3" />
                 </Button>
