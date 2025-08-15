@@ -300,13 +300,20 @@ export async function transferAnonymousLikes(
         allDuplicateLikes?.filter(like => like.notion_page_id === pageId) || []
 
       if (pageDuplicates.length > 1) {
-        // Sort by created_at descending (most recent first)
-        pageDuplicates.sort(
-          (a, b) =>
+        // Prioritize authenticated likes over anonymous ones
+        // Sort by: 1) is_anonymous (false first), 2) created_at (most recent first)
+        pageDuplicates.sort((a, b) => {
+          // Authenticated likes (is_anonymous = false) come first
+          if (a.is_anonymous !== b.is_anonymous) {
+            return a.is_anonymous ? 1 : -1
+          }
+          // If both are same type, prefer more recent
+          return (
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )
+          )
+        })
 
-        // Keep the most recent, delete the rest
+        // Keep the first (prioritized authenticated, then most recent), delete the rest
         for (let i = 1; i < pageDuplicates.length; i++) {
           likesToDelete.push(pageDuplicates[i].id)
         }
@@ -402,11 +409,11 @@ export async function transferAnonymousLikes(
         console.error('Error transferring anonymous likes:', updateError)
         // If transfer fails after duplicate deletion, we have a partial success state
         // The duplicates were cleaned up successfully
-        return { 
-          success: false, 
-          transferredCount: 0, 
+        return {
+          success: false,
+          transferredCount: 0,
           duplicatesRemoved: likesToDelete.length,
-          error: 'Duplicates cleaned but transfer failed'
+          error: 'Duplicates cleaned but transfer failed',
         }
       }
 
