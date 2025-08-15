@@ -258,6 +258,7 @@ export async function transferAnonymousLikes(
   success: boolean
   transferredCount: number
   duplicatesRemoved?: number
+  error?: string
 }> {
   try {
     const supabase = await createClient()
@@ -369,7 +370,8 @@ export async function transferAnonymousLikes(
 
     let transferredCount = 0
 
-    // Step 6: Delete duplicate likes
+    // Step 6 & 7: Execute deletion and transfer in transaction-like manner
+    // Delete duplicates first, then transfer - if either fails, the operation is incomplete
     if (likesToDelete.length > 0) {
       const { error: deleteError } = await supabase
         .from('likes')
@@ -382,7 +384,7 @@ export async function transferAnonymousLikes(
       }
     }
 
-    // Step 7: Transfer non-conflicting anonymous likes
+    // Transfer non-conflicting anonymous likes only after successful duplicate cleanup
     if (transferableAnonymousLikes && transferableAnonymousLikes.length > 0) {
       const { error: updateError } = await supabase
         .from('likes')
@@ -398,7 +400,14 @@ export async function transferAnonymousLikes(
 
       if (updateError) {
         console.error('Error transferring anonymous likes:', updateError)
-        return { success: false, transferredCount: 0, duplicatesRemoved: 0 }
+        // If transfer fails after duplicate deletion, we have a partial success state
+        // The duplicates were cleaned up successfully
+        return { 
+          success: false, 
+          transferredCount: 0, 
+          duplicatesRemoved: likesToDelete.length,
+          error: 'Duplicates cleaned but transfer failed'
+        }
       }
 
       transferredCount = transferableAnonymousLikes.length
