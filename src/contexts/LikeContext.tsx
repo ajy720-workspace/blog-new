@@ -1,0 +1,125 @@
+'use client'
+
+import {
+  type ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
+
+import { initAnonymousSession } from '@/app/actions/auth'
+import { getLikeCountAndUserStatus } from '@/app/actions/likes'
+import {
+  UserProfile,
+  getUserProfile,
+  isAnonymousUser,
+} from '@/lib/supabase/auth'
+import { getAnonymousBrowserId } from '@/lib/utils/anonymous'
+
+interface LikeContextValue {
+  likeCount: number
+  isLiked: boolean
+  isLoading: boolean
+  isSessionReady: boolean
+  isAnonymous: boolean
+  userProfile: UserProfile | null
+  updateLikeState: (newCount: number, newIsLiked: boolean) => void
+  setLoading: (loading: boolean) => void
+}
+
+const LikeContext = createContext<LikeContextValue | undefined>(undefined)
+
+interface LikeProviderProps {
+  children: ReactNode
+  notionPageId: string
+  initialLikeCount?: number
+  initialIsLiked?: boolean
+}
+
+export function LikeProvider({
+  children,
+  notionPageId,
+  initialLikeCount = 0,
+  initialIsLiked = false,
+}: LikeProviderProps) {
+  const [likeCount, setLikeCount] = useState(initialLikeCount)
+  const [isLiked, setIsLiked] = useState(initialIsLiked)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isSessionReady, setIsSessionReady] = useState(false)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [isAnonymous, setIsAnonymous] = useState(true)
+
+  // 초기 데이터 로드
+  useEffect(() => {
+    const initSession = async () => {
+      try {
+        const result = await initAnonymousSession()
+        if (result.success) {
+          const [profile, anonymous] = await Promise.all([
+            getUserProfile(),
+            isAnonymousUser(),
+          ])
+
+          setUserProfile(profile)
+          setIsAnonymous(anonymous)
+
+          // Get current like status
+          const anonymousBrowserId = getAnonymousBrowserId()
+          const anonymousSessionId = profile?.id
+
+          const status = await getLikeCountAndUserStatus(
+            notionPageId,
+            anonymousSessionId,
+            anonymousBrowserId
+          )
+
+          setLikeCount(status.count)
+          setIsLiked(status.isLiked)
+          setIsSessionReady(true)
+        } else {
+          console.error('Failed to initialize session:', result.error)
+        }
+      } catch (error) {
+        console.error('Session initialization error:', error)
+      }
+    }
+    initSession()
+  }, [notionPageId])
+
+  const updateLikeState = useCallback(
+    (newCount: number, newIsLiked: boolean) => {
+      setLikeCount(newCount)
+      setIsLiked(newIsLiked)
+    },
+    []
+  )
+
+  const setLoadingState = useCallback((loading: boolean) => {
+    setIsLoading(loading)
+  }, [])
+
+  const contextValue: LikeContextValue = {
+    likeCount,
+    isLiked,
+    isLoading,
+    isAnonymous,
+    isSessionReady,
+    userProfile,
+    updateLikeState,
+    setLoading: setLoadingState,
+  }
+
+  return (
+    <LikeContext.Provider value={contextValue}>{children}</LikeContext.Provider>
+  )
+}
+
+export function useLikeContext() {
+  const context = useContext(LikeContext)
+  if (context === undefined) {
+    throw new Error('useLikeContext must be used within a LikeProvider')
+  }
+  return context
+}
