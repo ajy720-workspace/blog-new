@@ -189,10 +189,8 @@ export async function softDeleteComment(
 
 export async function transferAnonymousComments(
   currentAnonymousUserId: string,
-  authenticatedUserId: string,
-  authenticatedUserName?: string,
-  authenticatedUserEmail?: string
-): Promise<boolean> {
+  authenticatedUserId: string
+): Promise<{ success: boolean; transferredCount: number }> {
   try {
     // Use admin client to bypass RLS for this administrative operation
     const adminSupabase = createAdminClient()
@@ -200,53 +198,39 @@ export async function transferAnonymousComments(
     // First, check if there are any comments to transfer
     const { data: commentsToTransfer, error: selectError } = await adminSupabase
       .from('comments')
-      .select('id, author_name, author_email, user_id, is_anonymous')
+      .select('id')
       .eq('user_id', currentAnonymousUserId)
       .eq('is_anonymous', true)
 
     if (selectError) {
       console.error('Error querying comments to transfer:', selectError)
-      return false
+      return { success: false, transferredCount: 0 }
     }
 
     if (!commentsToTransfer || commentsToTransfer.length === 0) {
-      return true
+      return { success: true, transferredCount: 0 }
     }
 
-    // Prepare update data with author information
-    const updateData: {
-      user_id: string
-      is_anonymous: boolean
-      author_name?: string
-      author_email?: string
-    } = {
-      user_id: authenticatedUserId,
-      is_anonymous: false,
-    }
-
-    // Update author info with authenticated user profile if available
-    if (authenticatedUserName) {
-      updateData.author_name = authenticatedUserName
-    }
-    if (authenticatedUserEmail) {
-      updateData.author_email = authenticatedUserEmail
-    }
-
-    // Perform the update using admin client (bypasses RLS)
+    // Transfer comments to authenticated user
+    // Note: author_name and author_email will be populated from profile table via RPC/view
     const { error: updateError } = await adminSupabase
       .from('comments')
-      .update(updateData)
+      .update({
+        user_id: authenticatedUserId,
+        is_anonymous: false,
+        updated_at: new Date().toISOString(),
+      })
       .eq('user_id', currentAnonymousUserId)
       .eq('is_anonymous', true)
 
     if (updateError) {
       console.error('Error transferring anonymous comments:', updateError)
-      return false
+      return { success: false, transferredCount: 0 }
     }
 
-    return true
+    return { success: true, transferredCount: commentsToTransfer.length }
   } catch (error) {
     console.error('Error in transferAnonymousComments:', error)
-    return false
+    return { success: false, transferredCount: 0 }
   }
 }
