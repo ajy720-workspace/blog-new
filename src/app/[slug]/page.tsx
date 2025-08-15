@@ -145,32 +145,29 @@ async function PostContent({ post }: { post: NotionPost }) {
           <PostRenderer blocks={blocks} />
         </div>
 
-        {/* Footer Tags */}
-        {post.tags.length > 0 && (
-          <div className="mt-8 pt-6 border-t">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm font-medium text-muted-foreground">
-                Tags:
-              </span>
-              {post.tags.map(tag => (
-                <a
-                  key={tag}
-                  href={`/tag/${slugify(tag)}`}
-                  className="inline-flex items-center px-3 py-1.5 text-sm bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md transition-colors"
-                >
-                  {tag}
-                </a>
-              ))}
+        <div className="flex flex-wrap items-center justify-between gap-6 mt-8 md:mt-12 lg:mt-16">
+          {/* Footer Tags */}
+          {post.tags.length > 0 && (
+            <div className="">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">
+                  Tags:
+                </span>
+                {post.tags.map(tag => (
+                  <a
+                    key={tag}
+                    href={`/tag/${slugify(tag)}`}
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-colors"
+                  >
+                    {tag}
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Post Actions at Bottom */}
-        <div className="mt-8 pt-6 border-t">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              Enjoyed this post? Share it with others!
-            </div>
+          {/* Post Actions at Bottom */}
+          <div className="">
             <PostActions
               notionPageId={post.id}
               title={post.title}
@@ -258,7 +255,10 @@ export default async function PostPage(props: PostPageProps) {
     <main className="container mx-auto px-4 py-8">
       <PostContent post={post} />
 
-      <section id="comments" className="max-w-4xl mx-auto mt-16">
+      <section
+        id="comments"
+        className="max-w-4xl mx-auto mt-8 md:mt-12 lg:mt-16"
+      >
         <Suspense
           fallback={
             <div className="space-y-6">

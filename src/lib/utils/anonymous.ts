@@ -54,7 +54,7 @@ export function hasAnonymousBrowserId(): boolean {
 
   try {
     return localStorage.getItem(ANONYMOUS_BROWSER_ID_KEY) !== null
-  } catch (error) {
+  } catch {
     return false
   }
 }

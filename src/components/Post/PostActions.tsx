@@ -1,5 +1,3 @@
-'use client'
-
 import { Suspense } from 'react'
 
 import { LikeButton } from '@/components/Likes'
@@ -25,7 +23,11 @@ export function PostActions({
   return (
     <div className={`flex items-center gap-4 ${className}`}>
       {/* 좋아요 버튼 */}
-      <LikeButton notionPageId={notionPageId} showCount={showLikeCount} />
+      <LikeButton
+        notionPageId={notionPageId}
+        showCount={showLikeCount}
+        variant="outline"
+      />
 
       {/* 소셜 공유 버튼 */}
       <Suspense
