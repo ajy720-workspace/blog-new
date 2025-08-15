@@ -42,6 +42,8 @@ export function OAuthModal({
     switch (trigger) {
       case 'comment':
         return 'Save Your Comment'
+      case 'like':
+        return 'Save Your Like'
       default:
         return 'Sign In to Continue'
     }
@@ -51,6 +53,8 @@ export function OAuthModal({
     switch (trigger) {
       case 'comment':
         return 'Your comment has been posted! Sign in with GitHub to claim it and receive notifications for replies.'
+      case 'comment':
+        return 'Your like has been saved! Sign in with GitHub to claim it and receive notifications for replies.'
       default:
         return 'Sign in with your GitHub account to access additional features and personalize your experience.'
     }
@@ -59,8 +63,9 @@ export function OAuthModal({
   const getBenefitsByTrigger = () => {
     switch (trigger) {
       case 'comment':
+      case 'like':
         return [
-          'Claim ownership of your comments',
+          'Claim ownership of your comments and likes',
           'Get notified when someone replies',
           'Edit your comments after posting',
           'Build your contributor profile',

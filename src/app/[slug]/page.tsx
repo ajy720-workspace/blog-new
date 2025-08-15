@@ -12,11 +12,11 @@ import { LazyComments } from '@/components/LazyComponents'
 import { PostActions } from '@/components/Post'
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { StructuredData } from '@/components/SEO/StructuredData'
-import { LikeProvider } from '@/contexts/LikeContext'
 import { PostRenderer } from '@/components/post-renderer'
 import { CommentSkeleton } from '@/components/ui/loading-states'
 import { seoConfig } from '@/config/seo.config'
 import { siteConfig } from '@/config/site.config'
+import { LikeProvider } from '@/contexts/LikeContext'
 import {
   NotionPost,
   getPageContent,
@@ -87,99 +87,99 @@ async function PostContent({ post }: { post: NotionPost }) {
       <StructuredData data={postSchema} />
       <LikeProvider notionPageId={post.id}>
         <article className="max-w-4xl mx-auto">
-        <header className="mb-8 pb-8 border-b">
-          <BreadcrumbNav items={breadcrumbItems} className="mb-6" />
+          <header className="mb-8 pb-8 border-b">
+            <BreadcrumbNav items={breadcrumbItems} className="mb-6" />
 
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
-            {post.title}
-          </h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
+              {post.title}
+            </h1>
 
-          <div className="flex flex-wrap items-center justify-between gap-6">
-            <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <time dateTime={post.created_time}>{formattedDate}</time>
-              </div>
-
-              {/* 댓글 수는 클라이언트에서 로딩 */}
-              <CommentCount notionPageId={post.id} />
-
-              {post.tags.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-6">
+              <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4" />
-                  <div className="flex flex-wrap gap-2">
-                    {post.tags.map(tag => (
-                      <a
-                        key={tag}
-                        href={`/tag/${slugify(tag)}`}
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-colors"
-                      >
-                        {tag}
-                      </a>
-                    ))}
-                  </div>
+                  <Calendar className="w-4 h-4" />
+                  <time dateTime={post.created_time}>{formattedDate}</time>
                 </div>
-              )}
-            </div>
 
-            <PostActions
-              notionPageId={post.id}
-              title={post.title}
-              url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'}/${post.url_path}`}
-              description={post.title}
-              showLikeCount={true}
-            />
-          </div>
-          {post.coverImage && (
-            <HeroImage
-              coverImage={post.coverImage}
-              title={post.title}
-              createdAt={post.created_time}
-              postId={post.id}
-              className="mt-8 h-48 md:h-64"
-              showOverlay={false}
-              priority={true}
-            />
-          )}
-        </header>
+                {/* 댓글 수는 클라이언트에서 로딩 */}
+                <CommentCount notionPageId={post.id} />
 
-        <div className="prose prose-lg max-w-none dark:prose-invert">
-          <PostRenderer blocks={blocks} />
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-6 mt-8 md:mt-12 lg:mt-16">
-          {/* Footer Tags */}
-          {post.tags.length > 0 && (
-            <div className="">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Tags:
-                </span>
-                {post.tags.map(tag => (
-                  <a
-                    key={tag}
-                    href={`/tag/${slugify(tag)}`}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-colors"
-                  >
-                    {tag}
-                  </a>
-                ))}
+                {post.tags.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Tag className="w-4 h-4" />
+                    <div className="flex flex-wrap gap-2">
+                      {post.tags.map(tag => (
+                        <a
+                          key={tag}
+                          href={`/tag/${slugify(tag)}`}
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-colors"
+                        >
+                          {tag}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
 
-          {/* Post Actions at Bottom */}
-          <div className="">
-            <PostActions
-              notionPageId={post.id}
-              title={post.title}
-              url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'}/${post.url_path}`}
-              description={post.title}
-              showLikeCount={true}
-            />
+              <PostActions
+                notionPageId={post.id}
+                title={post.title}
+                url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'}/${post.url_path}`}
+                description={post.title}
+                showLikeCount={true}
+              />
+            </div>
+            {post.coverImage && (
+              <HeroImage
+                coverImage={post.coverImage}
+                title={post.title}
+                createdAt={post.created_time}
+                postId={post.id}
+                className="mt-8 h-48 md:h-64"
+                showOverlay={false}
+                priority={true}
+              />
+            )}
+          </header>
+
+          <div className="prose prose-lg max-w-none dark:prose-invert">
+            <PostRenderer blocks={blocks} />
           </div>
-        </div>
-      </article>
+
+          <div className="flex flex-wrap items-center justify-between gap-6 mt-8 md:mt-12 lg:mt-16">
+            {/* Footer Tags */}
+            {post.tags.length > 0 && (
+              <div className="">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Tags:
+                  </span>
+                  {post.tags.map(tag => (
+                    <a
+                      key={tag}
+                      href={`/tag/${slugify(tag)}`}
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-colors"
+                    >
+                      {tag}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Post Actions at Bottom */}
+            <div className="">
+              <PostActions
+                notionPageId={post.id}
+                title={post.title}
+                url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'}/${post.url_path}`}
+                description={post.title}
+                showLikeCount={true}
+              />
+            </div>
+          </div>
+        </article>
       </LikeProvider>
     </>
   )
