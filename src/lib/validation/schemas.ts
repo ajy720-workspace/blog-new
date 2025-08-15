@@ -59,7 +59,17 @@ export const ipAddressSchema = z
 
 export const userAgentSchema = z.string().max(1000, 'User agent too long')
 
+export const likeSchema = z.object({
+  notionPageId: z
+    .string()
+    .min(1, 'Post ID is required')
+    .max(255, 'Post ID too long'),
+  anonymousSessionId: z.string().uuid('Invalid session ID format').optional(),
+  anonymousBrowserId: z.string().uuid('Invalid browser ID format').optional(),
+})
+
 export type CommentFormData = z.infer<typeof commentSchema>
+export type LikeFormData = z.infer<typeof likeSchema>
 export type WebhookHeaders = z.infer<typeof webhookSecretSchema>
 export type RevalidateRequest = z.infer<typeof revalidateRequestSchema>
 export type EnvVariables = z.infer<typeof envSchema>

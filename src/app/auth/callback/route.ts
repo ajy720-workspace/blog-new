@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server'
 import { securityConfig } from '@/config/security.config'
 import { siteConfig } from '@/config/site.config'
 import { transferAnonymousComments } from '@/lib/supabase/comments'
+import { transferAnonymousLikes } from '@/lib/supabase/likes'
 import { createProfileFromUser } from '@/lib/supabase/profiles'
 import { createClient } from '@/lib/supabase/server'
 import { getPublicOrigin } from '@/lib/utils/origin-detection'
@@ -59,16 +60,22 @@ export async function GET(request: NextRequest) {
               authenticatedUser.user_metadata?.user_name
             const authenticatedUserEmail = authenticatedUser.email
 
-            await transferAnonymousComments(
-              currentAnonymousUserId,
-              authenticatedUser.id,
-              authenticatedUserName,
-              authenticatedUserEmail
-            )
+            await Promise.all([
+              transferAnonymousComments(
+                currentAnonymousUserId,
+                authenticatedUser.id,
+                authenticatedUserName,
+                authenticatedUserEmail
+              ),
+              transferAnonymousLikes(
+                authenticatedUser.id,
+                currentAnonymousUserId
+              ),
+            ])
           } catch (transferError) {
             // Log error but don't fail the login process
             console.error(
-              'Failed to transfer anonymous comments:',
+              'Failed to transfer anonymous comments and likes:',
               transferError
             )
           }
