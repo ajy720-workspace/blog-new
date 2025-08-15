@@ -39,3 +39,6 @@ next-env.d.ts
 
 # note
 note.md
+
+#license-checker
+licenses.json
