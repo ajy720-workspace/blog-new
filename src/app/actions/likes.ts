@@ -100,6 +100,7 @@ export async function transferUserLikes(
   success: boolean
   transferredCount: number
   duplicatesRemoved?: number
+  error?: string
 }> {
   try {
     // Get user info
