@@ -9,6 +9,7 @@ import { Calendar, Tag } from 'lucide-react'
 import { CommentCount } from '@/components/Comments'
 import { HeroImage } from '@/components/HeroImage'
 import { LazyComments, LazySocialShare } from '@/components/LazyComponents'
+import { LikeButton } from '@/components/Likes'
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { StructuredData } from '@/components/SEO/StructuredData'
 import { PostRenderer } from '@/components/post-renderer'
@@ -100,6 +101,9 @@ async function PostContent({ post }: { post: NotionPost }) {
 
               {/* 댓글 수는 클라이언트에서 로딩 */}
               <CommentCount notionPageId={post.id} />
+
+              {/* 좋아요 버튼 */}
+              <LikeButton notionPageId={post.id} showCount={true} />
 
               {post.tags.length > 0 && (
                 <div className="flex items-center gap-2">
