@@ -14,8 +14,7 @@ import { CategoryWithCount, TagWithCount } from '@/lib/core/notion'
 import { cn } from '@/lib/utils'
 import { SortOption, ViewMode, sortOptions } from '@/lib/utils/search-utils'
 
-import { CategoryFilter } from './CategoryFilter'
-import { TagFilter } from './TagFilter'
+import { FilterDropdown } from './FilterDropdown'
 import { ViewModeToggle } from './ViewModeToggle'
 
 interface FilterControlsProps {
@@ -124,15 +123,23 @@ export function FilterControls({
       {showFilters && (
         <div className="border rounded-lg p-4 space-y-4 bg-card mt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <CategoryFilter
-              categories={categories}
-              selectedCategories={selectedCategories}
+            <FilterDropdown
+              label="Categories"
+              items={categories}
+              selectedItems={selectedCategories}
               onToggle={onCategoryToggle}
+              searchPlaceholder="Search categories..."
+              emptyMessage="No categories found"
+              className={className}
             />
-            <TagFilter
-              tags={tags}
-              selectedTags={selectedTags}
+            <FilterDropdown
+              label="Tags"
+              items={tags}
+              selectedItems={selectedTags}
               onToggle={onTagToggle}
+              searchPlaceholder="Search tags..."
+              emptyMessage="No tags found"
+              className={className}
             />
           </div>
         </div>
