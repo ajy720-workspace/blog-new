@@ -1,6 +1,9 @@
 'use server'
 
-import { getUserProfile, isAnonymousUser } from '@/lib/supabase/auth'
+import {
+  getUserProfileServer,
+  isAnonymousUserServer,
+} from '@/lib/supabase/auth-server'
 import {
   getLikeCountAndStatus,
   toggleLike as toggleLikeDB,
@@ -34,8 +37,8 @@ export async function toggleLike(
     }
 
     // Get user info
-    const userProfile = await getUserProfile()
-    const isAnonymous = await isAnonymousUser()
+    const userProfile = await getUserProfileServer()
+    const isAnonymous = await isAnonymousUserServer()
 
     const userId = userProfile && !isAnonymous ? userProfile.id : undefined
 
@@ -67,8 +70,8 @@ export async function getLikeCountAndUserStatus(
 ): Promise<LikeCountResult> {
   try {
     // Get user info
-    const userProfile = await getUserProfile()
-    const isAnonymous = await isAnonymousUser()
+    const userProfile = await getUserProfileServer()
+    const isAnonymous = await isAnonymousUserServer()
 
     const userId = userProfile && !isAnonymous ? userProfile.id : undefined
 
@@ -93,14 +96,18 @@ export async function getLikeCountAndUserStatus(
 export async function transferUserLikes(
   anonymousSessionId?: string,
   anonymousBrowserId?: string
-): Promise<{ success: boolean; transferredCount: number }> {
+): Promise<{
+  success: boolean
+  transferredCount: number
+  duplicatesRemoved?: number
+}> {
   try {
     // Get user info
-    const userProfile = await getUserProfile()
-    const isAnonymous = await isAnonymousUser()
+    const userProfile = await getUserProfileServer()
+    const isAnonymous = await isAnonymousUserServer()
 
     if (!userProfile || isAnonymous) {
-      return { success: false, transferredCount: 0 }
+      return { success: false, transferredCount: 0, duplicatesRemoved: 0 }
     }
 
     // Transfer likes
@@ -113,6 +120,6 @@ export async function transferUserLikes(
     return result
   } catch (error) {
     console.error('Error in transferUserLikes action:', error)
-    return { success: false, transferredCount: 0 }
+    return { success: false, transferredCount: 0, duplicatesRemoved: 0 }
   }
 }

@@ -254,98 +254,163 @@ export async function transferAnonymousLikes(
   userId: string,
   anonymousSessionId?: string,
   anonymousBrowserId?: string
-): Promise<{ success: boolean; transferredCount: number }> {
+): Promise<{
+  success: boolean
+  transferredCount: number
+  duplicatesRemoved?: number
+}> {
   try {
     const supabase = await createClient()
 
-    // Find anonymous likes to transfer
-    let query = supabase
-      .from('likes')
-      .select('*')
-      .eq('is_anonymous', true)
-      .is('user_id', null)
-
-    if (anonymousSessionId && anonymousBrowserId) {
-      query = query.or(
-        `anonymous_session_id.eq.${anonymousSessionId},anonymous_browser_id.eq.${anonymousBrowserId}`
-      )
-    } else if (anonymousSessionId) {
-      query = query.eq('anonymous_session_id', anonymousSessionId)
-    } else if (anonymousBrowserId) {
-      query = query.eq('anonymous_browser_id', anonymousBrowserId)
-    } else {
-      return { success: true, transferredCount: 0 }
-    }
-
-    const { data: anonymousLikes, error: fetchError } = await query
-
-    if (fetchError) {
-      console.error('Error fetching anonymous likes:', fetchError)
-      return { success: false, transferredCount: 0 }
-    }
-
-    if (!anonymousLikes || anonymousLikes.length === 0) {
-      return { success: true, transferredCount: 0 }
-    }
-
-    // Check for existing likes by the user to avoid duplicates
+    // Step 1: Check for existing authenticated likes by this user
     const { data: existingLikes } = await supabase
       .from('likes')
       .select('notion_page_id')
       .eq('user_id', userId)
+      .eq('is_anonymous', false)
 
     const existingPageIds = new Set(
       existingLikes?.map(like => like.notion_page_id) || []
     )
 
-    // Filter out likes for posts the user has already liked
-    const likesToTransfer = anonymousLikes.filter(
-      like => !existingPageIds.has(like.notion_page_id)
-    )
+    // Step 2: Find ALL duplicate likes (both anonymous and authenticated) for posts this user has liked
+    const duplicateLikesQuery = supabase
+      .from('likes')
+      .select('*')
+      .in('notion_page_id', Array.from(existingPageIds))
 
-    if (likesToTransfer.length === 0) {
-      // Delete duplicate anonymous likes
-      await supabase
-        .from('likes')
-        .delete()
-        .in(
-          'id',
-          anonymousLikes.map(like => like.id)
+    const { data: allDuplicateLikes, error: duplicateFetchError } =
+      await duplicateLikesQuery
+
+    if (duplicateFetchError) {
+      console.error('Error fetching duplicate likes:', duplicateFetchError)
+      return { success: false, transferredCount: 0, duplicatesRemoved: 0 }
+    }
+
+    // Step 3: Process duplicates by grouping them by post
+
+    // Step 4: Handle duplicates - keep the most recent like per post
+    const likesToDelete: string[] = []
+    const postsToClean = new Set<string>()
+
+    // Group by notion_page_id and decide which to keep
+    for (const pageId of existingPageIds) {
+      const pageDuplicates =
+        allDuplicateLikes?.filter(like => like.notion_page_id === pageId) || []
+
+      if (pageDuplicates.length > 1) {
+        // Sort by created_at descending (most recent first)
+        pageDuplicates.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )
 
-      return { success: true, transferredCount: 0 }
+        // Keep the most recent, delete the rest
+        for (let i = 1; i < pageDuplicates.length; i++) {
+          likesToDelete.push(pageDuplicates[i].id)
+        }
+
+        postsToClean.add(pageId)
+      }
     }
 
-    // Update anonymous likes to be owned by the user
-    const { error: updateError } = await supabase
+    // Step 5: Find anonymous likes to potentially transfer (that don't conflict)
+    let anonymousQuery = supabase
       .from('likes')
-      .update({
-        user_id: userId,
-        is_anonymous: false,
-        updated_at: new Date().toISOString(),
-      })
-      .in(
-        'id',
-        likesToTransfer.map(like => like.id)
+      .select('*')
+      .eq('is_anonymous', true)
+      .is('user_id', null)
+
+    // Exclude posts where user already has likes, if any exist
+    if (existingPageIds.size > 0) {
+      anonymousQuery = anonymousQuery.not(
+        'notion_page_id',
+        'in',
+        `(${Array.from(existingPageIds)
+          .map(id => `"${id}"`)
+          .join(',')})`
       )
-
-    if (updateError) {
-      console.error('Error transferring likes:', updateError)
-      return { success: false, transferredCount: 0 }
     }
 
-    // Delete remaining duplicate anonymous likes
-    const duplicateIds = anonymousLikes
-      .filter(like => !likesToTransfer.includes(like))
-      .map(like => like.id)
-
-    if (duplicateIds.length > 0) {
-      await supabase.from('likes').delete().in('id', duplicateIds)
+    // Add identifier-based filtering if provided
+    if (anonymousSessionId && anonymousBrowserId) {
+      anonymousQuery = anonymousQuery.or(
+        `anonymous_session_id.eq.${anonymousSessionId},anonymous_browser_id.eq.${anonymousBrowserId}`
+      )
+    } else if (anonymousSessionId) {
+      anonymousQuery = anonymousQuery.eq(
+        'anonymous_session_id',
+        anonymousSessionId
+      )
+    } else if (anonymousBrowserId) {
+      anonymousQuery = anonymousQuery.eq(
+        'anonymous_browser_id',
+        anonymousBrowserId
+      )
+    } else {
+      // If no identifiers provided, return early
+      return {
+        success: true,
+        transferredCount: 0,
+        duplicatesRemoved: likesToDelete.length,
+      }
     }
 
-    return { success: true, transferredCount: likesToTransfer.length }
+    const { data: transferableAnonymousLikes, error: transferFetchError } =
+      await anonymousQuery
+
+    if (transferFetchError) {
+      console.error(
+        'Error fetching transferable anonymous likes:',
+        transferFetchError
+      )
+      return { success: false, transferredCount: 0, duplicatesRemoved: 0 }
+    }
+
+    let transferredCount = 0
+
+    // Step 6: Delete duplicate likes
+    if (likesToDelete.length > 0) {
+      const { error: deleteError } = await supabase
+        .from('likes')
+        .delete()
+        .in('id', likesToDelete)
+
+      if (deleteError) {
+        console.error('Error deleting duplicate likes:', deleteError)
+        return { success: false, transferredCount: 0, duplicatesRemoved: 0 }
+      }
+    }
+
+    // Step 7: Transfer non-conflicting anonymous likes
+    if (transferableAnonymousLikes && transferableAnonymousLikes.length > 0) {
+      const { error: updateError } = await supabase
+        .from('likes')
+        .update({
+          user_id: userId,
+          is_anonymous: false,
+          updated_at: new Date().toISOString(),
+        })
+        .in(
+          'id',
+          transferableAnonymousLikes.map(like => like.id)
+        )
+
+      if (updateError) {
+        console.error('Error transferring anonymous likes:', updateError)
+        return { success: false, transferredCount: 0, duplicatesRemoved: 0 }
+      }
+
+      transferredCount = transferableAnonymousLikes.length
+    }
+
+    return {
+      success: true,
+      transferredCount,
+      duplicatesRemoved: likesToDelete.length,
+    }
   } catch (error) {
     console.error('Error in transferAnonymousLikes:', error)
-    return { success: false, transferredCount: 0 }
+    return { success: false, transferredCount: 0, duplicatesRemoved: 0 }
   }
 }
