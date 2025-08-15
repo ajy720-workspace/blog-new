@@ -5,6 +5,7 @@ import { WebVitals } from '@/components/WebVitals'
 import { Footer } from '@/components/footer'
 import { Header } from '@/components/header'
 import { ThemeProvider } from '@/components/theme-provider'
+import { BackToTop } from '@/components/ui/back-to-top'
 import { seoConfig } from '@/config/seo.config'
 import { siteConfig } from '@/config/site.config'
 import {
@@ -101,6 +102,7 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
             <Footer />
           </div>
+          <BackToTop />
         </ThemeProvider>
       </body>
     </html>
