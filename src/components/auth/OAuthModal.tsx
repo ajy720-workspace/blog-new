@@ -29,6 +29,15 @@ export function OAuthModal({
 }: OAuthModalProps) {
   const [state, formAction, isPending] = useActionState(signInWithGitHub, null)
 
+  // Get current page path for comment redirect
+  const getCurrentRedirectTo = () => {
+    if (redirectTo) return redirectTo
+    if (trigger === 'comment') {
+      return `${window.location.pathname}#comments`
+    }
+    return ''
+  }
+
   const getTitleByTrigger = () => {
     switch (trigger) {
       case 'comment':
@@ -105,7 +114,11 @@ export function OAuthModal({
 
           {/* Sign In Form */}
           <form action={formAction}>
-            <input type="hidden" name="redirectTo" value={redirectTo || ''} />
+            <input
+              type="hidden"
+              name="redirectTo"
+              value={getCurrentRedirectTo()}
+            />
             <Button
               type="submit"
               disabled={isPending}

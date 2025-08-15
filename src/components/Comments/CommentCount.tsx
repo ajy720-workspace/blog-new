@@ -53,9 +53,17 @@ export default function CommentCount({
     )
   }
 
+  const scrollToComments = () => {
+    const commentsElement = document.getElementById('comments')
+    if (commentsElement) {
+      commentsElement.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   return (
-    <div
-      className={`flex items-center gap-2 text-muted-foreground ${className}`}
+    <button
+      onClick={scrollToComments}
+      className={`flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer ${className}`}
     >
       <MessageCircle className="w-4 h-4" />
       <span className="text-sm">
@@ -63,6 +71,6 @@ export default function CommentCount({
           ? 'No comments'
           : `${displayCount} comment${displayCount !== 1 ? 's' : ''}`}
       </span>
-    </div>
+    </button>
   )
 }
