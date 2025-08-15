@@ -8,8 +8,8 @@ import { Calendar, Tag } from 'lucide-react'
 
 import { CommentCount } from '@/components/Comments'
 import { HeroImage } from '@/components/HeroImage'
-import { LazyComments, LazySocialShare } from '@/components/LazyComponents'
-import { LikeButton } from '@/components/Likes'
+import { LazyComments } from '@/components/LazyComponents'
+import { PostActions } from '@/components/Post'
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { StructuredData } from '@/components/SEO/StructuredData'
 import { PostRenderer } from '@/components/post-renderer'
@@ -102,9 +102,6 @@ async function PostContent({ post }: { post: NotionPost }) {
               {/* 댓글 수는 클라이언트에서 로딩 */}
               <CommentCount notionPageId={post.id} />
 
-              {/* 좋아요 버튼 */}
-              <LikeButton notionPageId={post.id} showCount={true} />
-
               {post.tags.length > 0 && (
                 <div className="flex items-center gap-2">
                   <Tag className="w-4 h-4" />
@@ -123,17 +120,13 @@ async function PostContent({ post }: { post: NotionPost }) {
               )}
             </div>
 
-            <Suspense
-              fallback={
-                <div className="w-32 h-8 bg-muted rounded animate-pulse"></div>
-              }
-            >
-              <LazySocialShare
-                title={post.title}
-                url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'}/${post.url_path}`}
-                description={post.title}
-              />
-            </Suspense>
+            <PostActions
+              notionPageId={post.id}
+              title={post.title}
+              url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'}/${post.url_path}`}
+              description={post.title}
+              showLikeCount={true}
+            />
           </div>
           {post.coverImage && (
             <HeroImage
@@ -171,6 +164,22 @@ async function PostContent({ post }: { post: NotionPost }) {
             </div>
           </div>
         )}
+
+        {/* Post Actions at Bottom */}
+        <div className="mt-8 pt-6 border-t">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Enjoyed this post? Share it with others!
+            </div>
+            <PostActions
+              notionPageId={post.id}
+              title={post.title}
+              url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://blog.ajy720.me'}/${post.url_path}`}
+              description={post.title}
+              showLikeCount={true}
+            />
+          </div>
+        </div>
       </article>
     </>
   )
