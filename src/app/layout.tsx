@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 
+import { GoogleAnalytics } from '@/components/GoogleAnalytics'
+import { PageViewTracker } from '@/components/PageViewTracker'
 import { WebVitals } from '@/components/WebVitals'
 import { Footer } from '@/components/footer'
 import { Header } from '@/components/header'
@@ -96,6 +98,8 @@ export default function RootLayout({
         className={`${pretendard.variable} ${robotoMono.variable} font-pretendard antialiased`}
       >
         <ThemeProvider>
+          <GoogleAnalytics />
+          <PageViewTracker />
           <WebVitals />
           <div className="relative flex min-h-screen flex-col">
             <Header />
