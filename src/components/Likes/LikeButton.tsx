@@ -107,7 +107,7 @@ export function LikeButton({
         if (isAnonymous && result.isLiked) {
           setTimeout(() => {
             oauthModal.openModal({
-              trigger: 'general',
+              trigger: 'like',
               redirectTo: window.location.pathname,
             })
           }, 500) // Short delay to let user see the like animation

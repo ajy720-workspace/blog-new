@@ -106,11 +106,11 @@ export async function transferUserComments(
 ): Promise<{ success: boolean; transferredCount: number }> {
   try {
     // Get user info - Server Action is responsible for authentication checks
-    const { getUserProfile, isAnonymousUser } = await import(
-      '@/lib/supabase/auth'
+    const { getUserProfileServer, isAnonymousUserServer } = await import(
+      '@/lib/supabase/auth-server'
     )
-    const userProfile = await getUserProfile()
-    const isAnonymous = await isAnonymousUser()
+    const userProfile = await getUserProfileServer()
+    const isAnonymous = await isAnonymousUserServer()
 
     if (!userProfile || isAnonymous) {
       return { success: false, transferredCount: 0 }

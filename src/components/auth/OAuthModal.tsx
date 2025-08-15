@@ -17,7 +17,7 @@ import {
 interface OAuthModalProps {
   isOpen: boolean
   onClose: () => void
-  trigger?: 'comment' | 'general'
+  trigger?: 'comment' | 'like' | 'general'
   redirectTo?: string
 }
 
@@ -158,12 +158,12 @@ export function OAuthModal({
 export function useOAuthModal() {
   const [isOpen, setIsOpen] = useState(false)
   const [config, setConfig] = useState<{
-    trigger?: 'comment' | 'general'
+    trigger?: 'comment' | 'like' | 'general'
     redirectTo?: string
   }>({})
 
   const openModal = (options?: {
-    trigger?: 'comment' | 'general'
+    trigger?: 'comment' | 'like' | 'general'
     redirectTo?: string
   }) => {
     setConfig(options || {})
