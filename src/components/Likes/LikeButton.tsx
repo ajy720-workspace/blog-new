@@ -9,7 +9,6 @@ import { Heart } from 'lucide-react'
 import { getLikeCountAndUserStatus, toggleLike } from '@/app/actions/likes'
 import { OAuthModal, useOAuthModal } from '@/components/auth/OAuthModal'
 import { Button } from '@/components/ui/button'
-import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
   type UserProfile,
   getUserProfile,
@@ -25,6 +24,7 @@ export function LikeButton({
   initialIsLiked = false,
   className = '',
   showCount = true,
+  variant = 'ghost',
 }: LikeButtonProps) {
   const router = useRouter()
   const [likeCount, setLikeCount] = useState(initialLikeCount)
@@ -134,7 +134,7 @@ export function LikeButton({
   if (!isSessionReady) {
     return (
       <Button
-        variant="ghost"
+        variant={variant}
         size="sm"
         disabled={true}
         className={`flex items-center gap-2`}
@@ -148,11 +148,11 @@ export function LikeButton({
   return (
     <>
       <Button
-        variant="ghost"
+        variant={variant}
         size="sm"
         onClick={handleLikeClick}
         disabled={isLoading}
-        className={`flex items-center gap-2 transition-all duration-200 hover:scale-105 ${className}`}
+        className={`flex items-center gap-2 transition-all duration-200 ${className}`}
       >
         <Heart
           className={`w-5 h-5 transition-all duration-200 ${
@@ -170,7 +170,6 @@ export function LikeButton({
             {likeCount}
           </span>
         )}
-        {isLoading && <LoadingSpinner className="w-3 h-3 ml-1" />}
       </Button>
 
       {/* OAuth Modal */}

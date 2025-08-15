@@ -41,4 +41,5 @@ export interface LikeButtonProps {
   initialIsLiked?: boolean
   className?: string
   showCount?: boolean
+  variant?: 'ghost' | 'default' | 'outline'
 }
