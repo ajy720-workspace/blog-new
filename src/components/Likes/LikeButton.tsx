@@ -133,10 +133,15 @@ export function LikeButton({
 
   if (!isSessionReady) {
     return (
-      <div className={`flex items-center gap-2 ${className}`}>
-        <LoadingSpinner className="w-4 h-4" />
+      <Button
+        variant="ghost"
+        size="sm"
+        disabled={true}
+        className={`flex items-center gap-2`}
+      >
+        <Heart className="w-5 h-5 transition-all duration-200 text-muted-foreground hover:text-red-400 animate-pulse" />
         <span className="text-sm text-muted-foreground">Loading...</span>
-      </div>
+      </Button>
     )
   }
 
