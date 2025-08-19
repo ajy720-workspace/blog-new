@@ -12,6 +12,7 @@ import { LazyComments } from '@/components/LazyComponents'
 import { PostActions } from '@/components/Post'
 import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
 import { StructuredData } from '@/components/SEO/StructuredData'
+import { AdBanner } from '@/components/ads/AdBanner'
 import { PostRenderer } from '@/components/post-renderer'
 import { CommentSkeleton } from '@/components/ui/loading-states'
 import { seoConfig } from '@/config/seo.config'
@@ -258,6 +259,11 @@ export default async function PostPage(props: PostPageProps) {
     <main className="container mx-auto px-4 py-8">
       <PostContent post={post} />
 
+      {/* 게시글 하단 광고 배너 */}
+      <div className="max-w-4xl mx-auto">
+        <AdBanner position="post-bottom" />
+      </div>
+
       <section
         id="comments"
         className="max-w-4xl mx-auto mt-8 md:mt-12 lg:mt-16"
@@ -275,6 +281,9 @@ export default async function PostPage(props: PostPageProps) {
           <PostComments postId={post.id} />
         </Suspense>
       </section>
+
+      {/* 사이드 플로팅 광고 배너 */}
+      <AdBanner position="side-floating" />
     </main>
   )
 }
