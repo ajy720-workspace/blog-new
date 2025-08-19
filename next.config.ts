@@ -1,5 +1,7 @@
 import type { NextConfig } from 'next'
 
+const isDevelopment = process.env.NODE_ENV === 'development'
+
 const nextConfig: NextConfig = {
   turbopack: {
     rules: {
@@ -23,26 +25,30 @@ const nextConfig: NextConfig = {
   },
   output: 'standalone',
   async headers() {
+    const cspValue = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://github.com https://api.github.com https://www.googletagmanager.com https://t1.daumcdn.net http://t1.daumcdn.net",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: blob: https: http:",
+      "connect-src 'self' https://*.supabase.co https://api.github.com https://github.com https://www.google-analytics.com https://analytics.google.com https://display.ad.daum.net https://*.daumcdn.net",
+      "frame-src 'self' https://github.com https://*.daum.net https://*.daumcdn.net",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self' https://github.com",
+      "frame-ancestors 'none'",
+      'upgrade-insecure-requests',
+    ].join('; ')
+
     return [
       {
         source: '/(.*)',
         headers: [
           {
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://github.com https://api.github.com https://www.googletagmanager.com https://t1.daumcdn.net",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https: http:",
-              "connect-src 'self' https://*.supabase.co https://api.github.com https://github.com https://www.google-analytics.com https://analytics.google.com",
-              "frame-src 'self' https://github.com",
-              "object-src 'none'",
-              "base-uri 'self'",
-              "form-action 'self' https://github.com",
-              "frame-ancestors 'none'",
-              'upgrade-insecure-requests',
-            ].join('; '),
+            key: isDevelopment
+              ? 'Content-Security-Policy-Report-Only'
+              : 'Content-Security-Policy',
+            value: cspValue,
           },
           {
             key: 'X-Frame-Options',
