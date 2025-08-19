@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://github.com https://api.github.com https://www.googletagmanager.com",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://github.com https://api.github.com https://www.googletagmanager.com https://t1.daumcdn.net",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https: http:",
