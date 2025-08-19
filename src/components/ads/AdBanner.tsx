@@ -2,65 +2,50 @@
 
 import { useEffect, useState } from 'react'
 
-import { AdPosition, getAdUnitForDevice } from '@/lib/ads/adConfig'
+import { AdPosition, adConfigs } from '@/lib/ads/adConfig'
 
 import { AdScript } from './AdScript'
+import './ad-styles.css'
 
 interface AdBannerProps {
   position: AdPosition
   className?: string
 }
 
-function useDeviceType() {
-  const [deviceType, setDeviceType] = useState<'mobile' | 'desktop'>('desktop')
+export function AdBanner({ position, className = '' }: AdBannerProps) {
+  const [mounted, setMounted] = useState(false)
+  const config = adConfigs[position]
 
   useEffect(() => {
-    const checkDevice = () => {
-      const isMobile = window.innerWidth < 768
-      setDeviceType(isMobile ? 'mobile' : 'desktop')
-    }
-
-    checkDevice()
-    window.addEventListener('resize', checkDevice)
-    return () => window.removeEventListener('resize', checkDevice)
+    setMounted(true)
   }, [])
 
-  return deviceType
-}
-
-export function AdBanner({ position, className = '' }: AdBannerProps) {
-  const deviceType = useDeviceType()
-  const adUnit = getAdUnitForDevice(position, deviceType)
-
-  if (!adUnit) {
+  if (!mounted) {
     return null
   }
 
   const positionStyles = {
-    'post-bottom': 'mx-auto my-8 flex justify-center items-center',
+    'post-bottom': 'ad-banner-post-bottom mx-auto my-8',
     'side-floating':
-      'fixed left-4 top-1/2 -translate-y-1/2 z-10 hidden xl:block',
+      'ad-banner-side-floating fixed left-4 top-1/2 -translate-y-1/2 z-10',
   }
 
   return (
     <>
-      <div
-        className={`${positionStyles[position]} ${className}`}
-        style={{
-          // width: adUnit.width.toString() + 'px',
-          // height: adUnit.height.toString() + 'px',
-          backgroundColor: '',
-        }}
-      >
-        <ins
-          className="kakao_ad_area"
-          style={{ display: 'none' }}
-          data-ad-unit={adUnit.unit}
-          data-ad-width={adUnit.width.toString()}
-          data-ad-height={adUnit.height.toString()}
-        />
-        <AdScript />
+      <div className={`${positionStyles[position]} ${className}`}>
+        {config.units.map(unit => (
+          <ins
+            key={unit.unit}
+            className={`ad-${unit.device} kakao_ad_area`}
+            style={{ display: 'none' }}
+            data-ad-unit={unit.unit}
+            data-ad-width={unit.width.toString()}
+            data-ad-height={unit.height.toString()}
+            data-device-type={unit.device}
+          />
+        ))}
       </div>
+      <AdScript />
     </>
   )
 }
