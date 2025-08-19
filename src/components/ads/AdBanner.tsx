@@ -27,7 +27,7 @@ export function AdBanner({ position, className = '' }: AdBannerProps) {
   const positionStyles = {
     'post-bottom': 'ad-banner-post-bottom mx-auto my-8',
     'side-floating':
-      'ad-banner-side-floating fixed left-4 top-1/2 -translate-y-1/2 z-10',
+      'ad-banner-side-floating fixed top-1/2 -translate-y-1/2 z-10',
   }
 
   return (
