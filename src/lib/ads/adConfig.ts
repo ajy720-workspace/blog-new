@@ -36,7 +36,6 @@ export const adConfigs: Record<AdPosition, AdConfig> = {
     position: 'side-floating',
     units: [
       {
-        // unit: 'DAN-DAN-DaEYIjpHSolu6Tp2',
         unit: 'DAN-51IU9l6fsx2ULhVQ',
         width: 160,
         height: 600,

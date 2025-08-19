@@ -1,0 +1,39 @@
+/* AdFit 반응형 광고 스타일 */
+
+/* 기본: 데스크탑 광고 표시, 모바일 광고 숨김 */
+.ad-desktop {
+  display: block !important;
+}
+
+.ad-mobile {
+  display: none !important;
+}
+
+/* 모바일 뷰: 모바일 광고 표시, 데스크탑 광고 숨김 */
+@media (max-width: 767px) {
+  .ad-desktop {
+    display: none !important;
+  }
+
+  .ad-mobile {
+    display: block !important;
+  }
+}
+
+/* 사이드 플로팅 광고는 xl 이상에서만 표시 */
+.ad-banner-side-floating {
+  display: none !important;
+}
+
+@media (min-width: 1280px) {
+  .ad-banner-side-floating {
+    display: block !important;
+  }
+}
+
+/* post-bottom 광고는 항상 중앙 정렬 */
+.ad-banner-post-bottom {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+}

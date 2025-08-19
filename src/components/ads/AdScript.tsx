@@ -2,28 +2,44 @@
 
 import { useEffect } from 'react'
 
-import Script from 'next/script'
+let scriptLoaded = false
+let scriptLoading = false
 
 export function AdScript() {
-  // useEffect(() => {
-  //   const existingScript = document.querySelector(
-  //     'script[src="https//t1.daumcdn.net/kas/static/ba.min.js"]'
-  //   )
+  useEffect(() => {
+    if (scriptLoaded || scriptLoading) {
+      return
+    }
 
-  //   if (!existingScript) {
-  //     const script = document.createElement('script')
-  //     script.type = 'text/javascript'
-  //     script.src = 'https//t1.daumcdn.net/kas/static/ba.min.js'
-  //     script.async = true
-  //     document.body.appendChild(script)
-  //   }
-  // }, []) 
+    const timer = setTimeout(() => {
+      const existingScript = document.querySelector(
+        'script[src="//t1.daumcdn.net/kas/static/ba.min.js"]'
+      )
 
-  return (
-    <script
-      async
-      type="text/javascript" 
-      src="https://t1.daumcdn.net/kas/static/ba.min.js"
-    ></script>
-  )
+      if (!existingScript && !scriptLoading) {
+        scriptLoading = true
+        const script = document.createElement('script')
+        script.type = 'text/javascript'
+        script.src = '//t1.daumcdn.net/kas/static/ba.min.js'
+        script.async = true
+
+        script.onload = () => {
+          scriptLoaded = true
+          scriptLoading = false
+        }
+
+        script.onerror = () => {
+          scriptLoading = false
+        }
+
+        document.body.appendChild(script)
+      } else if (existingScript) {
+        scriptLoaded = true
+      }
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  return null
 }
