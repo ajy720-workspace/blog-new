@@ -34,7 +34,8 @@ import {
 } from '@/lib/core/seo'
 import { slugify } from '@/lib/utils/slug-utils'
 
-export const revalidate = 7200 // ISR: 2시간마다 재검증 (개별 포스트는 더 긴 간격)
+export const revalidate = 3600 // ISR: 1시간마다 재검증 (다른 페이지와 동일한 간격으로 조정)
+export const dynamicParams = true // 빌드 시 생성되지 않은 동적 경로 허용
 
 // 캐시된 textContent 가져오기 (generateMetadata와 PostContent에서 공유)
 const getCachedPageTextContent = cache(async (postId: string) => {
@@ -46,12 +47,14 @@ export async function generateStaticParams() {
   try {
     const { posts } = await getPostsWithMetadata()
 
+    console.log(`Generated static params for ${posts.length} posts`)
     return posts.map(post => ({
       slug: post.url_path,
     }))
   } catch (error) {
-    console.error('Error generating static params:', error)
-    return [] // 에러 시 빈 배열 반환 (동적 생성으로 폴백)
+    console.error('Error generating static params for posts:', error)
+    // 에러 시에도 빈 배열 반환하여 동적 생성 허용
+    return []
   }
 }
 
