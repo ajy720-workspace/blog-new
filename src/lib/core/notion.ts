@@ -1,5 +1,6 @@
 import { Client } from '@notionhq/client'
 import { NotionAPI } from 'notion-client'
+import { NotionCompatAPI } from 'notion-compat'
 
 import { slugify } from '../utils/slug-utils'
 
@@ -142,19 +143,94 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
 }
 
 export async function getPageContent(pageId: string) {
-  /* 
-  const response = await notion.blocks.children.list({
-    block_id: pageId,
-    }) 
-  */
+  console.log(`Fetching page content for ID: ${pageId}`)
+
+  // 1단계: notion-client의 비공식 API 시도 (빠르고 완전한 데이터)
   const api = new NotionAPI({
     activeUser: process.env.NOTION_ACTIVE_USER,
     authToken: process.env.NOTION_AUTH_TOKEN,
   })
 
-  const response = await api.getPage(pageId)
+  try {
+    const response = await api.getPage(pageId)
+    console.log(
+      `Successfully fetched page content with notion-client: ${pageId}`
+    )
+    return response
+  } catch (error) {
+    console.log(
+      `notion-client failed for ${pageId}, attempting fallback with notion-compat`
+    )
+    console.error('notion-client error:', error)
 
-  return response
+    // 2단계: notion-compat + 공식 API로 fallback (대용량 페이지 대응)
+    try {
+      const compatAPI = new NotionCompatAPI(notion)
+
+      // notion-compat로 recordMap 변환
+      const recordMap = await compatAPI.getPage(pageId)
+
+      console.log(
+        `Successfully fetched page content with notion-compat: ${pageId}`
+      )
+      return recordMap
+    } catch (compatError) {
+      console.error(`notion-compat also failed for ${pageId}:`, compatError)
+
+      // 3단계: 최후의 fallback - 빈 recordMap 반환
+      return {
+        block: {
+          [pageId]: {
+            value: {
+              id: pageId,
+              type: 'page',
+              properties: {},
+            },
+          },
+        },
+        notion: {
+          results: [],
+        },
+      }
+    }
+  }
+}
+
+// 재귀적으로 모든 블록을 가져오는 헬퍼 함수
+async function getAllBlocksRecursively(
+  blockId: string
+): Promise<Record<string, unknown>[]> {
+  const allBlocks: Record<string, unknown>[] = []
+  let cursor: string | undefined = undefined
+
+  do {
+    try {
+      const response = await notion.blocks.children.list({
+        block_id: blockId,
+        start_cursor: cursor,
+        page_size: 100,
+      })
+
+      allBlocks.push(...response.results)
+      cursor = response.next_cursor || undefined
+
+      // 하위 블록들도 재귀적으로 가져오기
+      for (const block of response.results) {
+        const blockData = block as Record<string, unknown>
+        if (blockData.has_children) {
+          const childBlocks = await getAllBlocksRecursively(
+            blockData.id as string
+          )
+          allBlocks.push(...childBlocks)
+        }
+      }
+    } catch (error) {
+      console.error(`Error fetching blocks for ${blockId}:`, error)
+      break
+    }
+  } while (cursor)
+
+  return allBlocks
 }
 
 interface RichText {
