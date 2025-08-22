@@ -26,14 +26,6 @@ const pretendard = localFont({
   fallback: ['var(--font-sans)'],
 })
 
-const robotoMono = localFont({
-  src: './fonts/RobotoMono-VariableFont_wght.ttf',
-  display: 'swap',
-  variable: '--font-roboto-mono',
-  weight: '100 700',
-  fallback: ['var(--font-mono)'],
-})
-
 export const metadata: Metadata = {
   title: {
     default: seoConfig.defaultTitle,
@@ -94,9 +86,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body
-        className={`${pretendard.variable} ${robotoMono.variable} font-pretendard antialiased`}
-      >
+      <body className={`${pretendard.variable} font-pretendard antialiased`}>
         <ThemeProvider>
           <GoogleAnalytics />
           <PageViewTracker />

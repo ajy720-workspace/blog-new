@@ -5,8 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-pretendard: var(--font-pretendard), var(--font-sans);
-  --font-roboto-mono: var(--font-roboto-mono), var(--font-sans);
+  --font-pretendard: var(--font-pretendard);
 }
 
 @theme inline {
@@ -129,7 +128,6 @@ body {
 .notion {
   background-color: inherit;
   font-family: var(--font-pretendard), var(--font-sans);
-  /* --font-roboto-mono: var(--font-roboto-mono), var(--font-sans); */
   @apply text-foreground;
 }
 
@@ -162,12 +160,12 @@ body {
 }
 
 .notion-inline-code {
-  font-family: var(--font-roboto-mono);
+  font-family: var(--font-mono);
 }
 
 .notion-code {
   border-radius: 0.5rem;
-  font-family: var(--font-roboto-mono);
+  font-family: var(--font-mono);
   @apply bg-muted text-muted-foreground;
 }
 
