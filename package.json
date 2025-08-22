@@ -39,6 +39,7 @@
     "notion-client": "6.11.0",
     "notion-compat": "^7.4.3",
     "notion-types": "^7.4.3",
+    "notion-utils": "^7.4.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-error-boundary": "^6.0.0",
