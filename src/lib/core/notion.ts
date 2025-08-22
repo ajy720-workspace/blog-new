@@ -196,43 +196,6 @@ export async function getPageContent(pageId: string) {
   }
 }
 
-// 재귀적으로 모든 블록을 가져오는 헬퍼 함수
-async function getAllBlocksRecursively(
-  blockId: string
-): Promise<Record<string, unknown>[]> {
-  const allBlocks: Record<string, unknown>[] = []
-  let cursor: string | undefined = undefined
-
-  do {
-    try {
-      const response = await notion.blocks.children.list({
-        block_id: blockId,
-        start_cursor: cursor,
-        page_size: 100,
-      })
-
-      allBlocks.push(...response.results)
-      cursor = response.next_cursor || undefined
-
-      // 하위 블록들도 재귀적으로 가져오기
-      for (const block of response.results) {
-        const blockData = block as Record<string, unknown>
-        if (blockData.has_children) {
-          const childBlocks = await getAllBlocksRecursively(
-            blockData.id as string
-          )
-          allBlocks.push(...childBlocks)
-        }
-      }
-    } catch (error) {
-      console.error(`Error fetching blocks for ${blockId}:`, error)
-      break
-    }
-  } while (cursor)
-
-  return allBlocks
-}
-
 interface RichText {
   plain_text?: string
 }

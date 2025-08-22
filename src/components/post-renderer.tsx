@@ -7,6 +7,7 @@ import { Equation } from 'react-notion-x/build/third-party/equation'
 import { Modal } from 'react-notion-x/build/third-party/modal'
 import { Pdf } from 'react-notion-x/build/third-party/pdf'
 
+import { TableOfContents } from '@/components/TOC'
 import { useTheme } from '@/contexts/theme-context'
 
 import './post-renderer.css'
@@ -26,22 +27,25 @@ export function PostRenderer({ blocks }: PostRendererProps) {
   }
 
   return (
-    <NotionRenderer
-      disableHeader={true}
-      fullPage={false}
-      showTableOfContents={false}
-      recordMap={blocks}
-      darkMode={theme === 'dark'}
-      previewImages={false}
-      isImageZoomable={true}
-      showCollectionViewDropdown={false}
-      components={{
-        Code,
-        Equation,
-        Modal,
-        Pdf,
-        Collection,
-      }}
-    />
+    <>
+      <NotionRenderer
+        disableHeader={true}
+        fullPage={false}
+        showTableOfContents={false}
+        recordMap={blocks}
+        darkMode={theme === 'dark'}
+        previewImages={false}
+        isImageZoomable={true}
+        showCollectionViewDropdown={false}
+        components={{
+          Code,
+          Equation,
+          Modal,
+          Pdf,
+          Collection,
+        }}
+      />
+      <TableOfContents recordMap={blocks} />
+    </>
   )
 }
