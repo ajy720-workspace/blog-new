@@ -19,9 +19,9 @@ function TOCListItem({ item, isActive, onClick }: TOCItemProps) {
       case 1:
         return 'pl-7'
       case 2:
-        return 'pl-11 opacity-80'
+        return 'pl-11 opacity-90'
       case 3:
-        return 'pl-16 opacity-70'
+        return 'pl-16 opacity-80'
       default:
         return 'pl-3'
     }
@@ -37,7 +37,7 @@ function TOCListItem({ item, isActive, onClick }: TOCItemProps) {
         'overflow-hidden text-ellipsis whitespace-nowrap',
         getIndentClass(),
         isActive
-          ? 'bg-primary/8 text-primary'
+          ? 'bg-primary/8 text-primary opacity-100'
           : 'text-muted-foreground/90 hover:bg-muted-foreground/4 hover:text-foreground'
       )}
       title={item.text}

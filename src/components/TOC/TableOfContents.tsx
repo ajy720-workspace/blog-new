@@ -46,24 +46,12 @@ export function TableOfContents({
       onMouseLeave={() => setIsExpanded(false)}
     >
       {/* Minimalist bars */}
-      <div
-        className={cn(
-          'notion-table-of-contents-bars',
-          'flex flex-col items-end gap-2 w-fit h-fit pointer-events-auto',
-          'transition-opacity duration-200 ease-out',
-
-          isExpanded ? 'opacity-0' : 'opacity-100'
-        )}
-      >
-        {tocItems.map(item => (
-          <TOCBar
-            key={item.id}
-            item={item}
-            isActive={activeId === item.id}
-            onClick={handleItemClick}
-          />
-        ))}
-      </div>
+      <TOCBar
+        items={tocItems}
+        activeId={activeId}
+        onItemClick={handleItemClick}
+        isExpanded={isExpanded}
+      />
 
       {/* Expanded list */}
       <TOCList
