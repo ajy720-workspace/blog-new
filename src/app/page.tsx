@@ -2,14 +2,14 @@ import { Suspense } from 'react'
 
 import Link from 'next/link'
 
-import { LazyTagCloud } from '@/components/LazyComponents'
-import { FadeIn } from '@/components/animations/FadeIn'
-import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
+import { FadeIn } from '@/components/animations'
+import { LazyTagCloud } from '@/components/common'
+import { PostCard } from '@/components/common'
 import {
   DEFAULT_PERSONAL_INFO,
+  OptimizedPostGrid,
   PersonalInfoSection,
-} from '@/components/personal-info'
-import { PostCard } from '@/components/shared/PostCard'
+} from '@/components/layout'
 import {
   PostCardSkeleton,
   TagCloudSkeleton,

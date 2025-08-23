@@ -1,4 +1,4 @@
-import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
+import { BreadcrumbNav } from '@/components/seo'
 import { PostCardSkeleton } from '@/components/ui/loading-states'
 
 export default function PostsLoading() {

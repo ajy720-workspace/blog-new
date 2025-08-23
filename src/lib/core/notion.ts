@@ -143,7 +143,7 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
 }
 
 export async function getPageContent(pageId: string) {
-  console.log(`Fetching page content for ID: ${pageId}`)
+  // console.log(`Fetching page content for ID: ${pageId}`)
 
   // 1단계: notion-client의 비공식 API 시도 (빠르고 완전한 데이터)
   const api = new NotionAPI({
@@ -153,14 +153,14 @@ export async function getPageContent(pageId: string) {
 
   try {
     const response = await api.getPage(pageId)
-    console.log(
-      `Successfully fetched page content with notion-client: ${pageId}`
-    )
+    // console.log(
+    //   `Successfully fetched page content with notion-client: ${pageId}`
+    // )
     return response
   } catch (error) {
-    console.log(
-      `notion-client failed for ${pageId}, attempting fallback with notion-compat`
-    )
+    // console.log(
+    //   `notion-client failed for ${pageId}, attempting fallback with notion-compat`
+    // )
     console.error('notion-client error:', error)
 
     // 2단계: notion-compat + 공식 API로 fallback (대용량 페이지 대응)
@@ -170,9 +170,9 @@ export async function getPageContent(pageId: string) {
       // notion-compat로 recordMap 변환
       const recordMap = await compatAPI.getPage(pageId)
 
-      console.log(
-        `Successfully fetched page content with notion-compat: ${pageId}`
-      )
+      // console.log(
+      //   `Successfully fetched page content with notion-compat: ${pageId}`
+      // )
       return recordMap
     } catch (compatError) {
       console.error(`notion-compat also failed for ${pageId}:`, compatError)

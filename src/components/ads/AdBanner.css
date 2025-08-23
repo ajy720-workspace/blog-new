@@ -1,0 +1,21 @@
+/* AdFit 반응형 광고 스타일 */
+
+/* 기본: 데스크탑 광고 표시, 모바일 광고 숨김 */
+.ad-desktop {
+  display: block !important;
+}
+
+.ad-mobile {
+  display: none !important;
+}
+
+/* 모바일 뷰: 모바일 광고 표시, 데스크탑 광고 숨김 */
+@media (max-width: 767px) {
+  .ad-desktop {
+    display: none !important;
+  }
+
+  .ad-mobile {
+    display: block !important;
+  }
+}

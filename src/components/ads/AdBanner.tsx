@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 
-import { AdPosition, adConfigs } from '@/lib/ads/adConfig'
+import { AdPosition, adConfigs } from '@/lib/ads/ad-config'
 
 import { AdScript } from './AdScript'
-import './ad-styles.css'
+import './AdBanner.css'
 
 interface AdBannerProps {
   position: AdPosition
@@ -25,9 +25,9 @@ export function AdBanner({ position, className = '' }: AdBannerProps) {
   }
 
   const positionStyles = {
-    'post-bottom': 'ad-banner-post-bottom mx-auto my-8',
+    'post-bottom': 'flex justify-center items-center mx-auto my-8',
     'side-floating':
-      'ad-banner-side-floating fixed top-1/2 -translate-y-1/2 z-10',
+      'hidden xl:block fixed top-1/2 -translate-y-1/2 z-10 xl:left-[calc((100vw-896px)/2-160px-2rem)] 2xl:left-[calc((100vw-896px)/2-160px-3rem)]',
   }
 
   return (

@@ -4,7 +4,7 @@ import { Monitor, Moon, Sun } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { FadeInMotion } from '@/components/ui/motion'
-import { useTheme } from '@/contexts/theme-context'
+import { useTheme } from '@/contexts/ThemeContext'
 import type { Theme } from '@/types/theme'
 
 const themeIcons = {
