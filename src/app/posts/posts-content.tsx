@@ -7,8 +7,9 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { FadeIn } from '@/components/animations'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
 import { SearchInterface } from '@/components/search'
-import { CategoryWithCount, NotionPost, TagWithCount } from '@/lib/core/notion'
+import { CategoryWithCount, TagWithCount } from '@/lib/core/notion'
 import { ViewMode } from '@/lib/utils/search-utils'
+import { NotionPost } from '@/types/notion'
 
 interface PostWithExcerpt extends NotionPost {
   excerpt: string

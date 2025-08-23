@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react'
 
-import { CategoryWithCount, NotionPost, TagWithCount } from '@/lib/core/notion'
+import { CategoryWithCount, TagWithCount } from '@/lib/core/notion'
 import { cn } from '@/lib/utils'
 import {
   SearchState,
@@ -12,6 +12,7 @@ import {
   debounce,
   defaultSearchState,
 } from '@/lib/utils/search-utils'
+import { NotionPost } from '@/types/notion'
 
 import { ActiveFilters } from './ActiveFilters'
 import { FilterControls } from './FilterControls'

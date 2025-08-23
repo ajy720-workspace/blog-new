@@ -1,4 +1,4 @@
-import { NotionPost } from '@/lib/core/notion'
+import { NotionPost } from '@/types/notion'
 
 export type SortOption = 'newest' | 'oldest' | 'title-asc' | 'title-desc'
 export type ViewMode = 'grid' | 'list' | 'compact'
