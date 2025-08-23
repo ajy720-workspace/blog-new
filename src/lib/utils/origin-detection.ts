@@ -1,4 +1,4 @@
-import { securityConfig } from '@/config/security.config'
+import { securityConfig } from '@/config'
 
 interface OriginDetectionOptions {
   allowedHosts?: string[]

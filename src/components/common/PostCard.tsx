@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 import { ArrowRight, BookOpen, Calendar } from 'lucide-react'
 
-import { HeroImage } from '@/components/HeroImage'
+import { HeroImage } from '@/components/common'
 import {
   getCardVariantClasses,
   getColorfulTagClass,
