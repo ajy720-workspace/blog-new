@@ -30,7 +30,7 @@ export function useTOC({ recordMap }: UseTOCProps) {
 
       const pageBlock = pageBlocks[0]
       const toc = getPageTableOfContents(pageBlock, recordMap)
-
+      console.log(toc)
       return toc.map((item, index) => {
         // Use the same ID format as react-notion-x
         const headingId = item.id
