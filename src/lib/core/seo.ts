@@ -1,5 +1,4 @@
-import { seoConfig } from '@/config/seo.config'
-import { siteConfig } from '@/config/site.config'
+import { seoConfig, siteConfig } from '@/config'
 
 import { NotionPost } from './notion'
 

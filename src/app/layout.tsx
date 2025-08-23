@@ -1,15 +1,14 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 
-import { GoogleAnalytics } from '@/components/GoogleAnalytics'
-import { PageViewTracker } from '@/components/PageViewTracker'
-import { WebVitals } from '@/components/WebVitals'
-import { Footer } from '@/components/footer'
-import { Header } from '@/components/header'
-import { ThemeProvider } from '@/components/theme-provider'
+import { GoogleAnalytics } from '@/components/analytics'
+import { PageViewTracker } from '@/components/analytics'
+import { WebVitals } from '@/components/analytics'
+import { Footer } from '@/components/layout'
+import { Header } from '@/components/layout'
+import { ThemeProvider } from '@/components/theme'
 import { BackToTop } from '@/components/ui/back-to-top'
-import { seoConfig } from '@/config/seo.config'
-import { siteConfig } from '@/config/site.config'
+import { seoConfig, siteConfig } from '@/config'
 import {
   generateOrganizationSchema,
   generateWebSiteSchema,

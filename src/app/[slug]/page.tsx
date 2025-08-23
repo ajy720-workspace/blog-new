@@ -6,15 +6,13 @@ import { notFound } from 'next/navigation'
 
 import { Calendar, Tag } from 'lucide-react'
 
-import { HeroImage } from '@/components/HeroImage'
-import { LazyComments } from '@/components/LazyComponents'
 import { AdBanner } from '@/components/ads/AdBanner'
 import { CommentCount } from '@/components/comments'
+import { HeroImage, LazyComments } from '@/components/common'
 import { PostActions, PostRenderer } from '@/components/post'
 import { BreadcrumbNav, StructuredData } from '@/components/seo'
 import { CommentSkeleton } from '@/components/ui/loading-states'
-import { seoConfig } from '@/config/seo.config'
-import { siteConfig } from '@/config/site.config'
+import { seoConfig, siteConfig } from '@/config'
 import { LikeProvider } from '@/contexts/LikeContext'
 import {
   NotionPost,

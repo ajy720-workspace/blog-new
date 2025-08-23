@@ -48,6 +48,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `src/types/` - TypeScript type definitions
 - `supabase/migrations/` - Database schema migrations
 
+### Component Structure
+```
+src/components/
+├── ads/          # Ad components (Tailwind CSS)
+├── analytics/    # Tracking (GA, WebVitals)
+├── common/       # Shared utilities (HeroImage, PostCard)
+├── layout/       # Structure (Header, Footer, Breadcrumbs)
+├── theme/        # Theme provider & toggle
+├── post/         # Post rendering & TOC
+├── comments/     # Comment system
+├── likes/        # Like functionality
+├── seo/          # SEO components
+├── search/       # Search interface
+└── ui/           # shadcn/ui components
+```
+
+**Naming Rules**
+- **Folders**: `lowercase` / `kebab-case`
+- **Business Components**: `PascalCase.tsx` (PostRenderer, CommentForm)
+- **UI Components**: `kebab-case.tsx` (button, dropdown-menu)
+
+**Import Pattern (Recommended)**
+```typescript
+// Use folder index imports
+import { Header, Footer } from '@/components/layout'
+import { HeroImage, PostCard } from '@/components/common'
+import { ThemeProvider, ThemeToggle } from '@/components/theme'
+
+// Each folder has index.ts for barrel exports
+```
+
+**Styling**
+- **Tailwind CSS**: Utility classes instead of separate CSS files
+- **Responsive**: Built-in with Tailwind (`max-md:`, `xl:`)
+
 ### Database Integration
 
 **Supabase Setup:**
@@ -89,12 +124,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Explicit types for functions, props, and API responses
 - Handle null/undefined values and union types properly
 - Follow ESLint rules including @typescript-eslint and react-hooks
-
-**Development Files:**
-
-- `BACKLOG.md` - Active tasks and feature backlog (read this for current priorities)
-- `CHANGELOG.md` - Completed work history (for reference only)
-- This file tracks overall architecture and conventions
 
 
 ## Token Efficiency Guidelines

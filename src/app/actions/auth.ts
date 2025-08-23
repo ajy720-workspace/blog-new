@@ -3,8 +3,7 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-import { securityConfig } from '@/config/security.config'
-import { siteConfig } from '@/config/site.config'
+import { securityConfig, siteConfig } from '@/config'
 import { createClient } from '@/lib/supabase/server'
 import { getPublicOrigin } from '@/lib/utils/origin-detection'
 

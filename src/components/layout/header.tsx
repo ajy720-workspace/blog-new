@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { ThemeToggle } from './theme-toggle'
+import { ThemeToggle } from '@/components/theme'
 
 export function Header() {
   return (

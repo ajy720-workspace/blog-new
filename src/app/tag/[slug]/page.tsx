@@ -6,10 +6,10 @@ import { notFound } from 'next/navigation'
 
 import { Calendar, Tag } from 'lucide-react'
 
-import { PostCardWithHero } from '@/components/PostCardWithHero'
+import { PostCardWithHero } from '@/components/common'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
 import { BreadcrumbNav } from '@/components/seo'
-import { PostCard } from '@/components/shared/PostCard'
+import { PostCard } from '@/components/common'
 import {
   PageHeaderSkeleton,
   PostGridSkeleton,

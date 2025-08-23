@@ -4,7 +4,7 @@ import {
   StaggeredGrid,
   StaggeredList,
 } from '@/components/animations/StaggeredList'
-import { PostCard } from '@/components/shared/PostCard'
+import { PostCard } from '@/components/common'
 import { EmptyState, PostCardSkeleton } from '@/components/ui/loading-states'
 import { cn } from '@/lib/utils'
 import { NotionPost } from '@/types/notion'
