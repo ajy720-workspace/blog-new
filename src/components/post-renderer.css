@@ -247,3 +247,7 @@ pre[class*='language-'] > code[class*='language-'] {
   box-shadow: inset 5px 0 0 #f7d87c;
   z-index: 0;
 }
+
+.notion-header-anchor {
+  top: -80px;
+}
