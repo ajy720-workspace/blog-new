@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { securityConfig } from '@/config/security.config'
+import { securityConfig } from '@/config'
 import { logSecurityEvent } from '@/lib/utils/error-handler'
 
 import {

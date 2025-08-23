@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 import { ChevronRight, Folder, Grid, MoreHorizontal } from 'lucide-react'
 
-import { FadeIn } from '@/components/animations/FadeIn'
+import { FadeIn } from '@/components/animations'
 import { Button } from '@/components/ui/button'
 import { CategoryWithCount } from '@/lib/core/notion'
 import { cn } from '@/lib/utils'

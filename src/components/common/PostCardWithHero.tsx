@@ -157,34 +157,3 @@ export function PostCardWithHero({
     </article>
   )
 }
-
-// Grid layout variant for hero cards
-export function PostCardGrid({
-  posts,
-  excerpts = {},
-  className = '',
-}: {
-  posts: NotionPost[]
-  excerpts?: Record<string, string>
-  className?: string
-}) {
-  return (
-    <div
-      className={cn(
-        'grid gap-6 md:gap-8',
-        'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-        className
-      )}
-    >
-      {posts.map((post, index) => (
-        <PostCardWithHero
-          key={post.id}
-          post={post}
-          excerpt={excerpts[post.id]}
-          variant={index === 0 ? 'featured' : 'default'}
-          className={index === 0 ? 'md:col-span-2 lg:col-span-3' : ''}
-        />
-      ))}
-    </div>
-  )
-}

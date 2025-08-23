@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 
-import { ThemeContext } from '@/contexts/theme-context'
+import { ThemeContext } from '@/contexts/ThemeContext'
 import type { Theme, ThemeProviderProps } from '@/types/theme'
 
 const THEME_STORAGE_KEY = 'project-theme'

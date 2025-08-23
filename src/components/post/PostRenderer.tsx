@@ -7,10 +7,10 @@ import { Equation } from 'react-notion-x/build/third-party/equation'
 import { Modal } from 'react-notion-x/build/third-party/modal'
 import { Pdf } from 'react-notion-x/build/third-party/pdf'
 
-import { TableOfContents } from '@/components/TOC'
-import { useTheme } from '@/contexts/theme-context'
+import { TableOfContents } from '@/components/post/TOC'
+import { useTheme } from '@/contexts/ThemeContext'
 
-import './post-renderer.css'
+import './PostRenderer.css'
 
 interface PostRendererProps {
   // eslint-disable-next-line

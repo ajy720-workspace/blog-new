@@ -6,17 +6,13 @@ import { notFound } from 'next/navigation'
 
 import { Calendar, Tag } from 'lucide-react'
 
-import { CommentCount } from '@/components/Comments'
-import { HeroImage } from '@/components/HeroImage'
-import { LazyComments } from '@/components/LazyComponents'
-import { PostActions } from '@/components/Post'
-import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
-import { StructuredData } from '@/components/SEO/StructuredData'
 import { AdBanner } from '@/components/ads/AdBanner'
-import { PostRenderer } from '@/components/post-renderer'
+import { CommentCount } from '@/components/comments'
+import { HeroImage, LazyComments } from '@/components/common'
+import { PostActions, PostRenderer } from '@/components/post'
+import { BreadcrumbNav, StructuredData } from '@/components/seo'
 import { CommentSkeleton } from '@/components/ui/loading-states'
-import { seoConfig } from '@/config/seo.config'
-import { siteConfig } from '@/config/site.config'
+import { seoConfig, siteConfig } from '@/config'
 import { LikeProvider } from '@/contexts/LikeContext'
 import {
   NotionPost,

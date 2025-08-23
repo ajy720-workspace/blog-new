@@ -9,7 +9,7 @@ import {
   Twitter,
 } from 'lucide-react'
 
-import { siteConfig } from '@/config/site.config'
+import { siteConfig } from '@/config'
 import { PersonalInfo } from '@/types/notion'
 
 const SOCIAL_ICONS = {

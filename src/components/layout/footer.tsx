@@ -1,6 +1,6 @@
 import { Github, Instagram, Mail } from 'lucide-react'
 
-import { siteConfig } from '@/config/site.config'
+import { siteConfig } from '@/config'
 
 export function Footer() {
   const currentYear = new Date().getFullYear()

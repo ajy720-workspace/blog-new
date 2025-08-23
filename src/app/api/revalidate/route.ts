@@ -47,13 +47,6 @@ export async function POST(request: NextRequest) {
 
       case 'all':
         // 모든 주요 페이지 재검증
-        // const allPaths = ['/', '/posts', '/tags', '/categories']
-
-        // for (const path of allPaths) {
-        //   revalidatePath(path)
-        //   console.log(`Revalidated path: ${path}`)
-        // }
-
         revalidatePath('/', 'layout')
         console.log(`Revalidated Whole path`)
 

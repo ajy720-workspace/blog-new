@@ -13,7 +13,7 @@
     "<THIRD_PARTY_MODULES>",
     "^@/(.*)$",
     "^@/lib/(.*)$",
-    "^@/config/(.*)$",
+    "^@/config",
     "^[./]"
   ],
   "importOrderSeparation": true,
