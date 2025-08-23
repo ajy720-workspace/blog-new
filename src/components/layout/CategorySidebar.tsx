@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 import { ChevronRight, Folder, Grid, MoreHorizontal } from 'lucide-react'
 
@@ -22,13 +23,19 @@ interface CategorySidebarProps {
 
 export function CategorySidebar({
   categories,
-  currentCategory,
+  currentCategory: propCurrentCategory,
   className = '',
   compact = false,
   showCounts = true,
   maxVisible = 8,
 }: CategorySidebarProps) {
   const [showAll, setShowAll] = useState(false)
+  const pathname = usePathname()
+
+  // Use prop if provided, otherwise derive from pathname
+  const currentCategory =
+    propCurrentCategory ||
+    (pathname.startsWith('/category/') ? pathname.split('/')[2] : undefined)
 
   const visibleCategories = showAll
     ? categories
@@ -72,7 +79,7 @@ export function CategorySidebar({
                 'group flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all duration-200',
                 'hover:bg-secondary/80 hover:translate-x-1',
                 isActive
-                  ? 'bg-primary/10 text-primary border-l-2 border-primary font-medium'
+                  ? 'bg-primary/10 text-primary border-l-2 border-muted-foreground font-medium'
                   : 'text-muted-foreground hover:text-foreground',
                 compact ? 'py-1.5 px-2 text-xs' : ''
               )}
