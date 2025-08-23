@@ -3,7 +3,7 @@
 import { Suspense } from 'react'
 
 import { SyncedLikeButton } from '@/components/Likes'
-import { SocialShare } from '@/components/SEO/SocialShare'
+import { SocialShare } from '@/components/SEO'
 
 interface PostActionsProps {
   notionPageId: string

@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 
 import { LazyTagCloud } from '@/components/LazyComponents'
-import { FadeIn } from '@/components/animations/FadeIn'
+import { FadeIn } from '@/components/animations'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
 import {
   DEFAULT_PERSONAL_INFO,

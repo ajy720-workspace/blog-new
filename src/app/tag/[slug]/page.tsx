@@ -7,9 +7,9 @@ import { notFound } from 'next/navigation'
 import { Calendar, Tag } from 'lucide-react'
 
 import { PostCardWithHero } from '@/components/PostCardWithHero'
-import { BreadcrumbNav } from '@/components/SEO/BreadcrumbNav'
+import { BreadcrumbNav } from '@/components/SEO'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
-import { PostCard } from '@/components/post-card'
+import { PostCard } from '@/components/shared/PostCard'
 import {
   PageHeaderSkeleton,
   PostGridSkeleton,

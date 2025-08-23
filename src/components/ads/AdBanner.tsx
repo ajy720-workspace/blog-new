@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-import { AdPosition, adConfigs } from '@/lib/ads/adConfig'
+import { AdPosition, adConfigs } from '@/lib/ads/ad-config'
 
 import { AdScript } from './AdScript'
 import './ad-styles.css'
