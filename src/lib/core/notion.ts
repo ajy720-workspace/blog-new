@@ -2,22 +2,13 @@ import { Client } from '@notionhq/client'
 import { NotionAPI } from 'notion-client'
 import { NotionCompatAPI } from 'notion-compat'
 
+import { NotionPost } from '@/types/notion'
+
 import { slugify } from '../utils/slug-utils'
 
 export const notion = new Client({
   auth: process.env.NOTION_API_KEY,
 })
-
-export interface NotionPost {
-  id: string
-  title: string
-  url_path: string
-  created_time: string
-  tags: string[]
-  published: boolean
-  coverImage?: string
-  category?: string
-}
 
 // Utility function to parse Notion page data into NotionPost format
 function parseNotionPage(pageData: Record<string, unknown>): NotionPost {
