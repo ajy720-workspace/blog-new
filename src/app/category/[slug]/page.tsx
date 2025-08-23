@@ -9,7 +9,7 @@ import { Calendar, Folder } from 'lucide-react'
 import { PostCardWithHero } from '@/components/common'
 import { PostCard } from '@/components/common'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
-import { BreadcrumbNav } from '@/components/seo'
+import { CategoryBreadcrumbs } from '@/components/seo/BreadcrumbNav'
 import {
   PageHeaderSkeleton,
   PostGridSkeleton,
@@ -102,14 +102,7 @@ async function CategoryHeader({ slug }: { slug: string }) {
 
   return (
     <div className="mb-12">
-      <BreadcrumbNav
-        items={[
-          { name: 'Home', url: '/' },
-          { name: 'Categories', url: '/categories' },
-          { name: category.name, url: `/category/${category.slug}` },
-        ]}
-        className="mb-6"
-      />
+      <CategoryBreadcrumbs categoryName={category.name} className="mb-6" />
 
       <div className="flex items-center gap-4 mb-4">
         <div className="p-3 bg-primary/10 rounded-full">

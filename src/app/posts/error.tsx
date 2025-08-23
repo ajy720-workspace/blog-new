@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react'
 
-import { BreadcrumbNav } from '@/components/seo'
+import { AllPostBreadcrumbs } from '@/components/seo/BreadcrumbNav'
 import { Button } from '@/components/ui/button'
 
 interface ErrorProps {
@@ -20,15 +20,10 @@ export default function PostsError({ error, reset }: ErrorProps) {
     console.error('Posts page error:', error)
   }, [error])
 
-  const breadcrumbItems = [
-    { name: 'Home', url: '/' },
-    { name: 'All Posts', url: '/posts' },
-  ]
-
   return (
     <main className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Breadcrumb Navigation */}
-      <BreadcrumbNav items={breadcrumbItems} className="mb-6" />
+      <AllPostBreadcrumbs className="mb-6" />
 
       {/* Page Header */}
       <header className="mb-8 text-center">

@@ -3,7 +3,9 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 
 import { FadeIn } from '@/components/animations'
-import { BreadcrumbNav } from '@/components/seo'
+import {
+  AllPostBreadcrumbs,
+} from '@/components/seo/BreadcrumbNav'
 import { PostCardSkeleton } from '@/components/ui/loading-states'
 import { generateExcerpt, getPostsWithMetadata } from '@/lib/core/notion'
 
@@ -92,16 +94,10 @@ function PostsPageSkeleton() {
 }
 
 export default function PostsPage() {
-  const breadcrumbItems = [
-    { name: 'Home', url: '/' },
-    { name: 'All Posts', url: '/posts' },
-  ]
-
   return (
     <main className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Breadcrumb Navigation */}
-      <BreadcrumbNav items={breadcrumbItems} className="mb-6" />
-
+      <AllPostBreadcrumbs className="mb-6" />
       {/* Page Header */}
       <FadeIn>
         <header className="mb-8 text-center">

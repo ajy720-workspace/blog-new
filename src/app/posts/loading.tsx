@@ -1,17 +1,11 @@
-import { BreadcrumbNav } from '@/components/seo'
+import { AllPostBreadcrumbs } from '@/components/seo/BreadcrumbNav'
 import { PostCardSkeleton } from '@/components/ui/loading-states'
 
 export default function PostsLoading() {
-  const breadcrumbItems = [
-    { name: 'Home', url: '/' },
-    { name: 'All Posts', url: '/posts' },
-  ]
-
   return (
     <main className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Breadcrumb Navigation */}
-      <BreadcrumbNav items={breadcrumbItems} className="mb-6" />
-
+      <AllPostBreadcrumbs className="mb-6" />
       {/* Page Header */}
       <header className="mb-8 text-center">
         <h1 className="text-4xl font-bold mb-4">All Posts</h1>

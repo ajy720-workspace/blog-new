@@ -9,7 +9,7 @@ import { Calendar, Tag } from 'lucide-react'
 import { PostCardWithHero } from '@/components/common'
 import { PostCard } from '@/components/common'
 import { OptimizedPostGrid } from '@/components/layout/OptimizedPostGrid'
-import { BreadcrumbNav } from '@/components/seo'
+import { TagBreadcrumbs } from '@/components/seo/BreadcrumbNav'
 import {
   PageHeaderSkeleton,
   PostGridSkeleton,
@@ -102,14 +102,7 @@ async function TagHeader({ slug }: { slug: string }) {
 
   return (
     <div className="mb-12">
-      <BreadcrumbNav
-        items={[
-          { name: 'Home', url: '/' },
-          { name: 'Tags', url: '/tags' },
-          { name: `#${tag.name}`, url: `/tag/${tag.slug}` },
-        ]}
-        className="mb-6"
-      />
+      <TagBreadcrumbs tagName={tag.name} className="mb-6" />
 
       <div className="flex items-center gap-4 mb-4">
         <div className="p-3 bg-primary/10 rounded-full">
