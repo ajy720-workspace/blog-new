@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react'
 
-import { BreadcrumbNav } from '@/components/SEO'
+import { BreadcrumbNav } from '@/components/seo'
 import { Button } from '@/components/ui/button'
 
 interface ErrorProps {
