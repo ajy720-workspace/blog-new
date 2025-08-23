@@ -10,7 +10,8 @@ import { AdBanner } from '@/components/ads/AdBanner'
 import { CommentCount } from '@/components/comments'
 import { HeroImage, LazyComments } from '@/components/common'
 import { PostActions, PostRenderer } from '@/components/post'
-import { BreadcrumbNav, StructuredData } from '@/components/seo'
+import { StructuredData } from '@/components/seo'
+import { PostBreadcrumbs } from '@/components/seo/BreadcrumbNav'
 import { CommentSkeleton } from '@/components/ui/loading-states'
 import { seoConfig, siteConfig } from '@/config'
 import { LikeProvider } from '@/contexts/LikeContext'
@@ -77,10 +78,15 @@ async function PostContent({ post }: { post: NotionPost }) {
 
   // 캐시된 textContent를 사용하여 완전한 Structured Data 생성
   const postSchema = generatePostSchema(post, textContent)
-  const breadcrumbItems = [
-    { name: 'Home', url: '/' },
-    { name: post.title, url: `/${post.url_path}` },
-  ]
+
+  const breadcrumbItems = [{ name: 'Home', url: '/' }]
+  if (post.category) {
+    breadcrumbItems.push({
+      name: post.category,
+      url: `/category/${slugify(post.category)}`,
+    })
+  }
+  breadcrumbItems.push({ name: post.title, url: `/${post.url_path}` })
 
   return (
     <>
@@ -88,7 +94,7 @@ async function PostContent({ post }: { post: NotionPost }) {
       <LikeProvider notionPageId={post.id}>
         <article className="max-w-4xl mx-auto">
           <header className="mb-8 pb-8 border-b">
-            <BreadcrumbNav items={breadcrumbItems} className="mb-6" />
+            <PostBreadcrumbs post={post} className="mb-6" />
 
             <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
               {post.title}
