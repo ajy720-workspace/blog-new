@@ -3,28 +3,21 @@
 import { useCallback } from 'react'
 
 interface UseScrollToProps {
-  offset?: number
   behavior?: ScrollBehavior
 }
 
-export function useScrollTo({
-  offset = 80,
-  behavior = 'smooth',
-}: UseScrollToProps = {}) {
+export function useScrollTo({ behavior = 'smooth' }: UseScrollToProps = {}) {
   const scrollToElement = useCallback(
     (elementId: string) => {
       const element = document.getElementById(elementId)
-      if (!element) return
+      if (!element) {
+        console.warn(`Element with ID "${elementId}" not found`)
+        return
+      }
 
-      const elementPosition = element.offsetTop
-      const offsetPosition = elementPosition - offset
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior,
-      })
+      element.scrollIntoView({ behavior })
     },
-    [offset, behavior]
+    [behavior]
   )
 
   const scrollToTop = useCallback(() => {

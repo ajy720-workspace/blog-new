@@ -26,7 +26,7 @@ export function TableOfContents({
   const activeId = useActiveSection({
     headingIds: tocItems.map(item => item.id),
   })
-  const { scrollToElement } = useScrollTo({ offset: 80 })
+  const { scrollToElement } = useScrollTo()
 
   const handleItemClick = (id: string) => {
     scrollToElement(id)
@@ -37,7 +37,11 @@ export function TableOfContents({
 
   return (
     <div
-      className={cn('notion-table-of-contents', className)}
+      className={cn(
+        'fixed right-5 top-1/2 -translate-y-1/2 z-50 pointer-events-none',
+        'hidden lg:block',
+        className
+      )}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
     >
@@ -45,6 +49,9 @@ export function TableOfContents({
       <div
         className={cn(
           'notion-table-of-contents-bars',
+          'flex flex-col items-end gap-2 w-fit h-fit pointer-events-auto',
+          'transition-opacity duration-200 ease-out',
+
           isExpanded ? 'opacity-0' : 'opacity-100'
         )}
       >
@@ -59,12 +66,11 @@ export function TableOfContents({
       </div>
 
       {/* Expanded list */}
-
       <TOCList
         items={tocItems}
         activeId={activeId}
         onItemClick={handleItemClick}
-        className={isExpanded ? 'block' : 'hidden'}
+        isExpanded={isExpanded}
       />
     </div>
   )
