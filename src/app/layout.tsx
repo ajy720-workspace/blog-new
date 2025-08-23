@@ -6,6 +6,7 @@ import { PageViewTracker } from '@/components/analytics'
 import { WebVitals } from '@/components/analytics'
 import { Footer } from '@/components/layout'
 import { Header } from '@/components/layout'
+import { AsyncCategorySidebar } from '@/components/layout'
 import { ThemeProvider } from '@/components/theme'
 import { BackToTop } from '@/components/ui/back-to-top'
 import { seoConfig, siteConfig } from '@/config'
@@ -92,7 +93,14 @@ export default function RootLayout({
           <WebVitals />
           <div className="relative flex min-h-screen flex-col">
             <Header />
-            <main className="flex-1">{children}</main>
+            <div className="flex flex-1">
+              <aside className="hidden lg:block w-64 shrink-0 border-r border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <div className="sticky top-20 p-6">
+                  <AsyncCategorySidebar />
+                </div>
+              </aside>
+              <main className="flex-1 min-w-0">{children}</main>
+            </div>
             <Footer />
           </div>
           <BackToTop />

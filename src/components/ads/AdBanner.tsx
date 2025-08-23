@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 
 import { AdPosition, adConfigs } from '@/lib/ads/ad-config'
 
-import { AdScript } from './AdScript'
 import './AdBanner.css'
+import { AdScript } from './AdScript'
 
 interface AdBannerProps {
   position: AdPosition

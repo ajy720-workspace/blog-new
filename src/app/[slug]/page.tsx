@@ -15,7 +15,6 @@ import { CommentSkeleton } from '@/components/ui/loading-states'
 import { seoConfig, siteConfig } from '@/config'
 import { LikeProvider } from '@/contexts/LikeContext'
 import {
-  NotionPost,
   getPageContent,
   getPageTextContent,
   getPostBySlug,
@@ -29,6 +28,7 @@ import {
   optimizeTitle,
 } from '@/lib/core/seo'
 import { slugify } from '@/lib/utils/slug-utils'
+import { NotionPost } from '@/types/notion'
 
 export const revalidate = 3600 // ISR: 1시간마다 재검증 (다른 페이지와 동일한 간격으로 조정)
 export const dynamicParams = true // 빌드 시 생성되지 않은 동적 경로 허용
