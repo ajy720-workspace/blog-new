@@ -7,7 +7,7 @@ import { Equation } from 'react-notion-x/build/third-party/equation'
 import { Modal } from 'react-notion-x/build/third-party/modal'
 import { Pdf } from 'react-notion-x/build/third-party/pdf'
 
-import { TableOfContents } from '@/components/Post/TOC'
+import { TableOfContents } from '@/components/post/TOC'
 import { useTheme } from '@/contexts/ThemeContext'
 
 import './PostRenderer.css'
