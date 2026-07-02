@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 # Blog(new) Next.js Application Dockerfile
 
 # --- Builder Stage ---
@@ -15,25 +17,26 @@ RUN yarn install --frozen-lockfile
 # Copy source code and build the application
 COPY . .
 
-ARG NOTION_DATABASE_ID
-ARG NOTION_API_KEY
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 ARG NEXT_PUBLIC_GA_MEASUREMENT_ID
-ARG REVALIDATE_SECRET
-ARG NOTION_WEBHOOK_SECRET
+ARG NEXT_PUBLIC_SITE_URL
 
-# Set environment variables for build (server-side only for Notion)
-ENV NOTION_DATABASE_ID=$NOTION_DATABASE_ID
-ENV NOTION_API_KEY=$NOTION_API_KEY
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_GA_MEASUREMENT_ID=$NEXT_PUBLIC_GA_MEASUREMENT_ID
-ENV REVALIDATE_SECRET=$REVALIDATE_SECRET
-ENV NOTION_WEBHOOK_SECRET=$NOTION_WEBHOOK_SECRET
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 
 # Build the application
-RUN yarn build
+RUN --mount=type=secret,id=NOTION_DATABASE_ID \
+    --mount=type=secret,id=NOTION_API_KEY \
+    --mount=type=secret,id=REVALIDATE_SECRET \
+    --mount=type=secret,id=NOTION_WEBHOOK_SECRET \
+    export NOTION_DATABASE_ID="$(cat /run/secrets/NOTION_DATABASE_ID)" && \
+    export NOTION_API_KEY="$(cat /run/secrets/NOTION_API_KEY)" && \
+    export REVALIDATE_SECRET="$(cat /run/secrets/REVALIDATE_SECRET)" && \
+    export NOTION_WEBHOOK_SECRET="$(cat /run/secrets/NOTION_WEBHOOK_SECRET)" && \
+    yarn build
 
 # --- Runner Stage ---
 FROM node:22 AS runner

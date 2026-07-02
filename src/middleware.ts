@@ -55,6 +55,10 @@ export function middleware(request: NextRequest) {
   // Security headers for all responses
   const response = NextResponse.next()
 
+  if (pathname === '/api/health') {
+    return response
+  }
+
   // Rate limiting for API routes
   if (pathname.startsWith('/api/')) {
     if (!checkRateLimit(ip, 60, 60000)) {

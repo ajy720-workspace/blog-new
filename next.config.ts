@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
   images: {
     domains: [
       'www.notion.so',
+      'app.notion.com',
       's3.us-west-2.amazonaws.com',
       'prod-files-secure.s3.us-west-2.amazonaws.com',
       'avatars.githubusercontent.com',
