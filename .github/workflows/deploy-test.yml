@@ -84,6 +84,7 @@ jobs:
       contents: read
       packages: read
       issues: write
+      pull-requests: write
 
     steps:
       - name: Checkout code
@@ -145,6 +146,7 @@ jobs:
 
       - name: Comment PR with deployment info
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -173,9 +175,11 @@ jobs:
     if: github.event.action == 'unlabeled' && github.event.label.name == 'deploy:test'
     permissions:
       issues: write
+      pull-requests: write
 
     steps:
       - name: Comment PR about deployment stopping
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
