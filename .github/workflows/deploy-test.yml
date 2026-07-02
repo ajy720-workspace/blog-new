@@ -58,11 +58,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            NOTION_DATABASE_ID=${{ secrets.NOTION_DATABASE_ID }}
-            NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
             NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
+            NEXT_PUBLIC_SITE_URL=https://blog-test.ajy720.me
+          secrets: |
+            NOTION_DATABASE_ID=${{ secrets.NOTION_DATABASE_ID }}
+            NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
             REVALIDATE_SECRET=${{ secrets.REVALIDATE_SECRET }}
             NOTION_WEBHOOK_SECRET=${{ secrets.NOTION_WEBHOOK_SECRET }}
 
