@@ -6,6 +6,10 @@ on:
       - 'v*.*.*' # Semantic versioning tags (v1.0.0, v1.2.3, etc.)
   workflow_dispatch:
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository }}
 
@@ -28,7 +32,7 @@ jobs:
       - name: Setup Node.js for linting
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
 
       - name: Install dependencies for linting
@@ -60,6 +64,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             NOTION_DATABASE_ID=${{ secrets.NOTION_DATABASE_ID }}
             NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
@@ -74,6 +80,9 @@ jobs:
     name: Deploy to Production Server
     runs-on: self-hosted
     needs: build-and-push
+    environment:
+      name: production
+      url: https://blog.ajy720.me
     permissions:
       contents: read
       packages: read
@@ -109,11 +118,26 @@ jobs:
           echo "Using image tag: $IMAGE_TAG"
           echo "Deploying version: ${{ github.ref_name }}"
 
-          # Stop existing containers
-          docker compose -f ${{ github.workspace }}/docker-compose.prod.yml down || true
+          # Pull and start the updated image
+          IMAGE_NAME_WITH_TAG="$IMAGE_TAG" docker compose -f ${{ github.workspace }}/docker-compose.prod.yml pull
 
-          # Start new containers with updated image
-          IMAGE_NAME_WITH_TAG="$IMAGE_TAG" docker compose -f ${{ github.workspace }}/docker-compose.prod.yml up -d
+          IMAGE_NAME_WITH_TAG="$IMAGE_TAG" docker compose -f ${{ github.workspace }}/docker-compose.prod.yml up -d --remove-orphans
+
+      - name: Smoke test production deployment
+        run: |
+          for attempt in {1..12}; do
+            if curl -fsS http://127.0.0.1:3000/api/health; then
+              echo "Production health check passed"
+              exit 0
+            fi
+
+            echo "Waiting for production health check... attempt ${attempt}/12"
+            sleep 5
+          done
+
+          echo "Production health check failed"
+          docker compose -f ${{ github.workspace }}/docker-compose.prod.yml ps
+          exit 1
 
       - name: Clean up old images
         run: |
@@ -124,6 +148,6 @@ jobs:
         run: |
           echo "🎉 Production deployment successful!"
           echo "Version: ${{ github.ref_name }}"
-          echo "URL: https://your.product.domain"
+          echo "URL: https://blog.ajy720.me"
           echo "Commit: ${{ github.sha }}"
           echo "Docker Image: ${{ needs.build-and-push.outputs.image-tag }}"
