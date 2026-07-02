@@ -46,3 +46,18 @@ updates:
     commit-message:
       prefix: 'ci'
       include: 'scope'
+
+  # Enable version updates for Docker base images
+  - package-ecosystem: 'docker'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+    reviewers:
+      - 'ajy720'
+    assignees:
+      - 'ajy720'
+    commit-message:
+      prefix: 'ci'
+      include: 'scope'
