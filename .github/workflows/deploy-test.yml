@@ -19,7 +19,7 @@ jobs:
   build-and-push:
     name: Build and Push to GHCR
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || (contains(github.event.pull_request.labels.*.name, 'deploy:test') && contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association))
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'deploy:test')
     permissions:
       contents: read
       packages: write
@@ -73,7 +73,7 @@ jobs:
     name: Deploy to Test Server
     runs-on: self-hosted
     needs: build-and-push
-    if: github.event_name == 'workflow_dispatch' || (contains(github.event.pull_request.labels.*.name, 'deploy:test') && contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association))
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'deploy:test')
     environment:
       name: test
       url: https://blog-test.ajy720.me
