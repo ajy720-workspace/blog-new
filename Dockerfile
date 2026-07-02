@@ -3,7 +3,7 @@
 # Blog(new) Next.js Application Dockerfile
 
 # --- Builder Stage ---
-FROM node:22 AS builder
+FROM node:26 AS builder
 LABEL maintainer="ajy720@gmail.com"
 
 WORKDIR /app
@@ -39,7 +39,7 @@ RUN --mount=type=secret,id=NOTION_DATABASE_ID \
     yarn build
 
 # --- Runner Stage ---
-FROM node:22 AS runner
+FROM node:26 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
