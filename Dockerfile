@@ -28,10 +28,14 @@ ENV NEXT_PUBLIC_GA_MEASUREMENT_ID=$NEXT_PUBLIC_GA_MEASUREMENT_ID
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 
 # Build the application
-RUN --mount=type=secret,id=NOTION_DATABASE_ID,env=NOTION_DATABASE_ID \
-    --mount=type=secret,id=NOTION_API_KEY,env=NOTION_API_KEY \
-    --mount=type=secret,id=REVALIDATE_SECRET,env=REVALIDATE_SECRET \
-    --mount=type=secret,id=NOTION_WEBHOOK_SECRET,env=NOTION_WEBHOOK_SECRET \
+RUN --mount=type=secret,id=NOTION_DATABASE_ID \
+    --mount=type=secret,id=NOTION_API_KEY \
+    --mount=type=secret,id=REVALIDATE_SECRET \
+    --mount=type=secret,id=NOTION_WEBHOOK_SECRET \
+    export NOTION_DATABASE_ID="$(cat /run/secrets/NOTION_DATABASE_ID)" && \
+    export NOTION_API_KEY="$(cat /run/secrets/NOTION_API_KEY)" && \
+    export REVALIDATE_SECRET="$(cat /run/secrets/REVALIDATE_SECRET)" && \
+    export NOTION_WEBHOOK_SECRET="$(cat /run/secrets/NOTION_WEBHOOK_SECRET)" && \
     yarn build
 
 # --- Runner Stage ---
