@@ -1,6 +1,5 @@
 import { seoConfig, siteConfig } from '@/config'
-
-import { NotionPost } from './notion'
+import type { NotionPost } from '@/types/notion'
 
 export function generateSlug(title: string): string {
   return title
