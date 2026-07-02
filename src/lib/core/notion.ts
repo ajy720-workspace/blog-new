@@ -52,6 +52,10 @@ let postsCache: NotionPost[] | null = null
 let cacheTimestamp = 0
 const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes in milliseconds
 
+function shouldSkipNotionBuild(): boolean {
+  return process.env.SKIP_NOTION_BUILD === 'true'
+}
+
 function isCacheValid(): boolean {
   return false
   return postsCache !== null && Date.now() - cacheTimestamp < CACHE_DURATION
@@ -64,6 +68,10 @@ export async function getPosts(forceRefresh = false): Promise<NotionPost[]> {
   }
 
   if (!process.env.NOTION_DATABASE_ID) {
+    if (shouldSkipNotionBuild()) {
+      return []
+    }
+
     throw new Error('NOTION_DATABASE_ID is not defined')
   }
 
@@ -102,6 +110,10 @@ export async function getPosts(forceRefresh = false): Promise<NotionPost[]> {
 
 export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
   if (!process.env.NOTION_DATABASE_ID) {
+    if (shouldSkipNotionBuild()) {
+      return null
+    }
+
     throw new Error('NOTION_DATABASE_ID is not defined')
   }
 

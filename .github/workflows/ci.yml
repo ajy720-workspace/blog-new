@@ -42,4 +42,6 @@ jobs:
         run: yarn type-check
 
       - name: Build application
+        env:
+          SKIP_NOTION_BUILD: 'true'
         run: yarn build
