@@ -35,13 +35,12 @@ export const revalidateRequestSchema = z.object({
 })
 
 export const envSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url('Invalid Supabase URL'),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z
+  DATABASE_URL: z.string().url('Invalid database URL'),
+  SESSION_SECRET: z.string().min(32, 'Session secret must be at least 32 characters'),
+  GITHUB_CLIENT_ID: z.string().min(1, 'GitHub client ID is required').optional(),
+  GITHUB_CLIENT_SECRET: z
     .string()
-    .min(1, 'Supabase anon key is required'),
-  SUPABASE_SERVICE_ROLE_KEY: z
-    .string()
-    .min(1, 'Supabase service role key is required')
+    .min(1, 'GitHub client secret is required')
     .optional(),
   NOTION_API_KEY: z.string().min(1, 'Notion API key is required'),
   NOTION_DATABASE_ID: z.string().min(1, 'Notion database ID is required'),
