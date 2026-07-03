@@ -66,8 +66,8 @@ jobs:
           secrets: |
             DATABASE_URL=${{ secrets.DATABASE_URL }}
             SESSION_SECRET=${{ secrets.SESSION_SECRET }}
-            GITHUB_CLIENT_ID=${{ secrets.GITHUB_CLIENT_ID }}
-            GITHUB_CLIENT_SECRET=${{ secrets.GITHUB_CLIENT_SECRET }}
+            GITHUB_CLIENT_ID=${{ secrets.OAUTH_GITHUB_CLIENT_ID }}
+            GITHUB_CLIENT_SECRET=${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}
             NOTION_DATABASE_ID=${{ secrets.NOTION_DATABASE_ID }}
             NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
             REVALIDATE_SECRET=${{ secrets.REVALIDATE_SECRET }}
@@ -99,8 +99,8 @@ jobs:
           cat > .env.test << EOF
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           SESSION_SECRET=${{ secrets.SESSION_SECRET }}
-          GITHUB_CLIENT_ID=${{ secrets.GITHUB_CLIENT_ID }}
-          GITHUB_CLIENT_SECRET=${{ secrets.GITHUB_CLIENT_SECRET }}
+          GITHUB_CLIENT_ID=${{ secrets.OAUTH_GITHUB_CLIENT_ID }}
+          GITHUB_CLIENT_SECRET=${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}
           NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
           NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
           NOTION_DATABASE_ID=${{ secrets.NOTION_DATABASE_ID }}
