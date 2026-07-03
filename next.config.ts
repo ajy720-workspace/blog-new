@@ -32,7 +32,7 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https: http:",
-      "connect-src 'self' https://*.supabase.co https://api.github.com https://github.com https://www.google-analytics.com https://analytics.google.com https://display.ad.daum.net https://*.daumcdn.net https://*.onkakao.net/",
+      "connect-src 'self' https://api.github.com https://github.com https://www.google-analytics.com https://analytics.google.com https://display.ad.daum.net https://*.daumcdn.net https://*.onkakao.net/",
       "frame-src 'self' https://github.com https://*.daum.net https://*.daumcdn.net",
       "object-src 'none'",
       "base-uri 'self'",

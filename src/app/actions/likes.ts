@@ -3,12 +3,12 @@
 import {
   getUserProfileServer,
   isAnonymousUserServer,
-} from '@/lib/supabase/auth-server'
+} from '@/lib/auth/session'
 import {
   getLikeCountAndStatus,
   toggleLike as toggleLikeDB,
   transferAnonymousLikes,
-} from '@/lib/supabase/likes'
+} from '@/lib/db/likes'
 import { likeSchema } from '@/lib/validation/schemas'
 import { validateSchema } from '@/lib/validation/validator'
 import type { LikeCountResult, LikeSubmissionResult } from '@/types/likes'
