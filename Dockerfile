@@ -26,10 +26,18 @@ ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 # Build the application
 RUN --mount=type=secret,id=NOTION_DATABASE_ID \
     --mount=type=secret,id=NOTION_API_KEY \
+    --mount=type=secret,id=DATABASE_URL \
+    --mount=type=secret,id=SESSION_SECRET \
+    --mount=type=secret,id=GITHUB_CLIENT_ID \
+    --mount=type=secret,id=GITHUB_CLIENT_SECRET \
     --mount=type=secret,id=REVALIDATE_SECRET \
     --mount=type=secret,id=NOTION_WEBHOOK_SECRET \
     export NOTION_DATABASE_ID="$(cat /run/secrets/NOTION_DATABASE_ID)" && \
     export NOTION_API_KEY="$(cat /run/secrets/NOTION_API_KEY)" && \
+    export DATABASE_URL="$(cat /run/secrets/DATABASE_URL)" && \
+    export SESSION_SECRET="$(cat /run/secrets/SESSION_SECRET)" && \
+    export GITHUB_CLIENT_ID="$(cat /run/secrets/GITHUB_CLIENT_ID)" && \
+    export GITHUB_CLIENT_SECRET="$(cat /run/secrets/GITHUB_CLIENT_SECRET)" && \
     export REVALIDATE_SECRET="$(cat /run/secrets/REVALIDATE_SECRET)" && \
     export NOTION_WEBHOOK_SECRET="$(cat /run/secrets/NOTION_WEBHOOK_SECRET)" && \
     yarn build
