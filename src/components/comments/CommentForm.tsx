@@ -7,21 +7,21 @@ import { useRouter } from 'next/navigation'
 import { CheckCircle, User } from 'lucide-react'
 
 import { submitComment } from '@/app/actions/comments'
+import {
+  getUserProfile,
+  initAnonymousSession,
+  isAnonymousUser,
+} from '@/app/actions/auth'
 import { OAuthModal, useOAuthModal } from '@/components/auth/OAuthModal'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import {
-  type UserProfile,
-  getUserProfile,
-  initAnonymousSession,
-  isAnonymousUser,
-} from '@/lib/supabase/auth'
-import {
   sanitizeCommentFormData,
   validateCommentForm,
-} from '@/lib/supabase/validation'
+} from '@/lib/validation/comment-form'
+import type { UserProfile } from '@/types/auth'
 import type { CommentFormProps, CommentFormState } from '@/types/comments'
 
 export default function CommentForm({

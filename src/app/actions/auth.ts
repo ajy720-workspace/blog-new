@@ -4,8 +4,15 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import { securityConfig, siteConfig } from '@/config'
-import { createClient } from '@/lib/supabase/server'
+import { getGitHubOAuthUrl } from '@/lib/auth/github'
+import {
+  clearSession,
+  ensureAnonymousSession,
+  getUserProfileServer,
+  isAnonymousUserServer,
+} from '@/lib/auth/session'
 import { getPublicOrigin } from '@/lib/utils/origin-detection'
+import type { UserProfile } from '@/types/auth'
 
 interface AuthActionResult {
   success: boolean
@@ -18,7 +25,6 @@ export async function signInWithGitHub(
   formData: FormData
 ): Promise<AuthActionResult> {
   try {
-    const supabase = await createClient()
     const redirectTo = formData.get('redirectTo') as string | null
 
     // Get base URL from environment or headers
@@ -31,25 +37,9 @@ export async function signInWithGitHub(
     const redirectUrl = `${origin}/auth/callback${
       redirectTo ? `?next=${encodeURIComponent(redirectTo)}` : ''
     }`
+    const state = crypto.randomUUID()
 
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        redirectTo: redirectUrl,
-      },
-    })
-
-    if (error) {
-      console.error('GitHub OAuth sign in error:', error)
-      return { success: false, error: error.message }
-    }
-
-    if (data.url) {
-      // Redirect to GitHub OAuth - this will throw NEXT_REDIRECT internally, which is expected
-      redirect(data.url)
-    }
-
-    return { success: false, error: 'No OAuth URL returned' }
+    redirect(getGitHubOAuthUrl(redirectUrl, state))
   } catch (error) {
     // Check if this is the expected Next.js redirect error
     if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
@@ -67,14 +57,7 @@ export async function signInWithGitHub(
 
 export async function signOut(): Promise<AuthActionResult> {
   try {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.signOut()
-
-    if (error) {
-      console.error('Sign out error:', error)
-      return { success: false, error: error.message }
-    }
-
+    await clearSession()
     return { success: true }
   } catch (error) {
     console.error('Sign out error:', error)
@@ -87,25 +70,7 @@ export async function signOut(): Promise<AuthActionResult> {
 
 export async function initAnonymousSession(): Promise<AuthActionResult> {
   try {
-    const supabase = await createClient()
-
-    // Check if already has an active session
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    if (session?.user) {
-      return { success: true }
-    }
-
-    // Sign in anonymously
-    const { error } = await supabase.auth.signInAnonymously()
-
-    if (error) {
-      console.error('Anonymous sign in error:', error)
-      return { success: false, error: error.message }
-    }
-
+    await ensureAnonymousSession()
     return { success: true }
   } catch (error) {
     console.error('Anonymous session initialization error:', error)
@@ -114,4 +79,12 @@ export async function initAnonymousSession(): Promise<AuthActionResult> {
       error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
+}
+
+export async function getUserProfile(): Promise<UserProfile | null> {
+  return getUserProfileServer()
+}
+
+export async function isAnonymousUser(): Promise<boolean> {
+  return isAnonymousUserServer()
 }
