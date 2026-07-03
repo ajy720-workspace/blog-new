@@ -279,6 +279,23 @@ The blog works on any platform supporting Next.js:
 - Railway  
 - Docker containers
 
+### GitHub Actions Secrets
+
+GitHub reserves the `GITHUB_` secret prefix, so OAuth credentials use
+`OAUTH_GITHUB_*` secret names and are mapped to `GITHUB_*` environment
+variables during deployment.
+
+Required deployment secrets:
+- `DATABASE_URL`
+- `SESSION_SECRET`
+- `OAUTH_GITHUB_CLIENT_ID`
+- `OAUTH_GITHUB_CLIENT_SECRET`
+- `NOTION_API_KEY`
+- `NOTION_DATABASE_ID`
+- `REVALIDATE_SECRET`
+- `NOTION_WEBHOOK_SECRET`
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+
 ## 🤝 Contributing
 
 1. Fork the repository
