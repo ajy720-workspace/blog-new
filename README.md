@@ -7,7 +7,7 @@ A modern, configurable blog built with Next.js 15, TypeScript, and Notion CMS. T
 - **Modern Stack**: Next.js 15 (App Router), TypeScript, Tailwind CSS 4
 - **CMS Integration**: Notion API for content management
 - **Authentication**: JWT-based sessions with OAuth providers
-- **Comments System**: Supabase-powered with rate limiting
+- **Comments System**: PostgreSQL-backed with rate limiting
 - **SEO Optimized**: Structured data, meta tags, and sitemap
 - **Fully Configurable**: Centralized configuration files
 - **Enterprise Security**: Multi-layer protection with A-grade security rating
@@ -97,10 +97,11 @@ NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 NEXT_PUBLIC_NOTION_API_KEY=your_notion_api_key
 NEXT_PUBLIC_NOTION_DATABASE_ID=your_notion_database_id
 
-# Optional (for comments and auth)
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+# Required for comments, likes, and auth
+DATABASE_URL=postgresql://postgres:password@localhost:15432/blog
+SESSION_SECRET=replace-with-at-least-32-random-characters
+GITHUB_CLIENT_ID=your_github_oauth_client_id
+GITHUB_CLIENT_SECRET=your_github_oauth_client_secret
 
 # Optional (for webhook auto-revalidation)
 NOTION_WEBHOOK_SECRET=your-secure-random-string
@@ -117,42 +118,23 @@ Create a Notion database with these properties:
 - **Category** (Select): Post categories
 - **PublishedAt** (Published time): Post Published date(order criteria)
 
-### 5. Supabase Setup (Optional - for comments)
+### 5. PostgreSQL Setup
 
-If you want to enable the comment system, set up Supabase:
+Create and migrate the application database:
 
-#### Database Migration
+```bash
+psql 'postgresql://postgres:password@localhost:15432/postgres' -c 'CREATE DATABASE blog'
+psql 'postgresql://postgres:password@localhost:15432/blog' -v ON_ERROR_STOP=1 -f db/migrations/001_initial_schema.sql
+```
 
-1. **Create a new Supabase project** at [supabase.com](https://supabase.com)
-
-2. **Run the database migrations** to create required tables:
-   ```bash
-   # Install Supabase CLI if you haven't already
-   npm install -g @supabase/cli
-   
-   # Login to Supabase
-   npx supabase login
-   
-   # Link your project (replace with your project ref)
-   npx supabase link --project-ref your-project-ref
-   
-   # Run migrations to create comments and profiles tables
-   npx supabase db push
-   ```
-
-3. **Set up Row Level Security (RLS)**:
-   - The migrations automatically configure RLS policies
-   - Users can only edit their own comments
-   - Anonymous users can create comments but not edit others'
-
-4. **Configure OAuth providers** (optional):
-   - Go to Authentication > Providers in your Supabase dashboard
-   - Enable GitHub, Google, or other providers you want to support
-   - Set up redirect URLs: `https://yourdomain.com/auth/callback`
+Configure a GitHub OAuth app with callback URL:
+`https://yourdomain.com/auth/callback`
 
 #### Available Tables:
+- **app_users**: Anonymous and OAuth-backed users
 - **comments**: Blog post comments with user association
-- **profiles**: User profiles linked to Supabase Auth
+- **likes**: Blog post likes with authenticated and anonymous identifiers
+- **profiles**: OAuth display profiles
 
 ### 6. Notion Webhook Setup (Optional - for auto-revalidation)
 
@@ -247,7 +229,7 @@ yarn type-check                 # TypeScript validation
 │   ├── components/         # React components  
 │   ├── lib/               # Utilities & business logic
 │   └── types/             # TypeScript definitions
-├── supabase/              # Database migrations
+├── db/                    # PostgreSQL migrations
 └── public/               # Static assets
 ```
 
@@ -333,35 +315,22 @@ yarn build
 - Check that your Notion integration has access to the database
 - Ensure database properties match the expected schema
 
-**Supabase connection issues:**
-- Verify your project URL and keys
-- Check that RLS policies are properly configured
+**PostgreSQL connection issues:**
+- Verify `DATABASE_URL`
+- Check that your SSH tunnel is listening on the configured host and port
 - Ensure migrations have been applied
 
-### Supabase Migration Issues
+### PostgreSQL Migration Issues
 
 **Migration failed or tables not created:**
 ```bash
-# Check if you're linked to the correct project
-npx supabase status
-
-# Reset and try again
-npx supabase db reset
-npx supabase db push
+psql "$DATABASE_URL" -c '\dt'
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f db/migrations/001_initial_schema.sql
 ```
-
-**RLS policies not working:**
-- Ensure you're using the correct Supabase client (server vs client)
-- Check that RLS is enabled on your tables
-- Verify user authentication status in your app
 
 **Comments not showing up:**
 ```bash
-# Check if the RPC function exists
-npx supabase db inspect db.functions
-
-# If missing, re-run migrations
-npx supabase db push
+psql "$DATABASE_URL" -c 'SELECT COUNT(*) FROM comments;'
 ```
 
 ### Notion Webhook Issues
@@ -395,6 +364,6 @@ This project is open source and available under the [MIT License](LICENSE).
 
 - [Next.js](https://nextjs.org) - React framework
 - [Notion](https://notion.so) - Content management
-- [Supabase](https://supabase.com) - Backend services
+- [PostgreSQL](https://www.postgresql.org/) - Database
 - [Tailwind CSS](https://tailwindcss.com) - Styling
 - [shadcn/ui](https://ui.shadcn.com) - UI components
