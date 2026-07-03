@@ -6,16 +6,16 @@ import { useRouter } from 'next/navigation'
 
 import { Heart } from 'lucide-react'
 
-import { getLikeCountAndUserStatus, toggleLike } from '@/app/actions/likes'
-import { OAuthModal, useOAuthModal } from '@/components/auth/OAuthModal'
-import { Button } from '@/components/ui/button'
 import {
-  type UserProfile,
   getUserProfile,
   initAnonymousSession,
   isAnonymousUser,
-} from '@/lib/supabase/auth'
+} from '@/app/actions/auth'
+import { getLikeCountAndUserStatus, toggleLike } from '@/app/actions/likes'
+import { OAuthModal, useOAuthModal } from '@/components/auth/OAuthModal'
+import { Button } from '@/components/ui/button'
 import { getAnonymousBrowserId } from '@/lib/utils/anonymous'
+import type { UserProfile } from '@/types/auth'
 import type { LikeButtonProps } from '@/types/likes'
 
 export function LikeButton({

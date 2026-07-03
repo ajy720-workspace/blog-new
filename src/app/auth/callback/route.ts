@@ -4,8 +4,13 @@ import { NextRequest } from 'next/server'
 import { transferUserComments } from '@/app/actions/comments'
 import { transferUserLikes } from '@/app/actions/likes'
 import { securityConfig, siteConfig } from '@/config'
-import { createProfileFromUser } from '@/lib/supabase/profiles'
-import { createClient } from '@/lib/supabase/server'
+import {
+  exchangeGitHubCode,
+  getGitHubPrimaryEmail,
+  getGitHubUser,
+} from '@/lib/auth/github'
+import { getSessionUserId, setSession } from '@/lib/auth/session'
+import { upsertGitHubUser } from '@/lib/auth/users'
 import { getPublicOrigin } from '@/lib/utils/origin-detection'
 
 export async function GET(request: NextRequest) {
@@ -18,53 +23,34 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get('next') ?? '/'
 
   if (code) {
-    const supabase = await createClient()
-
     try {
-      // Get current anonymous user ID before exchanging session
-      const {
-        data: { user: anonymousUser },
-      } = await supabase.auth.getUser()
-      const currentAnonymousUserId = anonymousUser?.id
+      const currentAnonymousUserId = await getSessionUserId()
+      const redirectUrl = `${origin}/auth/callback${
+        next ? `?next=${encodeURIComponent(next)}` : ''
+      }`
+      const accessToken = await exchangeGitHubCode(code, redirectUrl)
+      const githubUser = await getGitHubUser(accessToken)
+      const email = githubUser.email || (await getGitHubPrimaryEmail(accessToken))
+      const authenticatedUser = await upsertGitHubUser(githubUser, email)
 
-      const { error } = await supabase.auth.exchangeCodeForSession(code)
+      await setSession(authenticatedUser.id)
 
-      if (!error) {
-        // Get the newly authenticated user
-        const {
-          data: { user: authenticatedUser },
-        } = await supabase.auth.getUser()
-
-        // Create or update user profile
-        if (authenticatedUser) {
-          try {
-            await createProfileFromUser(authenticatedUser)
-          } catch (profileError) {
-            // Log error but don't fail the login process
-            console.error('Failed to create/update profile:', profileError)
-          }
+      if (
+        currentAnonymousUserId &&
+        currentAnonymousUserId !== authenticatedUser.id
+      ) {
+        try {
+          await Promise.all([
+            transferUserComments(currentAnonymousUserId),
+            transferUserLikes(currentAnonymousUserId, undefined),
+          ])
+        } catch (transferError) {
+          console.error('Failed to transfer anonymous data:', transferError)
         }
-
-        // Transfer anonymous data to authenticated user (Server Actions handle validation)
-        if (currentAnonymousUserId) {
-          try {
-            await Promise.all([
-              transferUserComments(currentAnonymousUserId),
-              transferUserLikes(
-                currentAnonymousUserId,
-                undefined // browser ID not available in server context
-              ),
-            ])
-          } catch (transferError) {
-            // Log error but don't fail the login process
-            console.error('Failed to transfer anonymous data:', transferError)
-          }
-        }
-
-        // Successfully authenticated, redirect to the original page or home
-        const redirectTo = `${origin}${next}`
-        return redirect(redirectTo)
       }
+
+      const redirectTo = `${origin}${next}`
+      return redirect(redirectTo)
     } catch (error) {
       // Check if this is the expected Next.js redirect error
       if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
