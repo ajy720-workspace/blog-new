@@ -16,6 +16,13 @@ export function getPool(): Pool {
   if (!pool) {
     pool = new Pool({
       connectionString: getConnectionString(),
+      connectionTimeoutMillis: 3000,
+      idleTimeoutMillis: 10000,
+      max: 5,
+    })
+
+    pool.on('error', error => {
+      console.error('Unexpected PostgreSQL pool error:', error)
     })
   }
 
