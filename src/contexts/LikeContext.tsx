@@ -9,14 +9,14 @@ import {
   useState,
 } from 'react'
 
-import { initAnonymousSession } from '@/app/actions/auth'
-import { getLikeCountAndUserStatus } from '@/app/actions/likes'
 import {
-  UserProfile,
   getUserProfile,
+  initAnonymousSession,
   isAnonymousUser,
-} from '@/lib/supabase/auth'
+} from '@/app/actions/auth'
+import { getLikeCountAndUserStatus } from '@/app/actions/likes'
 import { getAnonymousBrowserId } from '@/lib/utils/anonymous'
+import type { UserProfile } from '@/types/auth'
 
 interface LikeContextValue {
   likeCount: number
