@@ -7,7 +7,7 @@ import {
   createComment,
   getCommentCount as getCommentCountFromDB,
   getComments as getCommentsFromDB,
-} from '@/lib/supabase/comments'
+} from '@/lib/db/comments'
 import { commentSchema } from '@/lib/validation/schemas'
 import {
   getClientIP,
@@ -107,7 +107,7 @@ export async function transferUserComments(
   try {
     // Get user info - Server Action is responsible for authentication checks
     const { getUserProfileServer, isAnonymousUserServer } = await import(
-      '@/lib/supabase/auth-server'
+      '@/lib/auth/session'
     )
     const userProfile = await getUserProfileServer()
     const isAnonymous = await isAnonymousUserServer()
@@ -118,7 +118,7 @@ export async function transferUserComments(
 
     // Transfer comments using database layer
     const { transferAnonymousComments } = await import(
-      '@/lib/supabase/comments'
+      '@/lib/db/comments'
     )
 
     const result = await transferAnonymousComments(
