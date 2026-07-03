@@ -98,7 +98,7 @@ NEXT_PUBLIC_NOTION_API_KEY=your_notion_api_key
 NEXT_PUBLIC_NOTION_DATABASE_ID=your_notion_database_id
 
 # Required for comments, likes, and auth
-DATABASE_URL=postgresql://postgres:password@localhost:15432/blog
+DATABASE_URL=postgresql://postgres:password@127.0.0.1:15432/blog
 SESSION_SECRET=replace-with-at-least-32-random-characters
 GITHUB_CLIENT_ID=your_github_oauth_client_id
 GITHUB_CLIENT_SECRET=your_github_oauth_client_secret
@@ -123,8 +123,8 @@ Create a Notion database with these properties:
 Create and migrate the application database:
 
 ```bash
-psql 'postgresql://postgres:password@localhost:15432/postgres' -c 'CREATE DATABASE blog'
-psql 'postgresql://postgres:password@localhost:15432/blog' -v ON_ERROR_STOP=1 -f db/migrations/001_initial_schema.sql
+psql 'postgresql://postgres:password@127.0.0.1:15432/postgres' -c 'CREATE DATABASE blog'
+psql 'postgresql://postgres:password@127.0.0.1:15432/blog' -v ON_ERROR_STOP=1 -f db/migrations/001_initial_schema.sql
 ```
 
 Configure a GitHub OAuth app with callback URL:
