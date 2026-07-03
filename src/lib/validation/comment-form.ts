@@ -5,7 +5,6 @@ export function validateCommentForm(
 ): CommentValidationError[] {
   const errors: CommentValidationError[] = []
 
-  // Validate author name
   const authorName = formData.authorName?.trim()
   if (!authorName) {
     errors.push({
@@ -29,7 +28,6 @@ export function validateCommentForm(
     })
   }
 
-  // Validate content
   const content = formData.content?.trim()
   if (!content) {
     errors.push({
@@ -48,7 +46,6 @@ export function validateCommentForm(
     })
   }
 
-  // Validate email (optional)
   if (formData.authorEmail && formData.authorEmail.trim()) {
     const email = formData.authorEmail.trim()
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -69,10 +66,9 @@ export function validateCommentForm(
 }
 
 function hasInvalidNameCharacters(name: string): boolean {
-  // Blacklist approach - block dangerous characters only
-  const dangerousChars = /[<>'"&]/ // HTML/JS injection risks
-  const controlChars = /[\u0000-\u001F\u007F-\u009F]/ // Control characters
-  const zeroWidthChars = /[\u200B-\u200F\u2060\uFEFF]/ // Zero-width chars
+  const dangerousChars = /[<>'"&]/
+  const controlChars = /[\u0000-\u001F\u007F-\u009F]/
+  const zeroWidthChars = /[\u200B-\u200F\u2060\uFEFF]/
 
   return (
     dangerousChars.test(name) ||
@@ -84,18 +80,14 @@ function hasInvalidNameCharacters(name: string): boolean {
 export function sanitizeInput(input: string): string {
   if (!input) return ''
 
-  return (
-    input
-      .trim()
-      // Remove potential XSS patterns
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-      .replace(/javascript:/gi, '')
-      .replace(/on\w+\s*=/gi, '')
-      // Normalize whitespace
-      .replace(/\s+/g, ' ')
-      .trim()
-  )
+  return input
+    .trim()
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 export function sanitizeCommentFormData(
@@ -111,7 +103,6 @@ export function sanitizeCommentFormData(
 }
 
 export function isValidNotionPageId(pageId: string): boolean {
-  // Notion page IDs are typically 32-character hex strings with optional hyphens
   const cleanId = pageId.replace(/-/g, '')
   return /^[a-f0-9]{32}$/i.test(cleanId)
 }
@@ -121,7 +112,6 @@ export function extractClientInfo(request: Request) {
   const forwardedFor = request.headers.get('x-forwarded-for')
   const realIp = request.headers.get('x-real-ip')
 
-  // Get IP address from various headers (for proxies/CDNs)
   let ipAddress: string | undefined
   if (forwardedFor) {
     ipAddress = forwardedFor.split(',')[0].trim()

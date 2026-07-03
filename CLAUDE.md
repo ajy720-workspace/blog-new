@@ -32,9 +32,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Backend/Database:**
 
 - Notion API for post datas
-- Supabase for database (use Supabase MCP tools, check project ref first)
-- Server-side Supabase client: `await createClient()` (async function)
-- Use `.overrideTypes<T>()` for multiple data fetching, `.single<T>()` for single data
+- PostgreSQL for comments, likes, profiles, and app users
+- Database access through `src/lib/db/client.ts` using `pg`
 - Session-based auth using JWT (jose library)
 - bcryptjs for password hashing
 - Server Actions instead of API routes for backend operations
@@ -46,7 +45,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `src/components/` - React components organized by feature (use `.client.tsx` for Client Components)
 - `src/lib/` - Core utilities and business logic
 - `src/types/` - TypeScript type definitions
-- `supabase/migrations/` - Database schema migrations
+- `db/migrations/` - PostgreSQL schema migrations
 
 ### Component Structure
 ```
@@ -85,11 +84,11 @@ import { ThemeProvider, ThemeToggle } from '@/components/theme'
 
 ### Database Integration
 
-**Supabase Setup:**
+**PostgreSQL Setup:**
 
-- Client-side: `src/lib/supabase/client.ts`
-- Server-side: `src/lib/supabase/server.ts` (with SSR support)
-- Uses environment variables: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+- Server-side database pool: `src/lib/db/client.ts`
+- Auth/session helpers: `src/lib/auth/session.ts`
+- Uses environment variables: `DATABASE_URL`, `SESSION_SECRET`
 
 ### UI System
 
@@ -103,8 +102,9 @@ import { ThemeProvider, ThemeToggle } from '@/components/theme'
 
 ### Environment Variables Required
 
-- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
+- `DATABASE_URL` - PostgreSQL connection string
+- `SESSION_SECRET` - JWT signing secret for app sessions
+- `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` - GitHub OAuth credentials
 - `NEXT_PUBLIC_NOTION_API_KEY` - Notion API key
 
 ### Code Quality Guidelines
