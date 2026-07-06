@@ -26,18 +26,20 @@ export function SyncedLikeButton({
   const router = useRouter()
   const {
     isLoading,
+    isDisabled,
     likeCount,
     isLiked,
     isAnonymous,
     isSessionReady,
     userProfile,
     updateLikeState,
+    disableLikes,
     setLoading,
   } = useLikeContext()
   const { openModal, closeModal, isOpen, trigger, redirectTo } = useOAuthModal()
 
   const handleLikeClick = async () => {
-    if (!isSessionReady || isLoading) {
+    if (!isSessionReady || isLoading || isDisabled) {
       return
     }
 
@@ -83,6 +85,11 @@ export function SyncedLikeButton({
       } else {
         // Revert optimistic update on error
         updateLikeState(likeCount, isLiked)
+        if (result.disabled) {
+          disableLikes()
+          console.error('Likes disabled:', result.error)
+          return
+        }
         console.error('Error toggling like:', result.error)
       }
     } catch (error) {
@@ -106,6 +113,10 @@ export function SyncedLikeButton({
         <span className="text-sm text-muted-foreground">Loading...</span>
       </Button>
     )
+  }
+
+  if (isDisabled) {
+    return null
   }
 
   return (

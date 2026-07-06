@@ -8,6 +8,11 @@ import {
   getCommentCount as getCommentCountFromDB,
   getComments as getCommentsFromDB,
 } from '@/lib/db/comments'
+import {
+  isDatabaseMarkedUnavailable,
+  isDatabaseUnavailableError,
+  markDatabaseUnavailable,
+} from '@/lib/db/availability'
 import { commentSchema } from '@/lib/validation/schemas'
 import {
   getClientIP,
@@ -17,14 +22,27 @@ import {
 } from '@/lib/validation/validator'
 import type {
   Comment,
+  CommentCountResult,
   CommentFormData,
+  CommentLoadResult,
   CommentSubmissionResult,
 } from '@/types/comments'
+
+const COMMENTS_DISABLED_MESSAGE =
+  'Comments are temporarily unavailable because the database is not connected.'
 
 export async function submitComment(
   formData: CommentFormData,
   notionPageId: string
 ): Promise<CommentSubmissionResult> {
+  if (isDatabaseMarkedUnavailable()) {
+    return {
+      success: false,
+      disabled: true,
+      error: COMMENTS_DISABLED_MESSAGE,
+    }
+  }
+
   try {
     // Extract client information from headers
     const headersList = await headers()
@@ -72,15 +90,60 @@ export async function submitComment(
 
     return result
   } catch (error) {
-    console.error('Error in submitComment action:', error)
+    if (isDatabaseUnavailableError(error)) {
+      markDatabaseUnavailable(error)
+    } else {
+      console.error('Error in submitComment action:', error)
+    }
+
     return {
       success: false,
-      error: 'An unexpected error occurred. Please try again later.',
+      disabled: true,
+      error: isDatabaseUnavailableError(error)
+        ? COMMENTS_DISABLED_MESSAGE
+        : 'Comments are temporarily unavailable.',
+    }
+  }
+}
+
+export async function getCommentsState(
+  notionPageId: string
+): Promise<CommentLoadResult> {
+  if (isDatabaseMarkedUnavailable()) {
+    return {
+      comments: [],
+      disabled: true,
+      error: COMMENTS_DISABLED_MESSAGE,
+    }
+  }
+
+  try {
+    return {
+      comments: await getCommentsFromDB(notionPageId),
+      disabled: false,
+    }
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      markDatabaseUnavailable(error)
+    } else {
+      console.error('Error in getCommentsState action:', error)
+    }
+
+    return {
+      comments: [],
+      disabled: true,
+      error: isDatabaseUnavailableError(error)
+        ? COMMENTS_DISABLED_MESSAGE
+        : 'Unable to load comments.',
     }
   }
 }
 
 export async function getComments(notionPageId: string): Promise<Comment[]> {
+  if (isDatabaseMarkedUnavailable()) {
+    return []
+  }
+
   try {
     return await getCommentsFromDB(notionPageId)
   } catch (error) {
@@ -89,7 +152,44 @@ export async function getComments(notionPageId: string): Promise<Comment[]> {
   }
 }
 
+export async function getCommentCountState(
+  notionPageId: string
+): Promise<CommentCountResult> {
+  if (isDatabaseMarkedUnavailable()) {
+    return {
+      count: 0,
+      disabled: true,
+      error: COMMENTS_DISABLED_MESSAGE,
+    }
+  }
+
+  try {
+    return {
+      count: await getCommentCountFromDB(notionPageId),
+      disabled: false,
+    }
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      markDatabaseUnavailable(error)
+    } else {
+      console.error('Error in getCommentCountState action:', error)
+    }
+
+    return {
+      count: 0,
+      disabled: true,
+      error: isDatabaseUnavailableError(error)
+        ? COMMENTS_DISABLED_MESSAGE
+        : 'Unable to load comment count.',
+    }
+  }
+}
+
 export async function getCommentCount(notionPageId: string): Promise<number> {
+  if (isDatabaseMarkedUnavailable()) {
+    return 0
+  }
+
   try {
     return await getCommentCountFromDB(notionPageId)
   } catch (error) {

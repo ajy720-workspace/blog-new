@@ -31,6 +31,7 @@ export function LikeButton({
   const [isLiked, setIsLiked] = useState(initialIsLiked)
   const [isLoading, setIsLoading] = useState(false)
   const [isSessionReady, setIsSessionReady] = useState(false)
+  const [isDisabled, setIsDisabled] = useState(false)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isAnonymous, setIsAnonymous] = useState(true)
   const oauthModal = useOAuthModal()
@@ -61,12 +62,17 @@ export function LikeButton({
 
           setLikeCount(status.count)
           setIsLiked(status.isLiked)
+          setIsDisabled(!!status.disabled)
           setIsSessionReady(true)
         } else {
           console.error('Failed to initialize session:', result.error)
+          setIsDisabled(true)
+          setIsSessionReady(true)
         }
       } catch (error) {
         console.error('Session initialization error:', error)
+        setIsDisabled(true)
+        setIsSessionReady(true)
       }
     }
 
@@ -74,7 +80,7 @@ export function LikeButton({
   }, [notionPageId])
 
   const handleLikeClick = async () => {
-    if (!isSessionReady || isLoading) {
+    if (!isSessionReady || isLoading || isDisabled) {
       return
     }
 
@@ -119,6 +125,11 @@ export function LikeButton({
         // Revert optimistic update on error
         setIsLiked(!newIsLiked)
         setLikeCount(likeCount)
+        if (result.disabled) {
+          setIsDisabled(true)
+          console.error('Likes disabled:', result.error)
+          return
+        }
         console.error('Error toggling like:', result.error)
       }
     } catch (error) {
@@ -143,6 +154,10 @@ export function LikeButton({
         <span className="text-sm text-muted-foreground">Loading...</span>
       </Button>
     )
+  }
+
+  if (isDisabled) {
+    return null
   }
 
   return (

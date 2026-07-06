@@ -6,6 +6,10 @@ import type {
 } from '@/types/comments'
 
 import { getCurrentUserServer } from '@/lib/auth/session'
+import {
+  isDatabaseUnavailableError,
+  markDatabaseUnavailable,
+} from '@/lib/db/availability'
 import { query } from '@/lib/db/client'
 
 type CommentRow = Omit<Comment, 'profile'> & {
@@ -54,34 +58,24 @@ function mapComment(row: CommentRow): Comment {
 }
 
 export async function getComments(notionPageId: string): Promise<Comment[]> {
-  try {
-    const { rows } = await query<CommentRow>(
-      `SELECT * FROM get_comments_with_profiles($1)`,
-      [notionPageId]
-    )
+  const { rows } = await query<CommentRow>(
+    `SELECT * FROM get_comments_with_profiles($1)`,
+    [notionPageId]
+  )
 
-    return rows.map(mapComment)
-  } catch (error) {
-    console.error('Error in getComments:', error)
-    return []
-  }
+  return rows.map(mapComment)
 }
 
 export async function getCommentCount(notionPageId: string): Promise<number> {
-  try {
-    const { rows } = await query<{ count: string }>(
-      `SELECT COUNT(*)::text AS count
+  const { rows } = await query<{ count: string }>(
+    `SELECT COUNT(*)::text AS count
          FROM comments
         WHERE notion_page_id = $1
           AND is_deleted = false`,
-      [notionPageId]
-    )
+    [notionPageId]
+  )
 
-    return Number(rows[0]?.count || 0)
-  } catch (error) {
-    console.error('Error in getCommentCount:', error)
-    return 0
-  }
+  return Number(rows[0]?.count || 0)
 }
 
 export async function createComment(
@@ -118,10 +112,18 @@ export async function createComment(
       comment: mapComment(rows[0]),
     }
   } catch (error) {
-    console.error('Error in createComment:', error)
+    if (isDatabaseUnavailableError(error)) {
+      markDatabaseUnavailable(error)
+    } else {
+      console.error('Error in createComment:', error)
+    }
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
+      disabled: true,
+      error: isDatabaseUnavailableError(error)
+        ? 'Comments are temporarily unavailable because the database is not connected.'
+        : 'Comments are temporarily unavailable.',
     }
   }
 }
@@ -141,6 +143,11 @@ export async function checkRateLimit(ipAddress: string): Promise<boolean> {
 
     return Number(rows[0]?.count || 0) < securityConfig.rateLimit.comments.maxPerHour
   } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      markDatabaseUnavailable(error)
+      throw error
+    }
+
     console.error('Error in checkRateLimit:', error)
     return true
   }

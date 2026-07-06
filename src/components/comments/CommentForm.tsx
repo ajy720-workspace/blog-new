@@ -27,6 +27,8 @@ import type { CommentFormProps, CommentFormState } from '@/types/comments'
 export default function CommentForm({
   notionPageId,
   onCommentSubmitted,
+  onDisabled,
+  disabled = false,
 }: CommentFormProps) {
   const router = useRouter()
   const [formState, setFormState] = useState<CommentFormState>({
@@ -45,6 +47,11 @@ export default function CommentForm({
   // Initialize session and check user authentication status
   useEffect(() => {
     const initSession = async () => {
+      if (disabled) {
+        setIsSessionReady(true)
+        return
+      }
+
       try {
         const result = await initAnonymousSession()
         if (result.success) {
@@ -67,14 +74,18 @@ export default function CommentForm({
           setIsSessionReady(true)
         } else {
           console.error('Failed to initialize session:', result.error)
+          onDisabled?.()
+          setIsSessionReady(true)
         }
       } catch (error) {
         console.error('Session initialization error:', error)
+        onDisabled?.()
+        setIsSessionReady(true)
       }
     }
 
     initSession()
-  }, [])
+  }, [disabled, onDisabled])
 
   const handleInputChange = (field: keyof CommentFormState, value: string) => {
     setFormState(prev => ({
@@ -93,6 +104,10 @@ export default function CommentForm({
     e.preventDefault()
 
     if (!isSessionReady) {
+      return
+    }
+
+    if (disabled) {
       return
     }
 
@@ -151,6 +166,11 @@ export default function CommentForm({
         // Refresh the page to show new comment
         router.refresh()
       } else {
+        if (result.disabled) {
+          onDisabled?.()
+          return
+        }
+
         // Error: show error message
         setFormState(prev => ({
           ...prev,
@@ -186,6 +206,10 @@ export default function CommentForm({
         </span>
       </div>
     )
+  }
+
+  if (disabled) {
+    return null
   }
 
   return (
