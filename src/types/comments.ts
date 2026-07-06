@@ -26,6 +26,8 @@ export interface CommentFormData {
 export interface CommentFormProps {
   notionPageId: string
   onCommentSubmitted: (comment: Comment) => void
+  onDisabled?: () => void
+  disabled?: boolean
 }
 
 export interface CommentListProps {
@@ -51,6 +53,19 @@ export interface CommentCountProps {
 export interface CommentSubmissionResult {
   success: boolean
   comment?: Comment
+  error?: string
+  disabled?: boolean
+}
+
+export interface CommentLoadResult {
+  comments: Comment[]
+  disabled: boolean
+  error?: string
+}
+
+export interface CommentCountResult {
+  count: number
+  disabled: boolean
   error?: string
 }
 

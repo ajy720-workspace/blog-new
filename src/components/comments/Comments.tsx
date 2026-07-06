@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 
-import { getComments } from '@/app/actions/comments'
+import { getCommentsState } from '@/app/actions/comments'
 import type { Comment } from '@/types/comments'
 
 import CommentForm from './CommentForm'
@@ -21,16 +21,20 @@ export default function Comments({
 }: CommentsProps) {
   const [comments, setComments] = useState<Comment[]>(initialComments)
   const [isLoading, setIsLoading] = useState(initialComments.length === 0)
+  const [isDisabled, setIsDisabled] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
       if (initialComments.length === 0) {
         setIsLoading(true)
         try {
-          const fetchedComments = await getComments(notionPageId)
-          setComments(fetchedComments)
+          const result = await getCommentsState(notionPageId)
+          setComments(result.comments)
+          setIsDisabled(result.disabled)
         } catch (error) {
           console.error('Error loading comments:', error)
+          setComments([])
+          setIsDisabled(true)
         } finally {
           setIsLoading(false)
         }
@@ -45,6 +49,10 @@ export default function Comments({
     setComments(prevComments => [newComment, ...prevComments])
   }, [])
 
+  const handleDisabled = useCallback(() => {
+    setIsDisabled(true)
+  }, [])
+
   if (isLoading) {
     return (
       <div className={`${className} space-y-6`}>
@@ -55,12 +63,17 @@ export default function Comments({
     )
   }
 
+  if (isDisabled) {
+    return null
+  }
+
   return (
     <div className={`${className}`}>
       <CommentList comments={comments} />
       <CommentForm
         notionPageId={notionPageId}
         onCommentSubmitted={handleCommentSubmitted}
+        onDisabled={handleDisabled}
       />
     </div>
   )

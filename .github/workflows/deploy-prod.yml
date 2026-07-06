@@ -127,9 +127,9 @@ jobs:
           echo "Deploying version: ${{ github.ref_name }}"
 
           # Pull and start the updated image
-          IMAGE_NAME_WITH_TAG="$IMAGE_TAG" docker compose -f ${{ github.workspace }}/docker-compose.prod.yml pull
+          IMAGE_NAME_WITH_TAG="$IMAGE_TAG" docker compose -p blog-prod -f ${{ github.workspace }}/docker-compose.prod.yml pull
 
-          IMAGE_NAME_WITH_TAG="$IMAGE_TAG" docker compose -f ${{ github.workspace }}/docker-compose.prod.yml up -d --remove-orphans
+          IMAGE_NAME_WITH_TAG="$IMAGE_TAG" docker compose -p blog-prod -f ${{ github.workspace }}/docker-compose.prod.yml up -d --remove-orphans
 
       - name: Smoke test production deployment
         run: |
@@ -144,7 +144,7 @@ jobs:
           done
 
           echo "Production health check failed"
-          docker compose -f ${{ github.workspace }}/docker-compose.prod.yml ps
+          docker compose -p blog-prod -f ${{ github.workspace }}/docker-compose.prod.yml ps
           exit 1
 
       - name: Clean up old images

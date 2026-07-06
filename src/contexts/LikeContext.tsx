@@ -23,9 +23,11 @@ interface LikeContextValue {
   isLiked: boolean
   isLoading: boolean
   isSessionReady: boolean
+  isDisabled: boolean
   isAnonymous: boolean
   userProfile: UserProfile | null
   updateLikeState: (newCount: number, newIsLiked: boolean) => void
+  disableLikes: () => void
   setLoading: (loading: boolean) => void
 }
 
@@ -48,6 +50,7 @@ export function LikeProvider({
   const [isLiked, setIsLiked] = useState(initialIsLiked)
   const [isLoading, setIsLoading] = useState(false)
   const [isSessionReady, setIsSessionReady] = useState(false)
+  const [isDisabled, setIsDisabled] = useState(false)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isAnonymous, setIsAnonymous] = useState(true)
 
@@ -77,12 +80,17 @@ export function LikeProvider({
 
           setLikeCount(status.count)
           setIsLiked(status.isLiked)
+          setIsDisabled(!!status.disabled)
           setIsSessionReady(true)
         } else {
           console.error('Failed to initialize session:', result.error)
+          setIsDisabled(true)
+          setIsSessionReady(true)
         }
       } catch (error) {
         console.error('Session initialization error:', error)
+        setIsDisabled(true)
+        setIsSessionReady(true)
       }
     }
     initSession()
@@ -100,14 +108,20 @@ export function LikeProvider({
     setIsLoading(loading)
   }, [])
 
+  const disableLikes = useCallback(() => {
+    setIsDisabled(true)
+  }, [])
+
   const contextValue: LikeContextValue = {
     likeCount,
     isLiked,
     isLoading,
+    isDisabled,
     isAnonymous,
     isSessionReady,
     userProfile,
     updateLikeState,
+    disableLikes,
     setLoading: setLoadingState,
   }
 
