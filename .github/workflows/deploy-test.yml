@@ -122,9 +122,9 @@ jobs:
           echo "Using image tag: $IMAGE_TAG"
 
           # Pull and start the updated image
-          IMAGE_NAME_WITH_TAG="$IMAGE_TAG" docker compose -f ${{ github.workspace }}/docker-compose.test.yml pull
+          IMAGE_NAME_WITH_TAG="$IMAGE_TAG" docker compose -p blog-test -f ${{ github.workspace }}/docker-compose.test.yml pull
 
-          IMAGE_NAME_WITH_TAG="$IMAGE_TAG" docker compose -f ${{ github.workspace }}/docker-compose.test.yml up -d --remove-orphans
+          IMAGE_NAME_WITH_TAG="$IMAGE_TAG" docker compose -p blog-test -f ${{ github.workspace }}/docker-compose.test.yml up -d --remove-orphans
 
       - name: Smoke test test deployment
         run: |
@@ -139,7 +139,7 @@ jobs:
           done
 
           echo "Test health check failed"
-          docker compose -f ${{ github.workspace }}/docker-compose.test.yml ps
+          docker compose -p blog-test -f ${{ github.workspace }}/docker-compose.test.yml ps
           exit 1
 
       - name: Clean up old test images

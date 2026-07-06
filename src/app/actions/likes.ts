@@ -9,9 +9,17 @@ import {
   toggleLike as toggleLikeDB,
   transferAnonymousLikes,
 } from '@/lib/db/likes'
+import {
+  isDatabaseMarkedUnavailable,
+  isDatabaseUnavailableError,
+  markDatabaseUnavailable,
+} from '@/lib/db/availability'
 import { likeSchema } from '@/lib/validation/schemas'
 import { validateSchema } from '@/lib/validation/validator'
 import type { LikeCountResult, LikeSubmissionResult } from '@/types/likes'
+
+const LIKES_DISABLED_MESSAGE =
+  'Likes are temporarily unavailable because the database is not connected.'
 
 /**
  * Toggle like for a post
@@ -21,6 +29,14 @@ export async function toggleLike(
   anonymousSessionId?: string,
   anonymousBrowserId?: string
 ): Promise<LikeSubmissionResult> {
+  if (isDatabaseMarkedUnavailable()) {
+    return {
+      success: false,
+      disabled: true,
+      error: LIKES_DISABLED_MESSAGE,
+    }
+  }
+
   try {
     // Validate input
     const validation = validateSchema(likeSchema, {
@@ -52,10 +68,18 @@ export async function toggleLike(
 
     return result
   } catch (error) {
-    console.error('Error in toggleLike action:', error)
+    if (isDatabaseUnavailableError(error)) {
+      markDatabaseUnavailable(error)
+    } else {
+      console.error('Error in toggleLike action:', error)
+    }
+
     return {
       success: false,
-      error: 'An unexpected error occurred. Please try again later.',
+      disabled: true,
+      error: isDatabaseUnavailableError(error)
+        ? LIKES_DISABLED_MESSAGE
+        : 'Likes are temporarily unavailable.',
     }
   }
 }
@@ -68,6 +92,15 @@ export async function getLikeCountAndUserStatus(
   anonymousSessionId?: string,
   anonymousBrowserId?: string
 ): Promise<LikeCountResult> {
+  if (isDatabaseMarkedUnavailable()) {
+    return {
+      count: 0,
+      isLiked: false,
+      disabled: true,
+      error: LIKES_DISABLED_MESSAGE,
+    }
+  }
+
   try {
     // Get user info
     const userProfile = await getUserProfileServer()
@@ -85,8 +118,20 @@ export async function getLikeCountAndUserStatus(
 
     return result
   } catch (error) {
-    console.error('Error in getLikeCountAndUserStatus action:', error)
-    return { count: 0, isLiked: false }
+    if (isDatabaseUnavailableError(error)) {
+      markDatabaseUnavailable(error)
+    } else {
+      console.error('Error in getLikeCountAndUserStatus action:', error)
+    }
+
+    return {
+      count: 0,
+      isLiked: false,
+      disabled: true,
+      error: isDatabaseUnavailableError(error)
+        ? LIKES_DISABLED_MESSAGE
+        : 'Unable to load likes.',
+    }
   }
 }
 

@@ -23,11 +23,14 @@ export interface LikeSubmissionResult {
   error?: string
   isLiked?: boolean
   likeCount?: number
+  disabled?: boolean
 }
 
 export interface LikeCountResult {
   count: number
   isLiked: boolean
+  disabled?: boolean
+  error?: string
 }
 
 export interface LikeStatusResult {

@@ -2,6 +2,10 @@
 
 import { headers } from 'next/headers'
 
+import {
+  isDatabaseUnavailableError,
+  markDatabaseUnavailable,
+} from '@/lib/db/availability'
 import { query, transaction } from '@/lib/db/client'
 import { getClientIP, getUserAgent } from '@/lib/validation/validator'
 import type {
@@ -52,25 +56,25 @@ export async function checkLikeRateLimit(ipAddress: string): Promise<boolean> {
 
     return Number(rows[0]?.count || 0) < RATE_LIMIT_MAX_LIKES
   } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      markDatabaseUnavailable(error)
+      throw error
+    }
+
     console.error('Rate limit check failed:', error)
     return true
   }
 }
 
 export async function getLikeCount(notionPageId: string): Promise<number> {
-  try {
-    const { rows } = await query<{ count: string }>(
-      `SELECT COUNT(*)::text AS count
+  const { rows } = await query<{ count: string }>(
+    `SELECT COUNT(*)::text AS count
          FROM likes
         WHERE notion_page_id = $1`,
-      [notionPageId]
-    )
+    [notionPageId]
+  )
 
-    return Number(rows[0]?.count || 0)
-  } catch (error) {
-    console.error('Error in getLikeCount:', error)
-    return 0
-  }
+  return Number(rows[0]?.count || 0)
 }
 
 export async function getUserLikeStatus(
@@ -79,45 +83,40 @@ export async function getUserLikeStatus(
   anonymousSessionId?: string,
   anonymousBrowserId?: string
 ): Promise<LikeStatusResult> {
-  try {
-    if (!userId && !anonymousSessionId && !anonymousBrowserId) {
-      return { isLiked: false }
-    }
-
-    const conditions = ['notion_page_id = $1']
-    const params: unknown[] = [notionPageId]
-
-    if (userId) {
-      params.push(userId)
-      conditions.push(`user_id = $${params.length}`)
-    } else {
-      const anonymousConditions = []
-
-      if (anonymousSessionId) {
-        params.push(anonymousSessionId)
-        anonymousConditions.push(`anonymous_session_id = $${params.length}`)
-      }
-
-      if (anonymousBrowserId) {
-        params.push(anonymousBrowserId)
-        anonymousConditions.push(`anonymous_browser_id = $${params.length}`)
-      }
-
-      conditions.push(`(${anonymousConditions.join(' OR ')})`)
-    }
-
-    const { rows } = await query<{ id: string }>(
-      `SELECT id FROM likes WHERE ${conditions.join(' AND ')} LIMIT 1`,
-      params
-    )
-
-    return {
-      isLiked: !!rows[0],
-      likeId: rows[0]?.id,
-    }
-  } catch (error) {
-    console.error('Error in getUserLikeStatus:', error)
+  if (!userId && !anonymousSessionId && !anonymousBrowserId) {
     return { isLiked: false }
+  }
+
+  const conditions = ['notion_page_id = $1']
+  const params: unknown[] = [notionPageId]
+
+  if (userId) {
+    params.push(userId)
+    conditions.push(`user_id = $${params.length}`)
+  } else {
+    const anonymousConditions = []
+
+    if (anonymousSessionId) {
+      params.push(anonymousSessionId)
+      anonymousConditions.push(`anonymous_session_id = $${params.length}`)
+    }
+
+    if (anonymousBrowserId) {
+      params.push(anonymousBrowserId)
+      anonymousConditions.push(`anonymous_browser_id = $${params.length}`)
+    }
+
+    conditions.push(`(${anonymousConditions.join(' OR ')})`)
+  }
+
+  const { rows } = await query<{ id: string }>(
+    `SELECT id FROM likes WHERE ${conditions.join(' AND ')} LIMIT 1`,
+    params
+  )
+
+  return {
+    isLiked: !!rows[0],
+    likeId: rows[0]?.id,
   }
 }
 
@@ -127,24 +126,19 @@ export async function getLikeCountAndStatus(
   anonymousSessionId?: string,
   anonymousBrowserId?: string
 ): Promise<LikeCountResult> {
-  try {
-    const [count, status] = await Promise.all([
-      getLikeCount(notionPageId),
-      getUserLikeStatus(
-        notionPageId,
-        userId,
-        anonymousSessionId,
-        anonymousBrowserId
-      ),
-    ])
+  const [count, status] = await Promise.all([
+    getLikeCount(notionPageId),
+    getUserLikeStatus(
+      notionPageId,
+      userId,
+      anonymousSessionId,
+      anonymousBrowserId
+    ),
+  ])
 
-    return {
-      count,
-      isLiked: status.isLiked,
-    }
-  } catch (error) {
-    console.error('Error in getLikeCountAndStatus:', error)
-    return { count: 0, isLiked: false }
+  return {
+    count,
+    isLiked: status.isLiked,
   }
 }
 
@@ -215,10 +209,18 @@ export async function toggleLike(
       likeCount: newCount,
     }
   } catch (error) {
-    console.error('Error in toggleLike:', error)
+    if (isDatabaseUnavailableError(error)) {
+      markDatabaseUnavailable(error)
+    } else {
+      console.error('Error in toggleLike:', error)
+    }
+
     return {
       success: false,
-      error: 'An unexpected error occurred',
+      disabled: true,
+      error: isDatabaseUnavailableError(error)
+        ? 'Likes are temporarily unavailable because the database is not connected.'
+        : 'Likes are temporarily unavailable.',
     }
   }
 }

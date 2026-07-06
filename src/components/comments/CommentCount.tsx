@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 import { MessageCircle } from 'lucide-react'
 
-import { getCommentCount } from '@/app/actions/comments'
+import { getCommentCountState } from '@/app/actions/comments'
 
 interface CommentCountProps {
   count?: number
@@ -21,16 +21,19 @@ export default function CommentCount({
   const [isLoading, setIsLoading] = useState(
     count === undefined && !!notionPageId
   )
+  const [isDisabled, setIsDisabled] = useState(false)
 
   useEffect(() => {
     if (count === undefined && notionPageId) {
       const loadCount = async () => {
         try {
-          const commentCount = await getCommentCount(notionPageId)
-          setLoadedCount(commentCount)
+          const result = await getCommentCountState(notionPageId)
+          setLoadedCount(result.count)
+          setIsDisabled(result.disabled)
         } catch (error) {
           console.error('Error loading comment count:', error)
           setLoadedCount(0)
+          setIsDisabled(true)
         } finally {
           setIsLoading(false)
         }
@@ -43,14 +46,11 @@ export default function CommentCount({
   const displayCount = loadedCount ?? 0
 
   if (isLoading) {
-    return (
-      <div
-        className={`flex items-center gap-2 text-muted-foreground ${className}`}
-      >
-        <MessageCircle className="w-4 h-4" />
-        <span className="text-sm">Loading...</span>
-      </div>
-    )
+    return null
+  }
+
+  if (isDisabled) {
+    return null
   }
 
   const scrollToComments = () => {
@@ -63,7 +63,7 @@ export default function CommentCount({
   return (
     <button
       onClick={scrollToComments}
-      className={`flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer ${className}`}
+      className={`flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground cursor-pointer ${className}`}
     >
       <MessageCircle className="w-4 h-4" />
       <span className="text-sm">

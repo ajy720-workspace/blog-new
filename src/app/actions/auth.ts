@@ -11,6 +11,11 @@ import {
   getUserProfileServer,
   isAnonymousUserServer,
 } from '@/lib/auth/session'
+import {
+  isDatabaseMarkedUnavailable,
+  isDatabaseUnavailableError,
+  markDatabaseUnavailable,
+} from '@/lib/db/availability'
 import { getPublicOrigin } from '@/lib/utils/origin-detection'
 import type { UserProfile } from '@/types/auth'
 
@@ -69,11 +74,23 @@ export async function signOut(): Promise<AuthActionResult> {
 }
 
 export async function initAnonymousSession(): Promise<AuthActionResult> {
+  if (isDatabaseMarkedUnavailable()) {
+    return {
+      success: false,
+      error: 'Database is temporarily unavailable',
+    }
+  }
+
   try {
     await ensureAnonymousSession()
     return { success: true }
   } catch (error) {
-    console.error('Anonymous session initialization error:', error)
+    if (isDatabaseUnavailableError(error)) {
+      markDatabaseUnavailable(error)
+    } else {
+      console.error('Anonymous session initialization error:', error)
+    }
+
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -82,9 +99,17 @@ export async function initAnonymousSession(): Promise<AuthActionResult> {
 }
 
 export async function getUserProfile(): Promise<UserProfile | null> {
+  if (isDatabaseMarkedUnavailable()) {
+    return null
+  }
+
   return getUserProfileServer()
 }
 
 export async function isAnonymousUser(): Promise<boolean> {
+  if (isDatabaseMarkedUnavailable()) {
+    return true
+  }
+
   return isAnonymousUserServer()
 }

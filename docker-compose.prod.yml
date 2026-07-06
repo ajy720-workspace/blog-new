@@ -1,4 +1,6 @@
 # Docker Compose for Production Environment
+name: blog-prod
+
 services:
   blog-prod:
     image: ${IMAGE_NAME_WITH_TAG:-ghcr.io/ajy720-workspace/blog:prod-latest}
