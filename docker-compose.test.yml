@@ -1,4 +1,6 @@
 # Docker Compose for Test Environment
+name: blog-test
+
 services:
   blog-test:
     image: ${IMAGE_NAME_WITH_TAG:-ghcr.io/ajy720-workspace/blog:test-latest}
