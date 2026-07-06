@@ -107,7 +107,6 @@ async function PostContent({ post }: { post: NotionPost }) {
                   <time dateTime={post.created_time}>{formattedDate}</time>
                 </div>
 
-                {/* 댓글 수는 클라이언트에서 로딩 */}
                 <CommentCount notionPageId={post.id} />
 
                 {post.tags.length > 0 && (
