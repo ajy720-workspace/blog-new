@@ -20,6 +20,9 @@
 .DS_Store
 *.pem
 
+# local MCP configuration (may contain access tokens)
+/.mcp.json
+
 # debug
 npm-debug.log*
 yarn-debug.log*
